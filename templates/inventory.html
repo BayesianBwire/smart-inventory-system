@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventory</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h2>📦 Inventory Dashboard</h2>
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+
+    <!-- 🥇 Most Valuable Product -->
+    {% if most_valuable %}
+        <div style="border: 2px solid gold; padding: 10px; background-color: #fff8dc; margin-bottom: 20px;">
+            <h3>🏆 Most Valuable Product</h3>
+            <p><strong>{{ most_valuable.name }}</strong> ({{ most_valuable.category }})</p>
+            <p>💰 Total Value: KES {{ "%.2f" | format(most_valuable.price * most_valuable.quantity) }}</p>
+            <p>📦 Quantity: {{ most_valuable.quantity }} @ KES {{ "%.2f" | format(most_valuable.price) }}</p>
+        </div>
+    {% endif %}
+
+    <!-- Add Product Form -->
+    <form action="/add_product" method="POST">
+        <input type="text" name="name" placeholder="Product name" required>
+        <input type="number" name="quantity" placeholder="Quantity" required>
+        <input type="number" step="0.01" name="price" placeholder="Price" required>
+        <input type="text" name="category" placeholder="Category" required>
+        <button type="submit">➕ Add Product</button>
+    </form>
+
+    <!-- Filters -->
+    <form method="get" action="{{ url_for('inventory') }}">
+        <label for="category">Filter by Category:</label>
+        <select name="category" id="category">
+            <option value="">All</option>
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+
+        <label><input type="checkbox" name="low_stock" {% if low_stock_checked %}checked{% endif %}> Show only low stock</label>
+        <button type="submit">Apply Filters</button>
+    </form>
+
+    <!-- Download Button -->
+    <form action="{{ url_for('download_inventory') }}" method="get">
+        <button type="submit">📥 Download Inventory (Excel)</button>
+    </form>
+
+    <!-- Summary -->
+    <h3>🔢 Totals:</h3>
+    <p>Total Products: {{ products|length }}</p>
+    <p>Total Quantity: {{ products|map(attribute='quantity')|sum }}</p>
+    <p>Total Value (KES): {{ products|map(attribute='price')|sum }}</p>
+
+    {% set low_stock_count = products|selectattr('quantity', 'lt', 5)|list|length %}
+    <p style="color: red;">⚠️ Low Stock Items: {{ low_stock_count }}</p>
+
+    <!-- Product List -->
+    <h3>📋 Product List:</h3>
+    <ul>
+        {% for product in products %}
+            <li>
+                {{ product.name }} ({{ product.category }}) -
+                Qty: <span style="color: {% if product.quantity < 5 %}red{% else %}black{% endif %};">{{ product.quantity }}</span> -
+                KES {{ product.price }}
+
+                {% if product.quantity < 5 %}
+                    <strong style="color:red;">⚠️ Low Stock!</strong>
+                {% endif %}
+
+                <a href="/edit_product/{{ product.id }}">Edit</a> |
+                <a href="/delete_product/{{ product.id }}">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Charts -->
+    <h3>📊 Inventory Charts</h3>
+
+    <div id="bar-chart" style="width: 90%; height: 400px;"></div>
+    <div id="pie-chart" style="width: 90%; height: 400px;"></div>
+
+    <script>
+        // Bar Chart
+        var barData = [{
+            x: {{ labels|tojson }},
+            y: {{ quantities|tojson }},
+            type: 'bar',
+            marker: { color: 'teal' }
+        }];
+        var barLayout = {
+            title: 'Product Quantities',
+            xaxis: { title: 'Product' },
+            yaxis: { title: 'Quantity' }
+        };
+        Plotly.newPlot('bar-chart', barData, barLayout);
+
+        // Pie Chart
+        var pieData = [{
+            values: {{ pie_values|tojson }},
+            labels: {{ pie_labels|tojson }},
+            type: 'pie'
+        }];
+        var pieLayout = {
+            title: 'Inventory Value by Category (KES)',
+            height: 400,
+            width: 500
+        };
+        Plotly.newPlot('pie-chart', pieData, pieLayout);
+    </script>
+</body>
+</html>

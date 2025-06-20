@@ -1,0 +1,13 @@
+Flask
+Flask-Login
+Flask-SQLAlchemy
+Werkzeug
+bcrypt
+pandas
+matplotlib
+plotly
+openpyxl
+reportlab
+pyzbar
+opencv-python
+python-dotenv
