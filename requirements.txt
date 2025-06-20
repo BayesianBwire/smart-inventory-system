@@ -11,3 +11,4 @@ reportlab
 pyzbar
 opencv-python
 python-dotenv
+gunicorn
