@@ -1,184 +1,106 @@
-{% extends 'base.html' %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
 <div class="container mt-4">
-    <h2>📦 Smart Inventory Dashboard</h2>
+    <h2 class="mb-4">🛒 Smart Inventory & Sales Dashboard</h2>
 
-    <!-- Filter Section -->
     <form method="get" class="form-inline mb-3">
         <select name="category" class="form-control mr-2">
             <option value="">All Categories</option>
-            {% for c in categories %}
-                <option value="{{ c }}" {% if c == selected_category %}selected{% endif %}>{{ c }}</option>
+            {% for category in categories %}
+                <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
             {% endfor %}
         </select>
-        <label class="form-check-label mx-2">
-            <input type="checkbox" name="low_stock" value="1" {% if low_stock_filter == '1' %}checked{% endif %}>
-            Low Stock Only
-        </label>
-        <button type="submit" class="btn btn-primary ml-2">Apply</button>
+
+        <div class="form-check mr-2">
+            <input type="checkbox" class="form-check-input" name="low_stock" id="low_stock" {% if low_stock_checked %}checked{% endif %}>
+            <label class="form-check-label" for="low_stock">Low Stock (&lt; 5)</label>
+        </div>
+
+        <input type="text" name="search" class="form-control mr-2" placeholder="Search product..." value="{{ search_query }}">
+
+        <button type="submit" class="btn btn-primary">Filter</button>
     </form>
 
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-light border-primary">
+    {% if most_valuable %}
+        <div class="alert alert-info">
+            💎 Most Valuable Product: <strong>{{ most_valuable.product_name }}</strong> (Stock Value: KES {{ most_valuable.price * most_valuable.quantity }})
+        </div>
+    {% endif %}
+
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <img src="{{ product.image_url }}" class="card-img-top" alt="Product Image">
                 <div class="card-body">
-                    <h5 class="card-title">Total Items</h5>
-                    <p class="card-text">{{ total_items }}</p>
+                    <h5 class="card-title">{{ product.product_name }}</h5>
+                    <p class="card-text">
+                        Category: {{ product.category }}<br>
+                        Price: KES {{ product.price }}<br>
+                        Quantity: {{ product.quantity }}<br>
+                        Rating: {{ product.average_rating }} ⭐ ({{ product.reviews_count }} reviews)
+                    </p>
+                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-sm btn-success">Add to Cart</a>
+                    <a href="{{ url_for('edit_product', id=product.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{{ url_for('delete_product', id=product.id) }}" class="btn btn-sm btn-danger">Delete</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card bg-light border-success">
-                <div class="card-body">
-                    <h5 class="card-title">Total Stock Value (Ksh)</h5>
-                    <p class="card-text">{{ total_value }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-light border-warning">
-                <div class="card-body">
-                    <h5 class="card-title">Total Expected Profit (Ksh)</h5>
-                    <p class="card-text">{{ total_profit }}</p>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 
-    <!-- Featured Products -->
-    <div class="row mb-4">
-        {% if most_valuable %}
-        <div class="col-md-4">
-            <div class="card border-info">
-                <div class="card-header">💰 Most Valuable</div>
-                <div class="card-body">
-                    <h6>{{ most_valuable.product_name }}</h6>
-                    <p>Ksh {{ most_valuable.price }} × {{ most_valuable.quantity }}</p>
-                </div>
-            </div>
-        </div>
+    <div class="d-flex justify-content-between mt-4">
+        {% if page > 1 %}
+            <a href="{{ url_for('inventory', page=page-1, category=selected_category, low_stock='on' if low_stock_checked else '', search=search_query) }}" class="btn btn-outline-primary">Previous</a>
+        {% else %}
+            <span class="btn btn-outline-secondary disabled">Previous</span>
         {% endif %}
-        {% if top_rated %}
-        <div class="col-md-4">
-            <div class="card border-info">
-                <div class="card-header">⭐ Top Rated</div>
-                <div class="card-body">
-                    <h6>{{ top_rated.product_name }}</h6>
-                    <p>Rating: {{ top_rated.average_rating }}</p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-        {% if most_reviewed %}
-        <div class="col-md-4">
-            <div class="card border-info">
-                <div class="card-header">🗣 Most Reviewed</div>
-                <div class="card-body">
-                    <h6>{{ most_reviewed.product_name }}</h6>
-                    <p>{{ most_reviewed.reviews_count }} reviews</p>
-                </div>
-            </div>
-        </div>
+
+        <span class="align-self-center">Page {{ page }} of {{ total_pages }}</span>
+
+        {% if page < total_pages %}
+            <a href="{{ url_for('inventory', page=page+1, category=selected_category, low_stock='on' if low_stock_checked else '', search=search_query) }}" class="btn btn-outline-primary">Next</a>
+        {% else %}
+            <span class="btn btn-outline-secondary disabled">Next</span>
         {% endif %}
     </div>
 
-    <!-- Product Table -->
-    <table class="table table-bordered table-striped">
-        <thead class="thead-dark">
-            <tr>
-                <th>Image</th>
-                <th>Product</th>
-                <th>Code</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Cost Price</th>
-                <th>Quantity</th>
-                <th>Profit</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td>
-                    {% if product.image_url %}
-                    <img src="{{ product.image_url }}" alt="Image" style="width: 60px; height: auto;">
-                    {% else %}
-                    <small>No image</small>
-                    {% endif %}
-                </td>
-                <td>{{ product.product_name }}</td>
-                <td>{{ product.product_code }}</td>
-                <td>{{ product.category }}</td>
-                <td>Ksh {{ product.price }}</td>
-                <td>Ksh {{ product.cost_price }}</td>
-                <td>{{ product.quantity }}</td>
-                <td>Ksh {{ (product.price - product.cost_price) * product.quantity }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <!-- Pagination -->
-    <nav>
-        <ul class="pagination">
-            {% for p in range(1, total_pages + 1) %}
-            <li class="page-item {% if p == current_page %}active{% endif %}">
-                <a class="page-link" href="{{ url_for('inventory', page=p, category=selected_category, low_stock=low_stock_filter) }}">{{ p }}</a>
-            </li>
-            {% endfor %}
-        </ul>
-    </nav>
-
-    <!-- Charts -->
-    <div class="row mt-4">
-        <div class="col-md-6">
-            {{ bar_div | safe }}
-        </div>
-        <div class="col-md-6">
-            {{ pie_div | safe }}
-        </div>
+    <div class="mt-5">
+        <h5>📊 Stock Distribution</h5>
+        <div id="bar-chart"></div>
+        <div id="pie-chart"></div>
     </div>
 
-    <!-- Export -->
-    <div class="mt-4">
-        <a href="{{ url_for('download_inventory') }}" class="btn btn-success">📥 Download Inventory (Excel)</a>
+    <div class="mt-3">
+        <p><strong>Total Potential Profit:</strong> KES {{ total_profit }}</p>
+        <a href="{{ url_for('download_inventory') }}" class="btn btn-outline-success">⬇️ Download Excel</a>
+        <a href="{{ url_for('cart') }}" class="btn btn-outline-dark">🛍️ View Cart</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Logout</a>
     </div>
-
-    <!-- Add Product Form -->
-    <hr>
-    <h4>Add New Product</h4>
-    <form action="{{ url_for('add_product') }}" method="POST">
-        <div class="form-row">
-            <div class="form-group col-md-3">
-                <input type="text" name="product_code" class="form-control" placeholder="Product Code" required>
-            </div>
-            <div class="form-group col-md-3">
-                <input type="text" name="product_name" class="form-control" placeholder="Product Name" required>
-            </div>
-            <div class="form-group col-md-2">
-                <input type="text" name="category" class="form-control" placeholder="Category" required>
-            </div>
-            <div class="form-group col-md-2">
-                <input type="number" name="price" class="form-control" placeholder="Price" required>
-            </div>
-            <div class="form-group col-md-2">
-                <input type="number" name="cost_price" class="form-control" placeholder="Cost Price">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-2">
-                <input type="number" name="quantity" class="form-control" placeholder="Quantity" required>
-            </div>
-            <div class="form-group col-md-6">
-                <input type="text" name="description" class="form-control" placeholder="Description">
-            </div>
-            <div class="form-group col-md-4">
-                <input type="text" name="image_url" class="form-control" placeholder="Image URL">
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary">➕ Add Product</button>
-    </form>
 </div>
-{% endblock %}
+
+<script>
+    const barData = [{
+        x: {{ labels|tojson }},
+        y: {{ quantities|tojson }},
+        type: 'bar',
+        marker: { color: 'orange' }
+    }];
+    Plotly.newPlot('bar-chart', barData, { title: 'Product Quantities' });
+
+    const pieData = [{
+        values: {{ pie_values|tojson }},
+        labels: {{ pie_labels|tojson }},
+        type: 'pie'
+    }];
+    Plotly.newPlot('pie-chart', pieData, { title: 'Stock Value by Category' });
+</script>
+</body>
+</html>

@@ -1,17 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 from models.product import db, Product
+from models.user import User
+from models.sale import Sale
+from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import pandas as pd
 import numpy as np
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-# SQLite DB
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shop.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Initialize DB
 db.init_app(app)
 
 @app.before_request
@@ -21,16 +22,20 @@ def create_tables():
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        if request.form['username'] == 'admin' and request.form['password'] == 'admin':
-            session['user'] = request.form['username']
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            session['user'] = user.username
             return redirect(url_for('inventory'))
         else:
-            return "Invalid credentials"
+            flash("Invalid credentials", "danger")
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
     session.pop('user', None)
+    session.pop('cart', None)
     return redirect(url_for('login'))
 
 @app.route('/inventory')
@@ -79,6 +84,78 @@ def inventory():
                            total_profit=total_profit,
                            page=page,
                            total_pages=pagination.pages)
+
+@app.route('/add_to_cart/<int:product_id>')
+def add_to_cart(product_id):
+    cart = session.get('cart', {})
+    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+    session['cart'] = cart
+    flash("Product added to cart", "success")
+    return redirect(url_for('inventory'))
+
+@app.route('/cart')
+def cart():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    cart = session.get('cart', {})
+    cart_items = []
+    total = 0
+
+    for product_id, quantity in cart.items():
+        product = Product.query.get(int(product_id))
+        if product:
+            subtotal = product.price * quantity
+            total += subtotal
+            cart_items.append({
+                'product': product,
+                'quantity': quantity,
+                'subtotal': subtotal
+            })
+
+    return render_template('cart.html', cart_items=cart_items, total=total)
+
+@app.route('/checkout')
+def checkout():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    cart = session.get('cart', {})
+    total = 0
+
+    for product_id, quantity in cart.items():
+        product = Product.query.get(int(product_id))
+        if product and product.quantity >= quantity:
+            subtotal = product.price * quantity
+            total += subtotal
+
+            # Save sale
+            sale = Sale(
+                product_name=product.product_name,
+                quantity=quantity,
+                price=product.price,
+                subtotal=subtotal,
+                timestamp=datetime.utcnow()
+            )
+            db.session.add(sale)
+
+            # Reduce stock
+            product.quantity -= quantity
+        else:
+            flash(f"Insufficient stock for {product.product_name}", "danger")
+
+    db.session.commit()
+    session.pop('cart', None)
+
+    return render_template('checkout.html', total=total)
+
+@app.route('/sales')
+def sales():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    sales = Sale.query.order_by(Sale.timestamp.desc()).all()
+    return render_template('sales.html', sales=sales)
 
 @app.route('/import_adidas')
 def import_adidas():

@@ -1,18 +1,50 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Edit Product</title>
-</head>
-<body>
-    <h2>Edit Product</h2>
-    <form method="POST">
-        <input type="text" name="name" value="{{ product.name }}" required><br><br>
-        <input type="number" name="quantity" value="{{ product.quantity }}" required><br><br>
-        <input type="number" step="0.01" name="price" value="{{ product.price }}" required><br><br>
-        <input type="text" name="category" value="{{ product.category }}" required><br><br>
-        <button type="submit">Update</button>
-    </form>
-    <br>
-    <a href="{{ url_for('inventory') }}">← Back to Inventory</a>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Edit Product</h2>
+  <form action="/edit_product/{{ product.id }}" method="POST">
+    <div class="form-group">
+      <label>Product Code</label>
+      <input type="text" class="form-control" name="product_code" value="{{ product.product_code }}" readonly>
+    </div>
+    <div class="form-group">
+      <label>Product Name</label>
+      <input type="text" class="form-control" name="product_name" value="{{ product.product_name }}" required>
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <input type="text" class="form-control" name="category" value="{{ product.category }}" required>
+    </div>
+    <div class="form-group">
+      <label>Price</label>
+      <input type="number" step="0.01" class="form-control" name="price" value="{{ product.price }}" required>
+    </div>
+    <div class="form-group">
+      <label>Cost Price</label>
+      <input type="number" step="0.01" class="form-control" name="cost_price" value="{{ product.cost_price }}" required>
+    </div>
+    <div class="form-group">
+      <label>Quantity</label>
+      <input type="number" class="form-control" name="quantity" value="{{ product.quantity }}" required>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea class="form-control" name="description">{{ product.description }}</textarea>
+    </div>
+    <div class="form-group">
+      <label>Image URL</label>
+      <input type="url" class="form-control" name="image_url" value="{{ product.image_url }}">
+    </div>
+    <div class="form-group">
+      <label>Average Rating</label>
+      <input type="number" step="0.1" class="form-control" name="average_rating" value="{{ product.average_rating }}">
+    </div>
+    <div class="form-group">
+      <label>Reviews Count</label>
+      <input type="number" class="form-control" name="reviews_count" value="{{ product.reviews_count }}">
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Update</button>
+    <a href="/inventory" class="btn btn-secondary mt-3">Cancel</a>
+  </form>
+</div>
+{% endblock %}
