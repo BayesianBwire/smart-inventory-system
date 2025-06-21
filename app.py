@@ -1,12 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
+from models import user
 from models.product import db, Product
 from models.user import User
 from models.sale import Sale
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import URLSafeTimedSerializer
 import os
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -14,6 +19,9 @@ app.secret_key = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shop.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+
+# Serializer for reset token
+s = URLSafeTimedSerializer(app.secret_key)
 
 @app.before_request
 def create_tables():
@@ -25,12 +33,70 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
+        if user and check_password_hash(user.password_hash, password):
             session['user'] = user.username
             return redirect(url_for('inventory'))
         else:
             flash("Invalid credentials", "danger")
     return render_template('login.html')
+
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        user = User.query.filter_by(email=email).first()
+        if user:
+            token = s.dumps(email, salt='password-reset-salt')
+            reset_link = url_for('reset_password', token=token, _external=True)
+
+            # Send Email
+            sender = "bilfordderek917@gmail.com"
+            receiver = email
+            subject = "Smart Inventory - Password Reset"
+            message = f"Hello,\n\nClick the link to reset your password:\n{reset_link}\n\nIf you did not request this, ignore this email."
+
+            try:
+                smtp_server = "smtp.gmail.com"
+                smtp_port = 587
+                smtp_user = "bilfordderek917@gmail.com"
+                smtp_pass = "your_app_password"  # Replace this with actual app password
+
+                msg = MIMEMultipart()
+                msg['From'] = sender
+                msg['To'] = receiver
+                msg['Subject'] = subject
+                msg.attach(MIMEText(message, 'plain'))
+
+                server = smtplib.SMTP(smtp_server, smtp_port)
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+                server.quit()
+
+                flash("Reset link sent! Check your email.", "success")
+            except Exception as e:
+                flash("Email failed to send. Check SMTP setup.", "danger")
+        else:
+            flash("Email not found.", "warning")
+    return render_template('forgot_password.html')
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = s.loads(token, salt='password-reset-salt', max_age=3600)
+    except Exception:
+        flash("Invalid or expired token", "danger")
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        user = User.query.filter_by(email=email).first()
+        new_password = request.form['password']
+        if user:
+            user.password_hash = generate_password_hash(new_password)
+            db.session.commit()
+            flash("Password reset successful. Please log in.", "success")
+            return redirect(url_for('login'))
+    return render_template('reset_password.html')
 
 @app.route('/logout')
 def logout():
@@ -129,7 +195,6 @@ def checkout():
             subtotal = product.price * quantity
             total += subtotal
 
-            # Save sale
             sale = Sale(
                 product_name=product.product_name,
                 quantity=quantity,
@@ -138,8 +203,6 @@ def checkout():
                 timestamp=datetime.utcnow()
             )
             db.session.add(sale)
-
-            # Reduce stock
             product.quantity -= quantity
         else:
             flash(f"Insufficient stock for {product.product_name}", "danger")
