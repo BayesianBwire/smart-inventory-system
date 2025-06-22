@@ -31,7 +31,7 @@
 </head>
 <body>
 <div class="container">
-    <h2 class="text-center mb-4">📈 Sales Dashboard - Danjul Investment</h2>
+    <h2 class="text-center mb-4"> Sales Dashboard - Danjul Investment</h2>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -44,16 +44,16 @@
     {% for username, sales in grouped_sales.items() %}
         <div class="user-section">
             <div class="user-header">
-                <h5>🧍 Sales by: {{ username }}</h5>
+                <h5> Sales by: {{ username }}</h5>
             </div>
             <table class="table table-bordered table-hover mt-3">
                 <thead class="thead-light">
                     <tr>
-                        <th>🧾 Product</th>
-                        <th>🔢 Quantity</th>
-                        <th>💰 Price (KES)</th>
-                        <th>🧮 Subtotal (KES)</th>
-                        <th>⏰ Time of Sale</th>
+                        <th> Product</th>
+                        <th> Quantity</th>
+                        <th> Price (KES)</th>
+                        <th> Subtotal (KES)</th>
+                        <th> Time of Sale</th>
                     </tr>
                 </thead>
                 <tbody>

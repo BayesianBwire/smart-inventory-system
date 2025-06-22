@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Shopping Cart - Smart Inventory</title>
+    <title>Shopping Cart - RahaSoft</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -19,11 +19,30 @@
         .table th, .table td {
             vertical-align: middle !important;
         }
+        .logo-tagline {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .logo-tagline img {
+            height: 60px;
+        }
+        .logo-tagline h6 {
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="cart-container">
+
+        <!-- Logo + Motto -->
+        <div class="logo-tagline">
+            <img src="{{ url_for('static', filename='rahasoft-logo.png') }}" alt="RahaSoft Logo">
+            <h6>Where comfort meets business</h6>
+        </div>
+
         <h4 class="mb-4">🛒 Your Cart</h4>
 
         {% with messages = get_flashed_messages(with_categories=true) %}

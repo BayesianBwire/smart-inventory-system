@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Product - Smart Inventory System</title>
+    <title>Edit Product - RahaSoft</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -20,12 +20,31 @@
             font-weight: bold;
             margin-bottom: 20px;
         }
+        .logo-tagline {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .logo-tagline img {
+            height: 60px;
+        }
+        .logo-tagline h6 {
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="edit-container">
-        <h4 class="form-title">✏️ Edit Product - {{ product.product_name }}</h4>
+
+        <!-- Logo + Motto -->
+        <div class="logo-tagline">
+            <img src="{{ url_for('static', filename='rahasoft-logo.png') }}" alt="RahaSoft Logo">
+            <h6>Where comfort meets business</h6>
+        </div>
+
+        <h4 class="form-title"> Edit Product - {{ product.product_name }}</h4>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}

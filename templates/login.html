@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Danjul Investment</title>
+    <title>Login - RahaSoft</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -22,12 +22,24 @@
             margin-bottom: 25px;
             color: #007bff;
         }
+        .motto {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
+
 <div class="container">
     <div class="login-container">
-        <h3 class="login-title">🔐 Danjul Investment Login</h3>
+
+        <!-- Motto Only -->
+        <div class="motto">Where comfort meets business</div>
+
+        <h3 class="login-title">RahaSoft</h3>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -52,10 +64,11 @@
         </form>
 
         <div class="mt-3 text-center">
-            <a href="{{ url_for('register') }}">📝 Register</a> |
+            <a href="{{ url_for('register') }}"> Register</a> |
             <a href="{{ url_for('forgot_password') }}">❓ Forgot Password?</a>
         </div>
     </div>
 </div>
+
 </body>
 </html>

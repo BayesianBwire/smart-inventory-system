@@ -11,7 +11,7 @@ from functools import wraps
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-# Make 'zip' available in Jinja2 templates to fix 'zip is undefined' error
+# Make 'zip' available in Jinja2 templates
 app.jinja_env.globals.update(zip=zip)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shop.db'
@@ -28,7 +28,7 @@ def login_required(f):
     def decorated_function(*args, **kwargs):
         if 'user' not in session:
             flash("Login required", "warning")
-            return redirect(url_for('login'))
+            return redirect(url_for('login_page'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -43,9 +43,21 @@ def role_required(*roles):
         return decorated_function
     return wrapper
 
-# ---------- Routes ----------
-@app.route('/', methods=['GET', 'POST'])
-def login():
+# ---------- Splash Page ----------
+@app.route('/')
+def splash():
+    return render_template('splash.html')
+
+# ---------- Welcome Page ----------
+@app.route('/welcome')
+@login_required
+def welcome_page():
+    username = session.get('user')
+    return render_template('welcome.html', username=username)
+
+# ---------- Login Page ----------
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -54,12 +66,13 @@ def login():
         if user and user.verify_password(password):
             session['user'] = user.username
             session['role'] = user.role
-            flash(f"Welcome to Danjul Investment, {user.username}!", "success")
-            return redirect(url_for('inventory'))
+            flash(f"Welcome to RahaSoft, {user.username}!", "success")
+            return redirect(url_for('welcome_page'))  # Redirect to welcome screen
         else:
             flash("Invalid credentials", "danger")
     return render_template('login.html')
 
+# ---------- Registration, Logout, Password Reset ----------
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -90,16 +103,16 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        flash(f"Registration successful. You have been registered as {role} with Danjul Investment. You can now log in.", "success")
-        return redirect(url_for('login'))
+        flash(f"Registration successful. You have been registered as {role} with RahaSoft. You can now log in.", "success")
+        return redirect(url_for('login_page'))
 
     return render_template('register.html')
 
 @app.route('/logout')
 def logout():
     session.clear()
-    flash("You have been logged out of Danjul Investment.", "info")
-    return redirect(url_for('login'))
+    flash("You have been logged out of RahaSoft.", "info")
+    return redirect(url_for('login_page'))
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
@@ -120,7 +133,7 @@ def reset_password(token):
     user = User.query.filter_by(reset_token=token).first()
     if not user:
         flash("Invalid or expired token", "danger")
-        return redirect(url_for('login'))
+        return redirect(url_for('login_page'))
 
     if request.method == 'POST':
         new_password = request.form['password']
@@ -128,9 +141,10 @@ def reset_password(token):
         user.reset_token = None
         db.session.commit()
         flash("Password reset successful", "success")
-        return redirect(url_for('login'))
+        return redirect(url_for('login_page'))
     return render_template('reset_password.html')
 
+# ---------- Inventory and Operations ----------
 @app.route('/inventory')
 @login_required
 def inventory():
@@ -178,6 +192,7 @@ def inventory():
                            total_pages=pagination.pages,
                            user_role=session.get('role'))
 
+# ---------- Cart, Checkout ----------
 @app.route('/add_to_cart/<int:product_id>')
 @login_required
 def add_to_cart(product_id):
@@ -229,6 +244,7 @@ def checkout():
     session.pop('cart', None)
     return render_template('checkout.html', total=total)
 
+# ---------- Sales ----------
 @app.route('/sales')
 @login_required
 @role_required('admin', 'manager')
@@ -243,6 +259,7 @@ def sales():
 
     return render_template('sales.html', grouped_sales=grouped_sales, total_profit=total_profit)
 
+# ---------- Utilities ----------
 @app.route('/import_adidas')
 @login_required
 @role_required('admin')
@@ -337,7 +354,6 @@ def download_inventory():
     df.to_excel(filepath, index=False)
     return send_file(filepath, as_attachment=True)
 
-# ✅ NEW SALES DASHBOARD ROUTE
 @app.route('/sales_dashboard')
 @login_required
 @role_required('admin', 'manager')

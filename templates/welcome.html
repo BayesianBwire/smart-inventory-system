@@ -1,0 +1,43 @@
+<!-- templates/welcome.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to RahaSoft</title>
+  <meta http-equiv="refresh" content="3;url={{ url_for('inventory') }}">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .welcome-content {
+      text-align: center;
+    }
+    .welcome-content h1 {
+      font-size: 2.8rem;
+      color: #007bff;
+    }
+    .welcome-content h3 {
+      margin-top: 10px;
+      font-weight: normal;
+      color: #444;
+    }
+    .welcome-content h5 {
+      font-style: italic;
+      color: #555;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="welcome-content">
+    <h1>Welcome to RahaSoft, {{ username }}!</h1>
+    <h5>Where comfort meets business</h5>
+  </div>
+</body>
+</html>
