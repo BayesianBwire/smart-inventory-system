@@ -337,5 +337,30 @@ def download_inventory():
     df.to_excel(filepath, index=False)
     return send_file(filepath, as_attachment=True)
 
+# ✅ NEW SALES DASHBOARD ROUTE
+@app.route('/sales_dashboard')
+@login_required
+@role_required('admin', 'manager')
+def sales_dashboard():
+    sales = Sale.query.order_by(Sale.timestamp.desc()).all()
+
+    sales_by_user = {}
+    sales_by_day = {}
+
+    for sale in sales:
+        if sale.username not in sales_by_user:
+            sales_by_user[sale.username] = {'total': 0, 'count': 0}
+        sales_by_user[sale.username]['total'] += sale.subtotal
+        sales_by_user[sale.username]['count'] += sale.quantity
+
+        date_key = sale.timestamp.strftime('%Y-%m-%d')
+        if date_key not in sales_by_day:
+            sales_by_day[date_key] = 0
+        sales_by_day[date_key] += sale.subtotal
+
+    return render_template('sales_dashboard.html',
+                           sales_by_user=sales_by_user,
+                           sales_by_day=sales_by_day)
+
 if __name__ == '__main__':
     app.run(debug=True)
