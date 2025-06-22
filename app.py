@@ -2,14 +2,17 @@ from flask import Flask, render_template, request, redirect, url_for, session, s
 from models.product import db, Product
 from models.user import User
 from models.sale import Sale
-from werkzeug.security import generate_password_hash, check_password_hash
-import os
+from werkzeug.security import check_password_hash
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+
+# Make 'zip' available in Jinja2 templates to fix 'zip is undefined' error
+app.jinja_env.globals.update(zip=zip)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shop.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -19,30 +22,118 @@ db.init_app(app)
 def create_tables():
     db.create_all()
 
+# ---------- RBAC Decorators ----------
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            flash("Login required", "warning")
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def role_required(*roles):
+    def wrapper(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'role' not in session or session['role'] not in roles:
+                flash("Access denied", "danger")
+                return redirect(url_for('inventory'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return wrapper
+
+# ---------- Routes ----------
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
+
+        if user and user.verify_password(password):
             session['user'] = user.username
+            session['role'] = user.role
+            flash(f"Welcome to Danjul Investment, {user.username}!", "success")
             return redirect(url_for('inventory'))
         else:
             flash("Invalid credentials", "danger")
     return render_template('login.html')
 
-@app.route('/logout')
-def logout():
-    session.pop('user', None)
-    session.pop('cart', None)
-    return redirect(url_for('login'))
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
 
-@app.route('/inventory')
-def inventory():
-    if 'user' not in session:
+        if not username or not email or not password:
+            flash("Please fill in all fields.", "warning")
+            return redirect(url_for('register'))
+        if len(password) < 6:
+            flash("Password must be at least 6 characters.", "warning")
+            return redirect(url_for('register'))
+        if '@' not in email or '.' not in email:
+            flash("Invalid email address.", "warning")
+            return redirect(url_for('register'))
+
+        existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
+        if existing_user:
+            flash("Username or Email already exists.", "danger")
+            return redirect(url_for('register'))
+
+        admin_exists = User.query.filter_by(role='admin').first()
+        role = 'admin' if not admin_exists else 'attendant'
+
+        new_user = User(username=username, email=email, role=role)
+        new_user.password = password
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash(f"Registration successful. You have been registered as {role} with Danjul Investment. You can now log in.", "success")
         return redirect(url_for('login'))
 
+    return render_template('register.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("You have been logged out of Danjul Investment.", "info")
+    return redirect(url_for('login'))
+
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        user = User.query.filter_by(email=email).first()
+        if user:
+            token = f"token-{user.id}"
+            user.reset_token = token
+            db.session.commit()
+            flash(f"Reset link: http://localhost:5000/reset_password/{token}", "info")
+        else:
+            flash("Email not found", "danger")
+    return render_template('forgot_password.html')
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    user = User.query.filter_by(reset_token=token).first()
+    if not user:
+        flash("Invalid or expired token", "danger")
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+        user.password = new_password
+        user.reset_token = None
+        db.session.commit()
+        flash("Password reset successful", "success")
+        return redirect(url_for('login'))
+    return render_template('reset_password.html')
+
+@app.route('/inventory')
+@login_required
+def inventory():
     category_filter = request.args.get('category')
     low_stock = request.args.get('low_stock') == 'on'
     page = request.args.get('page', 1, type=int)
@@ -56,36 +147,39 @@ def inventory():
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     products = pagination.items
-
     categories = [c[0] for c in db.session.query(Product.category).distinct().all()]
 
     labels = [p.product_name for p in products]
     quantities = [p.quantity for p in products]
-
     category_totals = {}
+
     for p in Product.query:
         total = p.quantity * p.price
         category_totals[p.category] = category_totals.get(p.category, 0) + total
 
     pie_labels = list(category_totals.keys())
     pie_values = list(category_totals.values())
-
     all_products = Product.query.all()
     most_valuable = max(all_products, key=lambda p: p.quantity * p.price, default=None)
-
     total_profit = sum([(p.price - p.cost_price) * p.quantity for p in all_products])
 
-    return render_template('inventory.html', products=products, labels=labels,
-                           quantities=quantities, pie_labels=pie_labels,
-                           pie_values=pie_values, categories=categories,
+    return render_template('inventory.html',
+                           products=products,
+                           labels=labels,
+                           quantities=quantities,
+                           pie_labels=pie_labels,
+                           pie_values=pie_values,
+                           categories=categories,
                            selected_category=category_filter,
                            low_stock_checked=low_stock,
                            most_valuable=most_valuable,
                            total_profit=total_profit,
                            page=page,
-                           total_pages=pagination.pages)
+                           total_pages=pagination.pages,
+                           user_role=session.get('role'))
 
 @app.route('/add_to_cart/<int:product_id>')
+@login_required
 def add_to_cart(product_id):
     cart = session.get('cart', {})
     cart[str(product_id)] = cart.get(str(product_id), 0) + 1
@@ -94,10 +188,8 @@ def add_to_cart(product_id):
     return redirect(url_for('inventory'))
 
 @app.route('/cart')
+@login_required
 def cart():
-    if 'user' not in session:
-        return redirect(url_for('login'))
-
     cart = session.get('cart', {})
     cart_items = []
     total = 0
@@ -107,19 +199,13 @@ def cart():
         if product:
             subtotal = product.price * quantity
             total += subtotal
-            cart_items.append({
-                'product': product,
-                'quantity': quantity,
-                'subtotal': subtotal
-            })
+            cart_items.append({'product': product, 'quantity': quantity, 'subtotal': subtotal})
 
     return render_template('cart.html', cart_items=cart_items, total=total)
 
 @app.route('/checkout')
+@login_required
 def checkout():
-    if 'user' not in session:
-        return redirect(url_for('login'))
-
     cart = session.get('cart', {})
     total = 0
 
@@ -128,36 +214,38 @@ def checkout():
         if product and product.quantity >= quantity:
             subtotal = product.price * quantity
             total += subtotal
-
-            # Save sale
-            sale = Sale(
-                product_name=product.product_name,
-                quantity=quantity,
-                price=product.price,
-                subtotal=subtotal,
-                timestamp=datetime.utcnow()
-            )
+            sale = Sale(product_name=product.product_name,
+                        quantity=quantity,
+                        price=product.price,
+                        subtotal=subtotal,
+                        timestamp=datetime.utcnow(),
+                        username=session.get('user'))
             db.session.add(sale)
-
-            # Reduce stock
             product.quantity -= quantity
         else:
             flash(f"Insufficient stock for {product.product_name}", "danger")
 
     db.session.commit()
     session.pop('cart', None)
-
     return render_template('checkout.html', total=total)
 
 @app.route('/sales')
+@login_required
+@role_required('admin', 'manager')
 def sales():
-    if 'user' not in session:
-        return redirect(url_for('login'))
+    all_sales = Sale.query.order_by(Sale.timestamp.desc()).all()
+    grouped_sales = {}
+    total_profit = 0
 
-    sales = Sale.query.order_by(Sale.timestamp.desc()).all()
-    return render_template('sales.html', sales=sales)
+    for sale in all_sales:
+        grouped_sales.setdefault(sale.username, []).append(sale)
+        total_profit += sale.subtotal
+
+    return render_template('sales.html', grouped_sales=grouped_sales, total_profit=total_profit)
 
 @app.route('/import_adidas')
+@login_required
+@role_required('admin')
 def import_adidas():
     try:
         df = pd.read_csv('cleaned_adidas_products.csv')
@@ -189,6 +277,8 @@ def import_adidas():
         return f"Import failed: {str(e)}"
 
 @app.route('/add_product', methods=['POST'])
+@login_required
+@role_required('admin', 'manager')
 def add_product():
     data = request.form
     product = Product(
@@ -208,6 +298,8 @@ def add_product():
     return redirect(url_for('inventory'))
 
 @app.route('/edit_product/<int:id>', methods=['GET', 'POST'])
+@login_required
+@role_required('admin', 'manager')
 def edit_product(id):
     product = Product.query.get_or_404(id)
     if request.method == 'POST':
@@ -226,6 +318,8 @@ def edit_product(id):
     return render_template('edit_product.html', product=product)
 
 @app.route('/delete_product/<int:id>')
+@login_required
+@role_required('admin')
 def delete_product(id):
     product = Product.query.get_or_404(id)
     db.session.delete(product)
@@ -233,6 +327,8 @@ def delete_product(id):
     return redirect(url_for('inventory'))
 
 @app.route('/download_inventory')
+@login_required
+@role_required('admin', 'manager')
 def download_inventory():
     products = Product.query.all()
     data = [p.to_dict() for p in products]
@@ -240,6 +336,31 @@ def download_inventory():
     filepath = 'inventory_download.xlsx'
     df.to_excel(filepath, index=False)
     return send_file(filepath, as_attachment=True)
+
+# ✅ NEW SALES DASHBOARD ROUTE
+@app.route('/sales_dashboard')
+@login_required
+@role_required('admin', 'manager')
+def sales_dashboard():
+    sales = Sale.query.order_by(Sale.timestamp.desc()).all()
+
+    sales_by_user = {}
+    sales_by_day = {}
+
+    for sale in sales:
+        if sale.username not in sales_by_user:
+            sales_by_user[sale.username] = {'total': 0, 'count': 0}
+        sales_by_user[sale.username]['total'] += sale.subtotal
+        sales_by_user[sale.username]['count'] += sale.quantity
+
+        date_key = sale.timestamp.strftime('%Y-%m-%d')
+        if date_key not in sales_by_day:
+            sales_by_day[date_key] = 0
+        sales_by_day[date_key] += sale.subtotal
+
+    return render_template('sales_dashboard.html',
+                           sales_by_user=sales_by_user,
+                           sales_by_day=sales_by_day)
 
 if __name__ == '__main__':
     app.run(debug=True)

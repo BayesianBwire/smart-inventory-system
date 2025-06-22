@@ -1,6 +1,5 @@
+# models/product.py
 from models import db
-from sqlalchemy import Column, Integer, String, Float
-
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -2,33 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Forgot Password - Danjul Investment</title>
+    <title>Register - Danjul Investment</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
             background-color: #f1f1f1;
         }
-        .reset-container {
+        .register-container {
             background-color: #ffffff;
-            max-width: 500px;
-            margin: 80px auto;
+            max-width: 600px;
+            margin: 60px auto;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
-        .reset-title {
+        .register-title {
             font-weight: bold;
             text-align: center;
             margin-bottom: 25px;
-            color: #dc3545;
+            color: #28a745;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="reset-container">
-        <h3 class="reset-title">❓ Forgot Your Password?</h3>
-        <p class="text-center">Enter your email address below and we’ll send you a password reset link.</p>
+    <div class="register-container">
+        <h3 class="register-title">📝 Register - Danjul Investment</h3>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -40,15 +39,25 @@
 
         <form method="POST">
             <div class="form-group">
-                <label for="email">📧 Email</label>
-                <input type="email" name="email" id="email" class="form-control" placeholder="Enter your email" required>
+                <label for="username">👤 Username</label>
+                <input type="text" name="username" id="username" class="form-control" placeholder="Choose a username" required>
             </div>
 
-            <button type="submit" class="btn btn-danger btn-block">Send Reset Link</button>
+            <div class="form-group">
+                <label for="email">📧 Email</label>
+                <input type="email" name="email" id="email" class="form-control" placeholder="Enter your email address" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">🔑 Password</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Create a password" required>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-block">Register</button>
         </form>
 
         <div class="mt-3 text-center">
-            <a href="{{ url_for('login') }}">🔙 Back to Login</a>
+            Already have an account? <a href="{{ url_for('login') }}">🔐 Login</a>
         </div>
     </div>
 </div>
