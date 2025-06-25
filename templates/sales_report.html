@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2> Sales Report (Date Filter)</h2>
+    <form method="POST" class="row g-3">
+        {{ csrf_token() }}
+        <div class="col-md-5">
+            <label>Start Date</label>
+            <input type="date" name="start_date" class="form-control" required>
+        </div>
+        <div class="col-md-5">
+            <label>End Date</label>
+            <input type="date" name="end_date" class="form-control" required>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" name="filter" class="btn btn-primary w-100 me-2">Filter</button>
+            <button type="submit" name="download" class="btn btn-success w-100">Download</button>
+        </div>
+    </form>
+
+    {% if sales %}
+    <hr>
+    <h5 class="mt-3">Results:</h5>
+    <table class="table table-striped mt-2">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+                <th>Profit</th>
+                <th>User</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in sales %}
+            <tr>
+                <td>{{ s.product_name }}</td>
+                <td>{{ s.quantity }}</td>
+                <td>{{ s.price }}</td>
+                <td>{{ s.subtotal }}</td>
+                <td>{{ s.profit }}</td>
+                <td>{{ s.username }}</td>
+                <td>{{ s.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p><strong>Total Profit:</strong> {{ total_profit }}</p>
+    {% endif %}
+</div>
+{% endblock %}

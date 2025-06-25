@@ -50,6 +50,9 @@
         {% endwith %}
 
         <form method="POST">
+            <!-- ✅ Correct CSRF token -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <div class="form-group">
                 <label for="username">👤 Username</label>
                 <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username" required>
@@ -58,6 +61,11 @@
             <div class="form-group">
                 <label for="password">🔑 Password</label>
                 <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
+
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="showPassword" onclick="togglePassword()">
+                    <label class="form-check-label" for="showPassword">Show Password</label>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary btn-block">Login</button>
@@ -65,10 +73,18 @@
 
         <div class="mt-3 text-center">
             <a href="{{ url_for('register') }}"> Register</a> |
-            <a href="{{ url_for('forgot_password') }}">❓ Forgot Password?</a>
+            <a href="{{ url_for('forgot_password') }}"> Forgot Password?</a>
         </div>
     </div>
 </div>
+
+<!-- Show/hide password script -->
+<script>
+    function togglePassword() {
+        const pwd = document.getElementById("password");
+        pwd.type = pwd.type === "password" ? "text" : "password";
+    }
+</script>
 
 </body>
 </html>

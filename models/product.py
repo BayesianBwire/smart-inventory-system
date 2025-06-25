@@ -27,3 +27,10 @@ class Product(db.Model):
             'Average Rating': self.average_rating,
             'Reviews Count': self.reviews_count,
         }
+
+    def get_value(self):
+        """Returns the total value of this product in stock (price × quantity)."""
+        return self.price * self.quantity
+
+    def __repr__(self):
+        return f"<Product {self.product_code} - {self.product_name}>"

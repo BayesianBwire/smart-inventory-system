@@ -24,49 +24,57 @@
     <div class="container mt-4">
         <div class="container-box">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2> Sales Dashboard - RahaSoft</h2>
+                <h2>Sales Dashboard - RahaSoft</h2>
                 <a href="{{ url_for('inventory') }}" class="btn btn-outline-secondary btn-sm">← Back to Inventory</a>
             </div>
 
             <hr>
 
             <h4>Sales by User</h4>
-            <table class="table table-striped table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th>User</th>
-                        <th>Total Quantity Sold</th>
-                        <th>Total Sales (Ksh)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user, data in sales_by_user.items() %}
-                    <tr>
-                        <td>{{ user }}</td>
-                        <td>{{ data.count }}</td>
-                        <td>Ksh {{ '%.2f'|format(data.total) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% if sales_by_user %}
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>User</th>
+                            <th>Total Quantity Sold</th>
+                            <th>Total Sales (Ksh)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user, data in sales_by_user.items() %}
+                        <tr>
+                            <td>{{ user }}</td>
+                            <td>{{ data.count }}</td>
+                            <td>Ksh {{ '%.2f'|format(data.total) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-warning text-center">No user sales data available.</div>
+            {% endif %}
 
             <h4 class="mt-5">Sales by Date</h4>
-            <table class="table table-hover table-bordered">
-                <thead class="table-secondary">
-                    <tr>
-                        <th>Date</th>
-                        <th>Total Sales (Ksh)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for date, total in sales_by_day.items() %}
-                    <tr>
-                        <td>{{ date }}</td>
-                        <td>Ksh {{ '%.2f'|format(total) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% if sales_by_day %}
+                <table class="table table-hover table-bordered">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Date</th>
+                            <th>Total Sales (Ksh)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for date, total in sales_by_day.items() %}
+                        <tr>
+                            <td>{{ date }}</td>
+                            <td>Ksh {{ '%.2f'|format(total) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-info text-center">No sales data by date available.</div>
+            {% endif %}
 
             <div class="mt-4 text-center">
                 <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>

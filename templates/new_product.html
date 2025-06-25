@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create New User</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e6f0ff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: flex-end;
+            background-color: #0047b3;
+            padding: 12px 30px;
+            gap: 10px;
+            border-bottom: 3px solid #003399;
+        }
+
+        .navbar a {
+            background-color: white;
+            color: #0047b3;
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            background-color: #cce0ff;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 255, 0.2);
+            width: 100%;
+            max-width: 400px;
+            margin: 40px auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #0047b3;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #0047b3;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #b3d1ff;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #0047b3;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #003399;
+        }
+
+        .back-link {
+            display: block;
+            margin: 10px auto 0;
+            text-align: center;
+            font-weight: bold;
+            color: #0047b3;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="{{ url_for('create_user') }}">👤 Create User</a>
+        <a href="{{ url_for('import_adidas') }}">📥 Import CSV</a>
+        <a href="{{ url_for('new_product') }}">➕ Add Product</a>
+    </div>
+
+    <!-- Form -->
+    <div class="form-container">
+        <h2>Create New User</h2>
+        <form method="POST">
+            <label for="full_name">Full Name</label>
+            <input type="text" name="full_name" id="full_name" required>
+
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required>
+
+            <label for="phone_number">Phone Number</label>
+            <input type="text" name="phone_number" id="phone_number" required>
+
+            <label for="role">Role</label>
+            <select name="role" id="role" required>
+                <option value="admin">Admin</option>
+                <option value="manager">Manager</option>
+                <option value="attendant">Attendant</option>
+                <option value="hr">HR</option>
+                <option value="sales">Sales</option>
+                <option value="finance">Finance</option>
+                <option value="support">Support</option>
+                <option value="it">IT</option>
+                <option value="supervisor">Supervisor</option>
+            </select>
+
+            <label for="admin_password">Your Password (for authorization)</label>
+            <input type="password" name="admin_password" id="admin_password" required>
+
+            <button type="submit">Create User</button>
+        </form>
+
+        <!-- ✅ Back Button -->
+        <a href="{{ url_for('inventory') }}" class="back-link">← Back to Inventory</a>
+    </div>
+
+</body>
+</html>

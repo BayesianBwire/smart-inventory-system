@@ -1,37 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>RahaSoft</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #f0f0f0;
-        }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            margin-top: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-        .card-img-top {
-            height: 150px;
-            object-fit: cover;
-        }
-        .pagination {
-            justify-content: center;
-        }
-    </style>
-</head>
-<body>
-
+{% extends "base.html" %}
+{% block content %}
 <div class="container">
     <div class="mb-4 text-center">
-        <h2 style="font-weight: bold; color: #007bff;">RahaSoft</h2>
+        <h2 style="font-weight: bold; color: #007bff;">RahaSoft Inventory</h2>
     </div>
     <div class="mb-4">
-        <h4 style="font-weight: bold; margin: 0; color: #333;">
+        <h4 style="font-weight: bold; margin: 0; color: #007bff;">
             {{ session['user'] }}
         </h4>
     </div>
@@ -44,33 +18,49 @@
         {% endif %}
     {% endwith %}
 
+    {% if user_role in ['admin', 'manager'] %}
+    <button class="btn btn-outline-info btn-sm mb-3" type="button" data-toggle="collapse" data-target="#admin-panel">
+        Show Admin Tools
+    </button>
+    <div id="admin-panel" class="collapse mb-4">
+        <a href="{{ url_for('register') }}" class="btn btn-success btn-sm mb-2">Create User</a>
+        <a href="{{ url_for('import_adidas') }}" class="btn btn-secondary btn-sm mb-2">CSV Import</a>
+        <a href="{{ url_for('new_product') }}" class="btn btn-primary btn-sm mb-2">Add Product</a>
+    </div>
+    {% endif %}
+
     <div class="mb-3 d-flex justify-content-between align-items-center">
+        <form method="get" class="form-inline">
+            <input type="text" name="search" class="form-control mr-2" placeholder="Search products..." value="{{ search_query }}">
+            <select name="category" class="form-control mr-2">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                    <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+            </select>
+            <label class="form-check-label mr-2">
+                <input type="checkbox" name="low_stock" {% if low_stock_checked %}checked{% endif %}> Low Stock
+            </label>
+            <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+        </form>
+
         <div>
-            <form method="get" class="form-inline">
-                <select name="category" class="form-control mr-2">
-                    <option value="">All Categories</option>
-                    {% for category in categories %}
-                        <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
-                    {% endfor %}
-                </select>
-                <label class="form-check-label mr-2">
-                    <input type="checkbox" name="low_stock" {% if low_stock_checked %}checked{% endif %}> Low Stock
-                </label>
-                <button type="submit" class="btn btn-sm btn-outline-primary">Apply</button>
-            </form>
-        </div>
-        <div>
-            <a href="{{ url_for('cart') }}" class="btn btn-success btn-sm">Cart</a>
-            <a href="{{ url_for('download_inventory') }}" class="btn btn-outline-secondary btn-sm">Export Excel</a>
+            <span class="cart-container position-relative">
+                <a href="{{ url_for('cart') }}" class="btn btn-primary btn-sm">Cart</a>
+                {% if cart_item_count > 0 %}
+                    <span class="cart-badge">{{ cart_item_count }}</span>
+                {% endif %}
+            </span>
             {% if user_role in ['admin', 'manager'] %}
+                <a href="{{ url_for('download_inventory') }}" class="btn btn-outline-primary btn-sm">Export Excel</a>
                 <a href="{{ url_for('sales') }}" class="btn btn-info btn-sm">View Sales</a>
             {% endif %}
-            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Logout</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
         </div>
     </div>
 
     {% if most_valuable %}
-    <div class="alert alert-warning">
+    <div class="alert alert-primary">
         <strong>Top Product:</strong> {{ most_valuable.product_name }} (Value: KES {{ most_valuable.quantity * most_valuable.price }})
     </div>
     {% endif %}
@@ -78,12 +68,12 @@
     <div class="row">
         {% for product in products %}
         <div class="col-md-3 mb-4">
-            <div class="card h-100">
+            <div class="card h-100 shadow-sm">
                 <img src="{{ product.image_url or 'https://via.placeholder.com/150' }}" class="card-img-top" alt="{{ product.product_name }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ product.product_name }}</h5>
-                    <p class="card-text">{{ product.category }}</p>
-                    <p class="card-text"><strong>KES {{ product.price }}</strong></p>
+                    <p class="card-text text-muted">{{ product.category }}</p>
+                    <p class="card-text text-primary font-weight-bold">KES {{ product.price }}</p>
                     <p class="card-text">In Stock: {{ product.quantity }}</p>
                     <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-sm btn-primary btn-block">Add to Cart</a>
                 </div>
@@ -93,21 +83,21 @@
     </div>
 
     <nav>
-        <ul class="pagination">
+        <ul class="pagination justify-content-center">
             {% if page > 1 %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ url_for('inventory', page=page-1, category=selected_category, low_stock='on' if low_stock_checked else '') }}">← Previous</a>
+                    <a class="page-link" href="{{ url_for('inventory', page=page-1, category=selected_category, low_stock='on' if low_stock_checked else '', search=search_query) }}">← Previous</a>
                 </li>
             {% endif %}
             {% if page < total_pages %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ url_for('inventory', page=page+1, category=selected_category, low_stock='on' if low_stock_checked else '') }}">Next →</a>
+                    <a class="page-link" href="{{ url_for('inventory', page=page+1, category=selected_category, low_stock='on' if low_stock_checked else '', search=search_query) }}">Next →</a>
                 </li>
             {% endif %}
         </ul>
     </nav>
 
-    <div class="row mt-4">
+    <div class="row mt-5">
         <div class="col-md-6">
             <h5>Inventory Quantities (Bar Chart)</h5>
             <div id="bar-chart"></div>
@@ -123,7 +113,7 @@
     </div>
 </div>
 
-<!-- Include Plotly -->
+<!-- Scripts -->
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
     const barData = [{
@@ -140,5 +130,20 @@
     }];
     Plotly.newPlot('pie-chart', pieData);
 </script>
-</body>
-</html>
+
+<style>
+    body {
+        background-color: #f0f8ff;
+    }
+    .cart-badge {
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 7px;
+        font-size: 0.75rem;
+        position: absolute;
+        top: -8px;
+        right: -10px;
+    }
+</style>
+{% endblock %}
