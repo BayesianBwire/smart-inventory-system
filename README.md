@@ -1,42 +1,63 @@
+Smart Inventory & Sales System
+A Flask-based inventory, sales, and HR management platform tailored for small businesses such as mini-marts, agro-vets, and retail outlets.
 
-# 🛒 Smart Inventory & Sales System
+Key Features
+User Authentication & Role Management
+Secure login system with hashed passwords
 
-A Flask-based inventory management and sales tracking system designed for small businesses like mini-marts, retail shops, and agro-vets.
+Role-based access control (Super Admin, Admin, HR, Sales, Finance, etc.)
 
-## 🚀 Features
+Dashboard customization based on role
 
-- 🔐 **Admin Login System** (with hashed passwords)
-- 📦 **Inventory Dashboard**
-  - Product categories
-  - Low stock filtering
-  - Pagination and live product search
-  - Product image support
-- 📊 **Visual Analytics**
-  - Quantity bar chart
-  - Category-wise sales pie chart
-  - Most valuable product highlight
-- 🛍️ **Shopping Cart and Checkout**
-  - Add to cart functionality
-  - Total cost calculation
-  - Reduces quantity after checkout
-  - Sales records saved automatically
-- 📂 **Product Import**
-  - Import real product data from `cleaned_adidas_products.csv`
-- 📥 **Excel Export**
-  - Download entire inventory as an Excel file
-- 🧾 **Sales History**
-  - View all completed sales with quantities, totals, and timestamps
+HR-specific tools restricted to HR only
 
-## 🧱 Tech Stack
+Inventory Management
+Add, edit, delete products
 
-- **Backend**: Flask (Python)
-- **Frontend**: HTML, Bootstrap, Jinja2
-- **Database**: SQLite (via SQLAlchemy)
-- **Libraries**: pandas, numpy, werkzeug
+Live product search and low stock detection
 
-## 📁 Folder Structure
+Product image support
 
-```
+Product import via cleaned CSV (e.g., Adidas products)
+
+Export full inventory to Excel
+
+Sales & Checkout
+Shopping cart with subtotal and total calculations
+
+Stock auto-adjusts after sales
+
+Persistent sales records with timestamps
+
+HR & Payroll Tools
+Staff overview with filtering by role or search
+
+Add new salary records (gross, deductions, net pay)
+
+Loan and bonus tracking
+
+View full payroll history
+
+Visual Analytics
+Bar charts for product quantities
+
+Pie charts for category-wise sales
+
+Highlights for most valuable or low-stock products
+
+Technologies Used
+Backend: Flask (Python)
+
+Frontend: HTML, Bootstrap 5, Jinja2
+
+Database: SQLite (via SQLAlchemy)
+
+Libraries: pandas, numpy, werkzeug
+
+Folder Structure
+csharp
+Copy
+Edit
 smartshop/
 │
 ├── app.py
@@ -45,57 +66,61 @@ smartshop/
 ├── shop.db
 ├── models/
 │   ├── __init__.py
-│   ├── product.py
 │   ├── user.py
-│   └── sale.py
+│   ├── product.py
+│   ├── sale.py
+│   ├── login_log.py
+│   └── payroll.py
 ├── templates/
+│   ├── base.html
 │   ├── login.html
 │   ├── inventory.html
-│   ├── edit_product.html
 │   ├── cart.html
 │   ├── checkout.html
-│   └── sales.html
+│   ├── sales.html
+│   ├── hr.html
+│   └── new_payroll.html
 ├── static/
-│   └── (optional CSS/JS/image files)
-```
+│   ├── css/
+│   ├── js/
+│   └── rahasoft-logo.png
+Setup Instructions
+Clone the Repository
 
-## 🛠️ Setup Instructions
-
-1. **Clone the repo**
-```bash
-git clone https://github.com/YOUR_USERNAME/smart-inventory-system.git
+bash
+Copy
+Edit
+git clone https://github.com/BayesianBwire/smart-inventory-system.git
 cd smart-inventory-system
-```
+Create Virtual Environment and Install Dependencies
 
-2. **Create a virtual environment & install dependencies**
-```bash
+bash
+Copy
+Edit
 python -m venv venv
 venv\Scripts\activate  # On Windows
 pip install -r requirements.txt
-```
+Create Admin User
 
-3. **Create admin user**
-```bash
+bash
+Copy
+Edit
 python create_admin.py
-```
+Run the Application
 
-4. **Run the application**
-```bash
+bash
+Copy
+Edit
 python app.py
-```
+Access the System
 
-5. **Access the system**
-- Visit: `http://localhost:5000`
-- Login: `admin` / `admin`
+Open your browser at: http://localhost:5000
 
-## 📸 Screenshots
+Login credentials:
 
-(Add screenshots of your dashboard, cart, and sales history here)
+Username: admin
 
-## 📄 License
+Password: admin
 
-This project is open-source and available under the [MIT License](LICENSE).
-
----
-
-Developed by [Bilford Bwire]  
+License
+This project is open-source under the MIT License.
