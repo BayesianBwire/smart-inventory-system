@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Logs</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h3 class="text-primary mb-4 text-center">🛡️ Login Logs</h3>
+
+    {% if logs %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>IP Address</th>
+                    <th>Browser Info</th>
+                    <th>Login Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ log.user.username if log.user else 'Unknown' }}</td>
+                    <td>{{ log.ip_address }}</td>
+                    <td>{{ log.browser_info }}</td>
+                    <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        No login activity recorded yet.
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('inventory') }}" class="btn btn-outline-secondary">⬅ Back to Inventory</a>
+    </div>
+</div>
+</body>
+</html>

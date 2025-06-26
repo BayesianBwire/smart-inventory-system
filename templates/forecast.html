@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container bg-white p-4 rounded shadow mt-4">
+  <h2 class="text-center text-primary mb-4">📈 Forecasting – Next Month's Sales</h2>
+
+  <!-- Filter Form -->
+  <form method="GET" action="{{ url_for('forecast') }}" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <label for="category" class="form-label">Filter by Category</label>
+      <select name="category" class="form-select">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+          <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary w-100">🔍 Filter Forecast</button>
+    </div>
+    <div class="col-md-4 d-flex align-items-end justify-content-end gap-2">
+      <a href="{{ url_for('download_forecast_csv') }}" class="btn btn-outline-primary w-100">📥 Download CSV</a>
+      <a href="{{ url_for('download_forecast_pdf') }}" class="btn btn-outline-danger w-100">📄 Download PDF</a>
+    </div>
+  </form>
+
+  <!-- Chart Container -->
+  <canvas id="forecastChart" height="120"></canvas>
+
+  <hr class="my-4">
+
+  <!-- Forecast Table -->
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered text-center">
+      <thead class="thead-dark">
+        <tr>
+          <th>🛍️ Product</th>
+          <th>📆 Months Counted</th>
+          <th>📊 Avg Monthly Sales</th>
+          <th>🔮 Forecast (Next Month)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in forecast_data %}
+        <tr>
+          <td>{{ item.product }}</td>
+          <td>{{ item.months_counted }}</td>
+          <td>{{ item.avg_monthly_sales | round(2) }}</td>
+          <td><strong>{{ item.forecast_next_month }}</strong></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-end mt-3">
+    <a href="{{ url_for('inventory') }}" class="btn btn-secondary">⬅ Back to Inventory</a>
+  </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Chart Script -->
+<script>
+  const ctx = document.getElementById('forecastChart').getContext('2d');
+
+  const labels = {{ forecast_data | map(attribute='product') | list | tojson }};
+  const avgSales = {{ forecast_data | map(attribute='avg_monthly_sales') | list | tojson }};
+  const forecast = {{ forecast_data | map(attribute='forecast_next_month') | list | tojson }};
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Avg Monthly Sales',
+          data: avgSales,
+          backgroundColor: '#4e73df'
+        },
+        {
+          label: 'Forecast Next Month',
+          data: forecast,
+          backgroundColor: '#1cc88a'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top'
+        },
+        title: {
+          display: true,
+          text: '📊 Product Sales Forecast'
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

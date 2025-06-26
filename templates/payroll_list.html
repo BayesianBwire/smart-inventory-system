@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-success">📄 Payroll History</h2>
+  </div>
+
+  {% if payroll_list %}
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Staff</th>
+          <th>Month</th>
+          <th>Amount</th>
+          <th>Paid On</th>
+          <th>Loan Deduction</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in payroll_list %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ record.user.full_name if record.user else '—' }}</td>
+          <td>{{ record.month }}</td>
+          <td>KES {{ record.amount }}</td>
+          <td>{{ record.date.strftime('%Y-%m-%d') }}</td>
+          <td>{{ record.loan_deduction or 0 }}</td>
+          <td>{{ record.remarks or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted text-center">No payroll records found.</p>
+  {% endif %}
+</div>
+{% endblock %}

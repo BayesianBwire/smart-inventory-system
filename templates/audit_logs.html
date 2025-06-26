@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h3 class="text-primary mb-4">📜 Audit Logs</h3>
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>Action</th>
+        <th>Entity</th>
+        <th>Entity ID</th>
+        <th>Performed By</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td>{{ log.action }}</td>
+        <td>{{ log.entity_type }}</td>
+        <td>{{ log.entity_id }}</td>
+        <td>{{ log.performed_by }}</td>
+        <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{{ url_for('inventory') }}" class="btn btn-secondary">⬅ Back to Inventory</a>
+</div>
+{% endblock %}

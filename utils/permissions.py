@@ -1,21 +1,86 @@
 # utils/permissions.py
 
 role_permissions = {
-    "superadmin": [
-        "create_user", "view_logs", "manage_inventory",
-        "manage_sales", "export_data", "view_reports"
+    "super_admin": [
+        "create_user",
+        "view_logs",
+        "view_audit_logs",
+        "manage_inventory",
+        "manage_sales",
+        "export_data",
+        "view_reports",
+        "view_users",
+        "assign_roles",
+        "reset_passwords"
     ],
+
     "admin": [
-        "create_user", "view_logs", "manage_inventory",
-        "manage_sales"
+        "create_user",
+        "assign_roles",
+        "reset_passwords",
+        "manage_inventory",
+        "manage_sales",
+        "view_reports",
+        "view_users"
     ],
-    "hr_manager": ["create_user", "view_logs"],
-    "sales_manager": ["view_sales", "export_data", "view_reports"],
-    "inventory_manager": ["manage_inventory", "view_inventory"],
-    "accountant": ["view_reports", "export_data"],
-    "support": ["view_inventory", "view_sales"],
-    "attendant": ["view_sales", "make_sale"]
+
+    "manager": [
+        "create_user",
+        "assign_roles",
+        "reset_passwords",
+        "manage_inventory",
+        "manage_sales",
+        "view_reports",
+        "export_data",
+        "view_users"
+    ],
+
+    "hr": [  # ✅ Updated to match 'manager' role
+        "create_user",
+        "assign_roles",
+        "reset_passwords",
+        "manage_inventory",
+        "manage_sales",
+        "view_reports",
+        "export_data",
+        "view_users"
+    ],
+
+    "sales": [
+        "view_sales",
+        "make_sale",
+        "export_data",
+        "view_reports"
+    ],
+
+    "inventory": [
+        "manage_inventory",
+        "view_inventory",
+        "view_sales",        # ✅ NEW
+        "view_users"         # ✅ NEW
+  ],
+
+    "finance": [
+       "view_reports",
+       "export_data",
+       "view_users"  # ✅ Added for visibility
+    ],
+
+    "support": [
+       "view_inventory",
+       "view_sales",
+       "view_users"
+   ],
+
+    "attendant": [
+        "view_sales",
+        "make_sale"
+    ]
 }
 
 def has_permission(role, permission):
+    """
+    Check if a given role has a specific permission.
+    Usage: has_permission(current_user.role, 'create_user')
+    """
     return permission in role_permissions.get(role, [])

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-primary">Staff Overview - HR Panel</h2>
+  </div>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Search & Export -->
+  <form class="row mb-3" method="GET">
+    <div class="col-md-4">
+      <input type="text" name="search" class="form-control" placeholder="Search by name or email" value="{{ request.args.get('search', '') }}">
+    </div>
+    <div class="col-md-3">
+      <select name="role" class="form-control">
+        <option value="">All Roles</option>
+        {% for role in ['admin', 'manager', 'hr', 'sales', 'finance', 'auditor'] %}
+          <option value="{{ role }}" {% if request.args.get('role') == role %}selected{% endif %}>{{ role.title() }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-primary" type="submit">🔍 Filter</button>
+      <a href="{{ url_for('export_staff') }}" class="btn btn-outline-success">📤 Export</a>
+    </div>
+  </form>
+
+  <!-- HR KPIs -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h6 class="text-muted">Total Staff</h6>
+          <h4 class="fw-bold">{{ staff_users|length }}</h4>
+        </div>
+      </div>
+    </div>
+    {% for role in ['admin', 'manager', 'sales', 'finance', 'auditor'] %}
+    <div class="col-md-2">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h6 class="text-muted">{{ role.title() }}</h6>
+          <h5 class="fw-bold">
+            {{ staff_users | selectattr("role", "equalto", role) | list | length }}
+          </h5>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- HR Actions (Visible only to HR) -->
+  {% if user_role == 'hr' %}
+  <div class="mb-3 d-flex justify-content-end">
+    <a href="{{ url_for('new_payroll') }}" class="btn btn-outline-primary">
+      ➕ Add Payroll Record
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Staff Table -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <table class="table table-hover">
+        <thead class="thead-light">
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Email</th>
+            <th>Joined</th>
+            {% if has_permission(user_role, 'manage_users') %}
+            <th>Actions</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in staff_users %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td><a href="{{ url_for('view_user', user_id=user.id) }}">{{ user.username }}</a></td>
+            <td><span class="badge bg-secondary">{{ user.role }}</span></td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '—' }}</td>
+            {% if has_permission(user_role, 'manage_users') %}
+            <td>
+              <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-sm btn-warning">✏️ Edit</a>
+              <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Delete user?')">🗑️</a>
+            </td>
+            {% endif %}
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-muted">No staff users found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

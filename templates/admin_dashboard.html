@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>👑 Super Admin Dashboard</h2>
+
+<div class="card">
+  <div class="card-body">
+    <h4>📊 User Role Summary</h4>
+    <ul>
+      {% for role, count in role_counts.items() %}
+        <li><strong>{{ role }}</strong>: {{ count }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<br>
+
+<div class="text-end">
+  <a href="{{ url_for('create_user') }}" class="btn btn-success">👤 Create User</a>
+</div>
+
+<br>
+
+<h4>👥 All Users</h4>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Full Name</th>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Confirmed</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+      <tr class="{% if user.role == 'super_admin' %}table-warning{% endif %}">
+        <td>{{ user.full_name }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>👑 {{ user.role }}</td>
+        <td>{{ '✅' if user.email_confirmed else '❌' }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

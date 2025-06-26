@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-dark">💼 Finance Dashboard</h2>
+    <p class="text-muted">Product Valuation, Profit & Unsold Items</p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- KPIs -->
+  <div class="row text-center mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">Inventory Value</h6>
+          <h4 class="fw-bold text-success">KES {{ total_value }}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">Estimated Profit</h6>
+          <h4 class="fw-bold text-primary">KES {{ total_profit }}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">Unsold Products</h6>
+          <h4 class="fw-bold text-danger">{{ unsold_products|length }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Value Products -->
+  <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+    {% for product in products %}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <img src="{{ product.image_url or 'https://via.placeholder.com/150' }}" class="card-img-top" alt="{{ product.product_name }}" style="height: 180px; object-fit: cover;">
+        <div class="card-body">
+          <h5 class="card-title">{{ product.product_name }}</h5>
+          <p class="text-muted mb-1">Category: {{ product.category }}</p>
+          <p class="text-primar
