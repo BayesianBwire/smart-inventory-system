@@ -17,9 +17,11 @@ from functools import wraps
 from dotenv import load_dotenv
 import os
 from forms import ProductForm
+from forms import LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm, ProductForm
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required as flask_login_required
 from sqlalchemy.exc import SQLAlchemyError
 import smtplib
+from flask import session, redirect, request, url_for
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask_migrate import Migrate
@@ -104,21 +106,31 @@ def role_required(*roles):
 
 # -------------------- Email Sending --------------------
 
-def send_verification_email(user_email, token):
-    SMTP_SERVER = os.getenv('SMTP_SERVER')
-    SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
-    SMTP_USERNAME = os.getenv('SMTP_USERNAME')
-    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
-    FROM_EMAIL = os.getenv('FROM_EMAIL')
-    APP_NAME = "RahaSoft"
+import os
+import smtplib
+from flask import url_for
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
+# Shared SMTP config
+def get_smtp_config():
+    return {
+        'server': os.getenv('SMTP_SERVER'),
+        'port': int(os.getenv('SMTP_PORT', 587)),
+        'username': os.getenv('SMTP_USERNAME'),
+        'password': os.getenv('SMTP_PASSWORD'),
+        'from_email': os.getenv('FROM_EMAIL'),
+        'app_name': "RahaSoft"
+    }
+
+def send_verification_email(user_email, token):
+    cfg = get_smtp_config()
     verify_url = url_for('verify_email', token=token, _external=True)
 
-    subject = f"{APP_NAME} - Verify Your Email"
-    body = f"""
-Hi,
+    subject = f"{cfg['app_name']} - Verify Your Email"
+    body = f"""Hi,
 
-Thank you for registering with {APP_NAME}.
+Thank you for registering with {cfg['app_name']}.
 
 Please verify your email address by clicking the link below:
 
@@ -127,21 +139,17 @@ Please verify your email address by clicking the link below:
 If you did not register, please ignore this email.
 
 Regards,
-{APP_NAME} Team
+{cfg['app_name']} Team
 """
-def send_reset_email(user_email, token):
-    SMTP_SERVER = os.getenv('SMTP_SERVER')
-    SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
-    SMTP_USERNAME = os.getenv('SMTP_USERNAME')
-    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
-    FROM_EMAIL = os.getenv('FROM_EMAIL')
-    APP_NAME = "RahaSoft"
 
+    send_email(cfg, user_email, subject, body)
+
+def send_reset_email(user_email, token):
+    cfg = get_smtp_config()
     reset_url = url_for('reset_password', token=token, _external=True)
 
-    subject = f"{APP_NAME} - Password Reset Request"
-    body = f"""
-Hi,
+    subject = f"{cfg['app_name']} - Password Reset Request"
+    body = f"""Hi,
 
 We received a request to reset your password.
 
@@ -152,40 +160,35 @@ Click the link below to reset it (valid for 1 hour):
 If you didn't request a password reset, please ignore this email.
 
 Regards,
-{APP_NAME} Team
+{cfg['app_name']} Team
 """
 
+    send_email(cfg, user_email, subject, body)
+
+def send_email(cfg, to_email, subject, body):
     msg = MIMEMultipart()
-    msg['From'] = FROM_EMAIL
-    msg['To'] = user_email
+    msg['From'] = cfg['from_email']
+    msg['To'] = to_email
     msg['Subject'] = subject
     msg.attach(MIMEText(body, 'plain'))
 
     try:
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        with smtplib.SMTP(cfg['server'], cfg['port']) as server:
             server.starttls()
-            server.login(SMTP_USERNAME, SMTP_PASSWORD)
+            server.login(cfg['username'], cfg['password'])
             server.send_message(msg)
     except Exception as e:
-        app.logger.error(f"Failed to send password reset email to {user_email}: {e}")
+        app.logger.error(f"❌ Failed to send email to {to_email}: {e}")
 
-
-    msg = MIMEMultipart()
-    msg['From'] = FROM_EMAIL
-    msg['To'] = user_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
-
-    try:
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USERNAME, SMTP_PASSWORD)
-            server.send_message(msg)
-    except Exception as e:
-        app.logger.error(f"Failed to send verification email to {user_email}: {e}")
-
+@app.route('/set_language/<lang_code>')
+def set_language(lang_code):
+    supported_langs = ['en', 'fr', 'es', 'de', 'sw']
+    if lang_code in supported_langs:
+        session['lang'] = lang_code
+    # Redirect back to where user came from or inventory page as fallback
+    next_url = request.referrer or url_for('inventory')
+    return redirect(next_url)
 # -------------------- Routes --------------------
-
 @app.route('/users')
 @login_required
 def user_list():
@@ -195,50 +198,28 @@ def user_list():
 
     users = User.query.all()
     return render_template('users.html', users=users)
-
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    if request.method == 'POST':
-        username = request.form['username'].strip()
-        password = request.form['password'].strip()
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data.strip()
+        password = form.password.data.strip()
         user = User.query.filter_by(username=username).first()
 
         if user and user.verify_password(password):
-            if not user.email_confirmed:
-                flash("Please verify your email before logging in.", "warning")
-                return redirect(url_for('login_page'))
-
             login_user(user)
             session['user'] = user.username
             session['email'] = user.email
             session['role'] = user.role
-            flash(f"Welcome to RahaSoft, {user.username}!", "success")
 
-            # ✅ Log login event
-            ip_address = request.remote_addr
-            browser_info = request.user_agent.string
-            login_log = LoginLog(
-                user_id=user.id,
-                username=user.username,
-                ip_address=ip_address,
-                browser_info=browser_info
-            )
-            db.session.add(login_log)
-            db.session.commit()
+            # Add login log here...
 
-            # ✅ Role-based redirect
-            if user.role == 'hr':
-                return redirect(url_for('hr_dashboard'))
-            elif user.role in ['admin', 'super_admin', 'manager', 'sales', 'finance', 'auditor']:
-                return redirect(url_for('inventory'))
-            else:
-                flash("⚠️ Unknown role. Please contact admin.", "warning")
-                return redirect(url_for('login_page'))
-
+            flash(f"Welcome back, {user.username}!", "success")
+            return redirect(url_for('inventory'))
         else:
             flash("Invalid credentials", "danger")
 
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 @app.route('/login_logs')
 @login_required
@@ -247,48 +228,25 @@ def login_logs():
     logs = LoginLog.query.order_by(LoginLog.timestamp.desc()).all()
     return render_template('login_logs.html', logs=logs)
 
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
 
 @app.route('/welcome')
-@login_required
 def welcome():
-    username = session.get('user', 'User')
+    username = session.get('user')  # No default, so no fake name
     return render_template('welcome.html', username=username)
+
 
 @app.route('/logout')
 def logout():
     logout_user()
     flash("You have been logged out of RahaSoft.", "info")
-    return redirect(url_for('login_page'))
-
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        username = form.username.data.strip()
-        email = form.email.data.strip().lower()
-        password = form.password.data
-
-        existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
-        if existing_user:
-            flash("Username or Email already exists.", "danger")
-            return redirect(url_for('register'))
-
-        role = 'admin' if not User.query.filter_by(role='admin').first() else 'attendant'
-        new_user = User(username=username, email=email, role=role, email_confirmed=False)
-        new_user.password = password
-        db.session.add(new_user)
-        db.session.commit()
-
-        token = serializer.dumps(new_user.email, salt='email-verify-salt')
-        send_verification_email(new_user.email, token)
-
-        flash(f"Registration successful. A verification email has been sent to {new_user.email}.", "success")
-        return redirect(url_for('login_page'))
-
-    return render_template('register.html', form=form)
-
-from utils.permissions import has_permission  # Ensure this is imported at the top
+    return redirect(url_for('welcome.html'))
 
 @app.route('/create_user', methods=['GET', 'POST'])
 @login_required
@@ -372,13 +330,55 @@ def verify_email(token):
             user.email_confirmed = True
             db.session.commit()
             flash("Email verified successfully. You can now log in.", "success")
-            return redirect(url_for('login_page'))
+            return redirect(url_for('welcome.html'))
         else:
             flash("Invalid or expired token.", "danger")
             return redirect(url_for('register'))
     except Exception as e:
         flash("Verification link is invalid or has expired.", "danger")
         return redirect(url_for('register'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        full_name = form.full_name.data.strip()
+        username = form.username.data.strip()
+        email = form.email.data.strip()
+        phone_number = form.phone_number.data.strip()
+        password = form.password.data
+        role = form.role.data or 'attendant'
+
+        # Check if user exists
+        existing_user = User.query.filter(
+            (User.username == username) | (User.email == email)
+        ).first()
+        if existing_user:
+            flash("⚠️ Username or email already exists.", "danger")
+            return redirect(url_for('register'))
+
+        # Assign first user as admin
+        if User.query.count() == 0:
+            role = 'admin'
+
+        new_user = User(
+            full_name=full_name,
+            username=username,
+            email=email,
+            phone_number=phone_number,
+            role=role
+        )
+        new_user.password = password  # use setter for password hash
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("✅ Registration successful!", "success")
+        return redirect(url_for('login_page'))
+
+    return render_template('register.html', form=form)
+
+
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
@@ -398,7 +398,7 @@ def reset_password(token):
             user.password = new_password
             db.session.commit()
             flash("Your password has been reset. You can now log in.", "success")
-            return redirect(url_for('login_page'))
+            return redirect(url_for('welcome.html'))
         else:
             flash("Please enter a new password.", "warning")
 
@@ -460,7 +460,7 @@ def forgot_password():
             flash("Password reset instructions have been sent to your email.", "info")
         else:
             flash("Email not found.", "danger")
-        return redirect(url_for('login_page'))
+        return redirect(url_for('welcome.html'))
 
     return render_template('forgot_password.html', form=form)
 
@@ -477,31 +477,29 @@ def make_admin():
 @app.route('/inventory')
 @login_required
 def inventory():
-    # ✅ Permission check
     if not has_permission(current_user.role, 'view_inventory'):
         flash("⛔ You don't have permission to view inventory.", "danger")
-        return redirect(url_for('hr_dashboard'))
+        return redirect(url_for('home'))
 
-    # ✅ Clean parameters
+    company_id = current_user.company_id  # 🏢 Multi-tenant filter
     category_filter = request.args.get('category')
     low_stock = request.args.get('low_stock') == 'on'
     search_query = request.args.get('search', '').strip().lower()
     page = request.args.get('page', 1, type=int)
     per_page = 12
 
-    # ✅ Always rely on current_user.role
     user_role = current_user.role.strip().lower()
     cart = session.get('cart', {})
     cart_item_count = sum(cart.values())
 
-    # ✅ HR View
+    from models.product import Product
+
+    # ✅ HR Panel (unchanged)
     if user_role == 'hr':
         from models.user import User
         from collections import Counter
 
-        staff_query = User.query
-
-        # Apply search filter (by name or email)
+        staff_query = User.query.filter_by(company_id=company_id)
         if search_query:
             staff_query = staff_query.filter(
                 db.or_(
@@ -511,12 +509,8 @@ def inventory():
             )
 
         staff_users = staff_query.all()
-
-        # Role distribution count
         role_counts = Counter([user.role for user in staff_users])
-
-        # Recent joiners (last 5 based on created_at)
-        recent_joiners = User.query.order_by(User.created_at.desc()).limit(5).all()
+        recent_joiners = User.query.filter_by(company_id=company_id).order_by(User.id.desc()).limit(5).all()
 
         return render_template(
             "inventory_hr.html",
@@ -530,11 +524,11 @@ def inventory():
             search_query=search_query
         )
 
-    # ✅ Sales View
+    # ✅ Sales Panel
     if user_role == 'sales':
-        fast_movers = Product.query.order_by(Product.sold.desc()).limit(12).all()
-        labels = [p.product_name for p in fast_movers]
-        quantities = [p.sold for p in fast_movers]
+        fast_movers = Product.query.filter_by(company_id=company_id).order_by(Product.sold.desc()).limit(12).all()
+        labels = [p.product_name for p in fast_movers] if fast_movers else []
+        quantities = [p.sold for p in fast_movers] if fast_movers else []
         return render_template(
             "inventory_sales.html",
             fast_movers=fast_movers,
@@ -545,9 +539,9 @@ def inventory():
             has_permission=has_permission
         )
 
-    # ✅ Finance View
+    # ✅ Finance Panel
     if user_role == 'finance':
-        all_products = Product.query.all()
+        all_products = Product.query.filter_by(company_id=company_id).all()
         top_value_products = sorted(all_products, key=lambda p: p.quantity * p.price, reverse=True)[:12]
         total_value = sum(p.quantity * p.price for p in all_products)
         total_profit = sum((p.price - p.cost_price) * p.quantity for p in all_products)
@@ -563,9 +557,9 @@ def inventory():
             has_permission=has_permission
         )
 
-    # ✅ Auditor View
+    # ✅ Auditor Panel
     if user_role == 'auditor':
-        query = Product.query
+        query = Product.query.filter_by(company_id=company_id)
         if category_filter:
             query = query.filter_by(category=category_filter)
         if low_stock:
@@ -575,8 +569,8 @@ def inventory():
 
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         products = pagination.items
-        categories = [c[0] for c in db.session.query(Product.category).distinct().all()]
-        all_products = Product.query.all()
+        categories = [c[0] for c in db.session.query(Product.category).filter_by(company_id=company_id).distinct()]
+        all_products = Product.query.filter_by(company_id=company_id).all()
 
         total_stock = sum(p.quantity for p in all_products)
         total_value = sum(p.quantity * p.price for p in all_products)
@@ -584,8 +578,9 @@ def inventory():
         most_valuable = max(all_products, key=lambda p: p.quantity * p.price, default=None)
         total_profit = sum((p.price - p.cost_price) * p.quantity for p in all_products)
 
-        labels = [p.product_name for p in products]
-        quantities = [p.quantity for p in products]
+        labels = [p.product_name for p in products] if products else []
+        quantities = [p.quantity for p in products] if products else []
+
         category_totals = {}
         for p in all_products:
             category_totals[p.category] = category_totals.get(p.category, 0) + (p.quantity * p.price)
@@ -617,8 +612,8 @@ def inventory():
             has_permission=has_permission
         )
 
-    # ✅ Default Admin/Super Admin/Manager View
-    query = Product.query
+    # ✅ Default (Admin/Manager/SuperAdmin)
+    query = Product.query.filter_by(company_id=company_id)
     if category_filter:
         query = query.filter_by(category=category_filter)
     if low_stock:
@@ -628,7 +623,23 @@ def inventory():
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     products = pagination.items
-    categories = [c[0] for c in db.session.query(Product.category).distinct().all()]
+    categories = [c[0] for c in db.session.query(Product.category).filter_by(company_id=company_id).distinct()]
+    all_products = Product.query.filter_by(company_id=company_id).all()
+
+    total_stock = sum(p.quantity for p in all_products)
+    total_value = sum(p.quantity * p.price for p in all_products)
+    low_stock_count = sum(1 for p in all_products if p.quantity < 5)
+    most_valuable = max(all_products, key=lambda p: p.quantity * p.price, default=None)
+    total_profit = sum((p.price - p.cost_price) * p.quantity for p in all_products)
+
+    labels = [p.product_name for p in products] if products else []
+    quantities = [p.quantity for p in products] if products else []
+    category_totals = {}
+    for p in all_products:
+        category_totals[p.category] = category_totals.get(p.category, 0) + (p.quantity * p.price)
+
+    pie_labels = list(category_totals.keys())
+    pie_values = list(category_totals.values())
 
     return render_template(
         "inventory.html",
@@ -642,10 +653,49 @@ def inventory():
         user_role=user_role,
         page=page,
         total_pages=pagination.pages,
-        has_permission=has_permission
+        has_permission=has_permission,
+        labels=labels,
+        quantities=quantities,
+        pie_labels=pie_labels,
+        pie_values=pie_values,
+        most_valuable=most_valuable,
+        total_profit=total_profit,
+        total_stock=total_stock,
+        total_value=total_value,
+        low_stock_count=low_stock_count
     )
-
 # (Removed duplicated/erroneous block that was outside any function)
+from flask import request, redirect, url_for, flash
+from flask_login import login_required, current_user
+from models.product import Product
+from models import db
+
+@app.route('/new_product', methods=['POST'])
+@login_required
+def new_product():
+    try:
+        product = Product(
+            product_code=request.form['product_code'],
+            product_name=request.form['product_name'],
+            category=request.form['category'],
+            price=float(request.form['price']),
+            cost_price=float(request.form['cost_price']),
+            quantity=int(request.form['quantity']),
+            description=request.form.get('description'),
+            image_url=request.form.get('image_url'),
+            average_rating=float(request.form.get('average_rating', 0)),
+            reviews_count=int(request.form.get('reviews_count', 0)),
+            company_id=current_user.company_id  # ✅ Assign to logged-in user's company
+        )
+
+        db.session.add(product)
+        db.session.commit()
+        flash("✅ Product added successfully.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"❌ Error adding product: {str(e)}", "danger")
+
+    return redirect(url_for('inventory'))
 
 @app.route('/new_sale', methods=['GET', 'POST'])
 @login_required
@@ -915,7 +965,7 @@ def sales_route():
         flash("⛔ Access denied. You don’t have permission to view sales.", "danger")
         return redirect(url_for('inventory'))
 
-    fast_movers = Product.query.order_by(Product.sold.desc()).limit(12).all()
+    fast_movers = Product.query.filter_by(company_id=current_user.company_id).order_by(Product.sold.desc()).limit(12).all()
     labels = [p.product_name for p in fast_movers]
     quantities = [p.sold for p in fast_movers]
 
@@ -964,7 +1014,10 @@ def supervisor_dashboard():
         return redirect(url_for('inventory'))
 
     return redirect(url_for('inventory'))  # or a separate view if needed
-
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')  # or your main modules page
 
 @app.route('/delete_product/<int:product_id>', methods=['POST'])
 @login_required
@@ -1255,8 +1308,8 @@ def sales_report():
     )
 # -------------------- Run App --------------------
 @app.route('/')
-def home():
-    return render_template('splash.html')  # Make sure splash.html exists
+def landing_page():
+    return render_template('welcome.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

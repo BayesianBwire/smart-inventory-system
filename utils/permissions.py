@@ -1,5 +1,3 @@
-# utils/permissions.py
-
 role_permissions = {
     "super_admin": [
         "create_user",
@@ -11,7 +9,8 @@ role_permissions = {
         "view_reports",
         "view_users",
         "assign_roles",
-        "reset_passwords"
+        "reset_passwords",
+        "view_inventory"  # ✅ ADDED THIS LINE
     ],
 
     "admin": [
@@ -35,7 +34,7 @@ role_permissions = {
         "view_users"
     ],
 
-    "hr": [  # ✅ Updated to match 'manager' role
+    "hr": [
         "create_user",
         "assign_roles",
         "reset_passwords",
@@ -56,21 +55,21 @@ role_permissions = {
     "inventory": [
         "manage_inventory",
         "view_inventory",
-        "view_sales",        # ✅ NEW
-        "view_users"         # ✅ NEW
-  ],
+        "view_sales",
+        "view_users"
+    ],
 
     "finance": [
-       "view_reports",
-       "export_data",
-       "view_users"  # ✅ Added for visibility
+        "view_reports",
+        "export_data",
+        "view_users"
     ],
 
     "support": [
-       "view_inventory",
-       "view_sales",
-       "view_users"
-   ],
+        "view_inventory",
+        "view_sales",
+        "view_users"
+    ],
 
     "attendant": [
         "view_sales",

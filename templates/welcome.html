@@ -1,43 +1,341 @@
-<!-- templates/welcome.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Welcome to RahaSoft</title>
-  <meta http-equiv="refresh" content="3;url={{ url_for('inventory') }}">
+  <title>Welcome - Where Comfort Meets Business</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f5f5f5;
+      color: #000;
+    }
+
+    header {
+      background: #fff;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      color: #36585C;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .wave {
+      width: 60px;
+      height: 20px;
+      background: radial-gradient(ellipse at center, #36585C 0%, transparent 70%);
+      border-radius: 50%;
+      transform: rotate(-5deg);
+      margin-bottom: 5px;
+    }
+
+    .logo-text {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    nav a {
+      margin: 0 10px;
+      color: #000;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .main-wrapper {
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f8f9fa;
-      font-family: 'Segoe UI', sans-serif;
+      padding: 80px 20px;
+      background: #e4e7eb;
     }
-    .welcome-content {
+
+    .main-panel {
+      background: #fff;
+      padding: 50px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      max-width: 720px;
       text-align: center;
     }
-    .welcome-content h1 {
-      font-size: 2.8rem;
-      color: #007bff;
+
+    .brand-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      background: linear-gradient(to right, #004d7a, #008793);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0 0 20px;
     }
-    .welcome-content h3 {
-      margin-top: 10px;
-      font-weight: normal;
-      color: #444;
+
+    .stepped-paragraph {
+      font-size: 1.1rem;
+      color: #000;
+      line-height: 1.8;
+      margin-bottom: 30px;
+      text-align: center;
+      white-space: pre-line;
     }
-    .welcome-content h5 {
-      font-style: italic;
+
+    .notice {
+      font-size: 1rem;
       color: #555;
-      margin-top: 10px;
+    }
+
+    .get-started-btn {
+      display: inline-block;
+      margin-top: 25px;
+      background: linear-gradient(to right, #004d7a, #008793);
+      color: #fff;
+      padding: 12px 30px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    .get-started-btn:hover {
+      background: linear-gradient(to right, #00334d, #00707a);
+    }
+
+    .featured-section {
+      background-color: #fff;
+      padding: 60px 20px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .featured-section h2 {
+      font-family: 'Playfair Display', serif;
+      color: #36585C;
+      font-size: 2rem;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .apps-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+    }
+
+    .app-box {
+      width: 140px;
+      text-align: center;
+    }
+
+    .app-icon {
+      font-size: 28px;
+      color: #36585C;
+      margin-bottom: 10px;
+    }
+
+    .app-box h3 {
+      font-size: 1rem;
+      color: #000;
+      margin: 5px 0;
+    }
+
+    .app-box p {
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .core-values {
+      background-color: #ffffff;
+      margin: 60px 20px;
+      padding: 60px 20px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .core-values h2 {
+      text-align: center;
+      font-size: 2rem;
+      font-family: 'Playfair Display', serif;
+      color: #36585C;
+      margin-bottom: 40px;
+    }
+
+    .core-values-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .value-item {
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      text-align: center;
+      width: 100%;
+    }
+
+    .value-item .app-icon {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    .value-item h3 {
+      margin: 5px 0;
+      font-size: 1.2rem;
+      color: #222;
+    }
+
+    .value-item p {
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    .value-item:nth-child(1) { background-color: #E6F4F1; color: #2D5E5E; }
+    .value-item:nth-child(2) { background-color: #FDF2E9; color: #704212; }
+    .value-item:nth-child(3) { background-color: #F0F4FF; color: #2C3E75; }
+    .value-item:nth-child(4) { background-color: #FFF3F5; color: #712B3B; }
+    .value-item:nth-child(5) { background-color: #F5F8EB; color: #46662C; }
+
+    footer {
+      background-color: #000;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #fff;
+      border-top: 1px solid #333;
+      margin-top: 60px;
+    }
+
+    footer a {
+      margin: 0 10px;
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #fff;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="welcome-content">
-    <h1>Welcome to RahaSoft, {{ username }}!</h1>
-    <h5>Where comfort meets business</h5>
+  <header>
+    <div class="logo-block">
+      <div class="wave"></div>
+      <div class="logo-text">RahaSoft</div>
+    </div>
+    <nav>
+      <a href="#">Products</a>
+      <a href="#">Customers</a>
+      <a href="#">Partners</a>
+      <a href="#">Company</a>
+      <a href="{{ url_for('register') }}">Register</a>
+      <a href="{{ url_for('login_page') }}" style="color: red;">Sign In</a>
+    </nav>
+  </header>
+
+  <div class="main-wrapper">
+    <div class="main-panel">
+      <h1 class="brand-title">Where Comfort Meets Business</h1>
+      <p class="stepped-paragraph">
+From inventory and sales to reporting and staff access, the platform handles it all.  
+     Say goodbye to scattered systems—manage your entire retail  
+          operation in one smooth, reliable platform.  
+               Built for clarity, speed, and control.
+      </p>
+      <p class="notice">
+        User accounts are created and managed by system administrators.<br>
+        Please contact your admin to get started.
+      </p>
+      <a href="{{ url_for('register') }}" class="get-started-btn">Get Started</a>
+    </div>
   </div>
+
+  <section class="featured-section">
+    <h2>Featured Apps</h2>
+    <div class="apps-container">
+      <div class="app-box">
+        <div class="app-icon"><i class="fas fa-boxes"></i></div>
+        <h3>Inventory</h3>
+        <p>Track stock levels and suppliers.</p>
+      </div>
+      <div class="app-box">
+        <div class="app-icon"><i class="fas fa-chart-line"></i></div>
+        <h3>Sales</h3>
+        <p>Visualize and record your sales.</p>
+      </div>
+      <div class="app-box">
+        <div class="app-icon"><i class="fas fa-chart-pie"></i></div>
+        <h3>Reports</h3>
+        <p>Insights with graphs and data.</p>
+      </div>
+      <div class="app-box">
+        <div class="app-icon"><i class="fas fa-users-cog"></i></div>
+        <h3>Staff Access</h3>
+        <p>Control user permissions easily.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="core-values">
+    <h2>Our Core Values</h2>
+    <div class="core-values-list">
+      <div class="value-item">
+        <div class="app-icon"><i class="fas fa-lightbulb"></i></div>
+        <h3>Customer-Centric Innovation</h3>
+        <p>Smart tools built for real-world growth.</p>
+      </div>
+      <div class="value-item">
+        <div class="app-icon"><i class="fas fa-handshake"></i></div>
+        <h3>Transparency & Trust</h3>
+        <p>No hidden fees. Just honest, reliable software.</p>
+      </div>
+      <div class="value-item">
+        <div class="app-icon"><i class="fas fa-check-circle"></i></div>
+        <h3>Empowerment Through Simplicity</h3>
+        <p>Business clarity and full control made easy.</p>
+      </div>
+      <div class="value-item">
+        <div class="app-icon"><i class="fas fa-user-shield"></i></div>
+        <h3>Data Privacy & Security</h3>
+        <p>Your business data is protected and respected.</p>
+      </div>
+      <div class="value-item">
+        <div class="app-icon"><i class="fas fa-globe-africa"></i></div>
+        <h3>Proudly African</h3>
+        <p>Built for Africa. Ready for the world.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div style="margin-bottom: 10px;">
+      <a href="#">Home</a> |
+      <a href="#">Compliance</a> |
+      <a href="#">Terms of Service</a> |
+      <a href="#">Privacy Policy</a> |
+      <a href="#">Security</a>
+    </div>
+    <div>© 2025 RahaSoft. All rights reserved.</div>
+  </footer>
 </body>
 </html>

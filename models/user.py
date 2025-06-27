@@ -1,6 +1,8 @@
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from itsdangerous import URLSafeTimedSerializer as Serializer
+from flask import current_app
 from models import db  # ✅ Use the existing SQLAlchemy instance
 
 class User(db.Model, UserMixin):
@@ -19,6 +21,10 @@ class User(db.Model, UserMixin):
     reset_token = db.Column(db.String(128), nullable=True)
     email_confirmed = db.Column(db.Boolean, default=False)
     email_confirmed_on = db.Column(db.DateTime, nullable=True)
+
+    # ✅ Fixed: company relationship with correct table name
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
+    company = db.relationship('models.company.Company', backref=db.backref('users', lazy=True))
 
     # Password management
     @property
@@ -56,3 +62,18 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return f"<User {self.username} ({self.role}) - Confirmed: {self.email_confirmed}>"
+
+    # 🔐 Token generation (for reset/verify links)
+    def generate_token(self, purpose='reset', expires_sec=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], salt=f'{purpose}-salt')
+        return s.dumps({'user_id': self.id})
+
+    # 🔐 Token verification
+    @staticmethod
+    def verify_token(token, purpose='reset', expires_sec=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], salt=f'{purpose}-salt')
+        try:
+            data = s.loads(token, max_age=expires_sec)
+        except Exception:
+            return None
+        return User.query.get(data.get('user_id'))

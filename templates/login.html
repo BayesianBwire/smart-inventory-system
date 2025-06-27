@@ -1,90 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Login - RahaSoft</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #f1f1f1;
-        }
-        .login-container {
-            background-color: #ffffff;
-            max-width: 500px;
-            margin: 80px auto;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-        .login-title {
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 25px;
-            color: #007bff;
-        }
-        .motto {
-            text-align: center;
-            font-style: italic;
-            color: #666;
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Login - RahaSoft</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f1f1;
+      color: #333;
+    }
+    header {
+      background: #fff;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      flex-wrap: wrap;
+    }
+    .logo-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      font-family: 'Playfair Display', serif;
+      color: #36585C;
+    }
+    .wave {
+      width: 60px;
+      height: 20px;
+      background: radial-gradient(ellipse at center, #36585C 0%, transparent 70%);
+      border-radius: 50%;
+      transform: rotate(-5deg);
+      margin-bottom: 5px;
+    }
+    .logo-text {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .login-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+    .login-group span { color: #555; }
+    .register-link {
+      font-weight: 600;
+      text-decoration: none;
+      color: #d63333;
+      font-size: 1rem;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 20px;
+    }
+    .login-box {
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      max-width: 500px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      color: #36585C;
+    }
+    .input-group {
+      position: relative;
+      margin: 10px 0;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 12px 12px 12px 40px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .input-group i.fa-icon {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      color: #777;
+      font-size: 1rem;
+    }
+    .input-group .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #777;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #36585C;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #2c4a4f;
+    }
+    .options {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+    .options a {
+      color: #36585C;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .options a:hover {
+      color: #2c4a4f;
+      text-decoration: underline;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+      margin: 40px 0 20px;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .login-box {
+        padding: 30px 20px;
+      }
+      h1 { font-size: 1.5rem; }
+      .input-group input {
+        padding-left: 36px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="login-container">
-
-        <!-- Motto Only -->
-        <div class="motto">Where comfort meets business</div>
-
-        <h3 class="login-title">RahaSoft</h3>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <form method="POST">
-            <!-- ✅ Correct CSRF token -->
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-            <div class="form-group">
-                <label for="username">👤 Username</label>
-                <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username" required>
-            </div>
-
-            <div class="form-group">
-                <label for="password">🔑 Password</label>
-                <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
-
-                <div class="form-check mt-2">
-                    <input class="form-check-input" type="checkbox" id="showPassword" onclick="togglePassword()">
-                    <label class="form-check-label" for="showPassword">Show Password</label>
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block">Login</button>
-        </form>
-
-        <div class="mt-3 text-center">
-            <a href="{{ url_for('register') }}"> Register</a> |
-            <a href="{{ url_for('forgot_password') }}"> Forgot Password?</a>
-        </div>
+  <header>
+    <div class="logo-block">
+      <div class="wave"></div>
+      <div class="logo-text">RahaSoft</div>
     </div>
-</div>
+    <div class="login-group">
+      <span>Don't have an account?</span>
+      <a class="register-link" href="{{ url_for('register') }}">Register</a>
+    </div>
+  </header>
 
-<!-- Show/hide password script -->
-<script>
+  <div class="container">
+    <div class="login-box">
+      <h1>Welcome back</h1>
+      <form method="POST" action="{{ url_for('login_page') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="input-group">
+          <i class="fas fa-user fa-icon"></i>
+          {{ form.username(class_="form-control", placeholder="Username or Email") }}
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-lock fa-icon"></i>
+          {{ form.password(class_="form-control", id="password", placeholder="Password") }}
+          <i class="fas fa-eye toggle-password" onclick="togglePassword()"></i>
+        </div>
+
+        {{ form.submit(class_="btn") }}
+      </form>
+
+      <div class="options">
+        <p><a href="{{ url_for('forgot_password') }}">Forgot Password?</a></p>
+        <p><a href="{{ url_for('welcome') }}">← Back to Home</a></p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025, RahaSoft. All Rights Reserved.
+  </footer>
+
+  <script>
     function togglePassword() {
-        const pwd = document.getElementById("password");
-        pwd.type = pwd.type === "password" ? "text" : "password";
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.querySelector('.toggle-password');
+      const isVisible = passwordInput.type === 'text';
+      passwordInput.type = isVisible ? 'password' : 'text';
+      toggleIcon.classList.toggle('fa-eye');
+      toggleIcon.classList.toggle('fa-eye-slash');
     }
-</script>
+  </script>
 
 </body>
 </html>
