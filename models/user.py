@@ -3,10 +3,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from itsdangerous import URLSafeTimedSerializer as Serializer
 from flask import current_app
-from models import db  # ✅ Use the existing SQLAlchemy instance
+from models import db  # Shared SQLAlchemy instance
+
 
 class User(db.Model, UserMixin):
-    __tablename__ = 'user'
+    __tablename__ = 'users'  # Changed to plural to match standard convention
 
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(120), nullable=False)
@@ -15,18 +16,18 @@ class User(db.Model, UserMixin):
     phone_number = db.Column(db.String(20), nullable=True)
 
     password_hash = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(30), default='attendant')  # Increased length for safety
+    role = db.Column(db.String(30), default='attendant')
     created_by = db.Column(db.String(80), nullable=True)
 
     reset_token = db.Column(db.String(128), nullable=True)
     email_confirmed = db.Column(db.Boolean, default=False)
     email_confirmed_on = db.Column(db.DateTime, nullable=True)
 
-    # ✅ Fixed: company relationship with correct table name
-    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
-    company = db.relationship('models.company.Company', backref=db.backref('users', lazy=True))
+    # ✅ Company relationship — using string reference avoids circular import
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
+    company = db.relationship('Company', back_populates='users')
 
-    # Password management
+    # Password property
     @property
     def password(self):
         raise AttributeError("❌ Direct password access is not allowed.")
@@ -42,7 +43,7 @@ class User(db.Model, UserMixin):
         self.email_confirmed = True
         self.email_confirmed_on = datetime.utcnow()
 
-    # Role helpers
+    # 🔐 Roles
     def is_super_admin(self): return self.role == 'super_admin'
     def is_admin(self): return self.role == 'admin'
     def is_manager(self): return self.role == 'manager'
@@ -63,15 +64,28 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"<User {self.username} ({self.role}) - Confirmed: {self.email_confirmed}>"
 
-    # 🔐 Token generation (for reset/verify links)
+    # 🔐 General token generation for reset/verify links
     def generate_token(self, purpose='reset', expires_sec=3600):
         s = Serializer(current_app.config['SECRET_KEY'], salt=f'{purpose}-salt')
         return s.dumps({'user_id': self.id})
 
-    # 🔐 Token verification
     @staticmethod
     def verify_token(token, purpose='reset', expires_sec=3600):
         s = Serializer(current_app.config['SECRET_KEY'], salt=f'{purpose}-salt')
+        try:
+            data = s.loads(token, max_age=expires_sec)
+        except Exception:
+            return None
+        return User.query.get(data.get('user_id'))
+
+    # ✅ Specific token handling for email confirmation
+    def generate_confirmation_token(self, expires_sec=86400):  # 24 hours
+        s = Serializer(current_app.config['SECRET_KEY'], salt='confirm-email-salt')
+        return s.dumps({'user_id': self.id})
+
+    @staticmethod
+    def confirm_token(token, expires_sec=86400):
+        s = Serializer(current_app.config['SECRET_KEY'], salt='confirm-email-salt')
         try:
             data = s.loads(token, max_age=expires_sec)
         except Exception:

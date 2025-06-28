@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 fw-bold" style="color: #17a2b8;">
+    <i class="fas fa-university me-2"></i>Bank & Cash Management
+  </h2>
+
+  <section class="mb-5">
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+
+      <!-- 1. Bank Accounts -->
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-university fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Bank Accounts</h6>
+            <a href="{{ url_for('bank_accounts') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Cash Accounts -->
+      <div class="col">
+        <div class="card h-100 shadow-sm border-success">
+          <div class="card-body text-center">
+            <i class="fas fa-cash-register fa-2x mb-2" style="color: #28a745;"></i>
+            <h6>Cash Accounts</h6>
+            <a href="{{ url_for('cash_accounts') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Fund Transfers -->
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-exchange-alt fa-2x mb-2" style="color: #fd7e14;"></i>
+            <h6>Fund Transfers</h6>
+            <a href="{{ url_for('fund_transfers') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Bank Reconciliation -->
+      <div class="col">
+        <div class="card h-100 shadow-sm border-info">
+          <div class="card-body text-center">
+            <i class="fas fa-balance-scale fa-2x mb-2" style="color: #20c997;"></i>
+            <h6>Bank Reconciliation</h6>
+            <a href="{{ url_for('bank_reconciliation') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Daily Cash Position -->
+      <div class="col">
+        <div class="card h-100 shadow-sm border-secondary">
+          <div class="card-body text-center">
+            <i class="fas fa-chart-pie fa-2x mb-2" style="color: #6c757d;"></i>
+            <h6>Daily Cash Position</h6>
+            <a href="{{ url_for('daily_cash_position') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Loan Tracking -->
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-hand-holding-usd fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Loan Tracking</h6>
+            <a href="{{ url_for('loan_tracking') }}" class="btn btn-outline-purple btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Deposits & Withdrawals -->
+      <div class="col">
+        <div class="card h-100 shadow-sm border-dark">
+          <div class="card-body text-center">
+            <i class="fas fa-money-bill-wave fa-2x mb-2" style="color: #343a40;"></i>
+            <h6>Deposits & Withdrawals</h6>
+            <a href="{{ url_for('bank_deposits_withdrawals') }}" class="btn btn-outline-dark btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+{% endblock %}

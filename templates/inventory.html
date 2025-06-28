@@ -57,10 +57,10 @@
         <div class="card h-100 shadow-sm">
           <div class="card-body d-flex flex-column align-items-center justify-content-center">
             <i class="fas fa-boxes fa-3x mb-3" style="color: #007bff;"></i>
-            <h6 class="card-title">Inventory</h6>
+            <h6 class="card-title">Stock Management</h6>
           </div>
           <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="{{ url_for('inventory') }}" class="btn btn-outline-primary btn-sm">Open</a>
+            <a href="{{ url_for('stock_management') }}" class="btn btn-outline-primary btn-sm">Open</a>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@
             <h6 class="card-title">POS</h6>
           </div>
           <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+            <a href="{{ url_for('pos_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@
             <h6 class="card-title">Purchasing</h6>
           </div>
           <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-secondary btn-sm disabled">Coming Soon</a>
+            <a href="{{ url_for('purchasing_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
           </div>
         </div>
       </div>
@@ -96,7 +96,7 @@
             <h6 class="card-title">Warehouse</h6>
           </div>
           <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-info btn-sm disabled">Coming Soon</a>
+            <a href="{{ url_for('warehouse_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
           </div>
         </div>
       </div>
@@ -108,7 +108,7 @@
             <h6 class="card-title">Order Management</h6>
           </div>
           <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+            <a href="{{ url_for('order_management_dashboard') }}" class="btn btn-outline-success btn-sm">Open</a>
           </div>
         </div>
       </div>
@@ -196,7 +196,7 @@
             <h6 class="card-title">Finance</h6>
           </div>
           <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-info btn-sm disabled">Coming Soon</a>
+            <a href="{{ url_for('finance_bank_cash_dashboard') }}" class="btn btn-outline-info btn-sm">Open</a>
           </div>
         </div>
       </div>
@@ -264,7 +264,7 @@
             <h6 class="card-title">HR</h6>
           </div>
           <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-danger btn-sm disabled">Coming Soon</a>
+            <a href="{{ url_for('hr_dashboard') }}" class="btn btn-outline-danger btn-sm">Open</a>
           </div>
         </div>
       </div>
@@ -276,7 +276,7 @@
             <h6 class="card-title">Attendance</h6>
           </div>
           <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+            <a href="{{ url_for('attendance_dashboard') }}" class="btn btn-outline-success btn-sm">Open</a>
           </div>
         </div>
       </div>

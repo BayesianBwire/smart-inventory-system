@@ -4,8 +4,11 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from models import db, User, Product, Sale, LoginLog
 from models.audit_log import AuditLog
 import random
+from functools import wraps
 import string
+from models import db, BankAccount, Transaction
 from models.product import Product
+from models.company import Company
 from models.login_log import LoginLog  # 👈 Make sure this import exists
 from models.user import User
 from models.sale import Sale
@@ -21,17 +24,29 @@ from forms import LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required as flask_login_required
 from sqlalchemy.exc import SQLAlchemyError
 import smtplib
-from flask import session, redirect, request, url_for
+from flask import session, redirect, request, url_for, flash
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask_migrate import Migrate
 from forms import RegisterForm, ForgotPasswordForm
 from utils.permissions import has_permission
 from flask_login import login_required, current_user
+from flask_mail import Mail, Message
 
 load_dotenv()
 
 app = Flask(__name__)
+
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = os.getenv('SMTP_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('SMTP_PORT', 587))
+app.config['MAIL_USERNAME'] = os.getenv('SMTP_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('SMTP_PASSWORD')
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('FROM_EMAIL')
+
+mail = Mail(app)
 app.secret_key = os.getenv('SECRET_KEY')
 app.jinja_env.globals.update(zip=zip)
 login_manager = LoginManager()
@@ -180,6 +195,32 @@ def send_email(cfg, to_email, subject, body):
     except Exception as e:
         app.logger.error(f"❌ Failed to send email to {to_email}: {e}")
 
+def send_welcome_email(user):
+    subject = "🎉 Welcome to RahaSoft!"
+    recipient = user.email
+    message_body = f"""
+    Hi {user.full_name},
+
+    🎉 Congratulations on registering with RahaSoft!
+
+    We're excited to have you on board. Your account details:
+    - Username: {user.username}
+    - Email: {user.email}
+    - Password: {user.password} (keep this safe!)
+
+    You can use either your username or email to log in.
+
+    🚨 Please treat this information as confidential and do not share it with anyone.
+
+    We're confident RahaSoft will help you manage your operations with ease!
+
+    Warm regards,  
+    RahaSoft Team
+    """
+
+    msg = Message(subject, recipients=[recipient], body=message_body)
+    mail.send(msg)
+
 @app.route('/set_language/<lang_code>')
 def set_language(lang_code):
     supported_langs = ['en', 'fr', 'es', 'de', 'sw']
@@ -198,28 +239,53 @@ def user_list():
 
     users = User.query.all()
     return render_template('users.html', users=users)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     form = LoginForm()
+
     if form.validate_on_submit():
-        username = form.username.data.strip()
+        login_input = form.username.data.strip().lower()  # Accepts username or email
         password = form.password.data.strip()
-        user = User.query.filter_by(username=username).first()
 
-        if user and user.verify_password(password):
-            login_user(user)
-            session['user'] = user.username
-            session['email'] = user.email
-            session['role'] = user.role
+        # Try to find user by username or email, case-insensitively
+        user = User.query.filter(
+            (User.username.ilike(login_input)) | (User.email.ilike(login_input))
+        ).first()
 
-            # Add login log here...
+        if user:
+            if not user.email_confirmed:
+                flash("⚠️ Please verify your email address before logging in. Check your inbox or spam.", "warning")
+                return redirect(url_for('login_page'))
 
-            flash(f"Welcome back, {user.username}!", "success")
-            return redirect(url_for('inventory'))
-        else:
-            flash("Invalid credentials", "danger")
+            if user.verify_password(password):
+                login_user(user)
+
+                # Store additional info in session
+                session['user'] = user.username
+                session['email'] = user.email
+                session['role'] = user.role
+
+                flash(f"✅ Welcome back, {user.username}!", "success")
+                return redirect(url_for('inventory'))
+
+        flash("❌ Invalid username/email or password.", "danger")
 
     return render_template('login.html', form=form)
+
+@app.route('/unverified')
+def unverified_notice():
+    return render_template('unverified_notice.html')
+
+# Decorator to ensure the user's email is verified
+def email_verified_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not getattr(current_user, 'email_confirmed', False):
+            flash("⚠️ Please verify your email address to access this page.", "warning")
+            return redirect(url_for('unverified_notice'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/login_logs')
 @login_required
@@ -246,7 +312,716 @@ def welcome():
 def logout():
     logout_user()
     flash("You have been logged out of RahaSoft.", "info")
-    return redirect(url_for('welcome.html'))
+    return redirect(url_for('welcome'))
+# --- Product Master Data ---
+@app.route('/product_list')
+@login_required
+def product_list():
+    # Show all products, with filters/search
+    return render_template('product_list.html')
+
+@app.route('/categories_units')
+@login_required
+def categories_units():
+    # Manage categories, subcategories, and units
+    return render_template('categories_units.html')
+
+@app.route('/product_images')
+@login_required
+def product_images():
+    # Manage product images
+    return render_template('product_images.html')
+
+# --- Stock Entries ---
+@app.route('/stock_in', methods=['GET', 'POST'])
+@login_required
+def stock_in():
+    # Handle stock in (purchases/restocks)
+    return render_template('stock_in.html')
+
+@app.route('/stock_out', methods=['GET', 'POST'])
+@login_required
+def stock_out():
+    # Handle stock out (sales, consumption, returns)
+    return render_template('stock_out.html')
+
+@app.route('/stock_adjustment', methods=['GET', 'POST'])
+@login_required
+def stock_adjustment():
+    # Handle stock adjustments (losses, damage, etc.)
+    return render_template('stock_adjustment.html')
+
+@app.route('/opening_stock', methods=['GET', 'POST'])
+@login_required
+def opening_stock():
+    # Set up opening stock balances
+    return render_template('opening_stock.html')
+
+# --- Current Stock Levels ---
+@app.route('/stock_overview')
+@login_required
+def stock_overview():
+    # View current stock levels
+    return render_template('stock_overview.html')
+
+@app.route('/stock_alerts')
+@login_required
+def stock_alerts():
+    # Low stock and overstock alerts
+    return render_template('stock_alerts.html')
+
+@app.route('/stock_value')
+@login_required
+def stock_value():
+    # Show total stock value
+    return render_template('stock_value.html')
+
+# --- Stock History Logs ---
+@app.route('/stock_logs')
+@login_required
+def stock_logs():
+    # Detailed movement log for every item
+    return render_template('stock_logs.html')
+
+# --- Stock Alerts & Notifications ---
+@app.route('/expiry_alerts')
+@login_required
+def expiry_alerts():
+    # Expiry/overstock notifications
+    return render_template('expiry_alerts.html')
+
+# --- Product Variants & Units ---
+@app.route('/product_variants')
+@login_required
+def product_variants():
+    # Manage product variants (sizes, packaging, etc.)
+    return render_template('product_variants.html')
+
+@app.route('/units_of_measure')
+@login_required
+def units_of_measure():
+    # Manage multiple units per product
+    return render_template('units_of_measure.html')
+
+# --- Inventory Valuation ---
+@app.route('/inventory_valuation')
+@login_required
+def inventory_valuation():
+    # FIFO, LIFO, Average Cost valuation
+    return render_template('inventory_valuation.html')
+
+# --- Reports ---
+@app.route('/stock_summary_report')
+@login_required
+def stock_summary_report():
+    # Stock summary report
+    return render_template('stock_summary_report.html')
+
+@app.route('/stock_movement_report')
+@login_required
+def stock_movement_report():
+    # Stock movement report
+    return render_template('stock_movement_report.html')
+
+@app.route('/fast_slow_movers')
+@login_required
+def fast_slow_movers():
+    # Fast/slow moving items report
+    return render_template('fast_slow_movers.html')
+@app.route('/pos')
+@login_required
+def pos_dashboard():
+    return render_template('pos_dashboard.html')
+
+@app.route('/pos/new_sale')
+@login_required
+def pos_new_sale():
+    return render_template('pos_new_sale.html')
+
+@app.route('/pos/payment')
+@login_required
+def pos_payment():
+    return render_template('pos_payment.html')
+
+@app.route('/pos/add_customer')
+@login_required
+def pos_add_customer():
+    return render_template('pos_add_customer.html')
+
+@app.route('/pos/customer_history')
+@login_required
+def pos_customer_history():
+    return render_template('pos_customer_history.html')
+
+@app.route('/pos/loyalty')
+@login_required
+def pos_loyalty():
+    return render_template('pos_loyalty.html')
+
+@app.route('/pos/receipt')
+@login_required
+def pos_receipt():
+    return render_template('pos_receipt.html')
+
+@app.route('/pos/settings')
+@login_required
+def pos_settings():
+    return render_template('pos_settings.html')
+
+@app.route('/pos/shift')
+@login_required
+def pos_shift():
+    return render_template('pos_shift.html')
+
+@app.route('/pos/cash')
+@login_required
+def pos_cash():
+    return render_template('pos_cash.html')
+
+@app.route('/pos/register_report')
+@login_required
+def pos_register_report():
+    return render_template('pos_register_report.html')
+
+@app.route('/pos/park_order')
+@login_required
+def pos_park_order():
+    return render_template('pos_park_order.html')
+
+@app.route('/pos/returns')
+@login_required
+def pos_returns():
+    return render_template('pos_returns.html')
+
+@app.route('/pos/reports')
+@login_required
+def pos_reports():
+    return render_template('pos_reports.html')
+
+@app.route('/pos/offline')
+@login_required
+def pos_offline():
+    return render_template('pos_offline.html')
+
+@app.route('/pos/hardware')
+@login_required
+def pos_hardware():
+    return render_template('pos_hardware.html')
+@app.route('/purchasing')
+@login_required
+def purchasing_dashboard():
+    return render_template('purchasing_dashboard.html')
+
+@app.route('/create_purchase_order')
+@login_required
+def create_purchase_order():
+    return render_template('create_purchase_order.html')
+
+@app.route('/purchase_orders')
+@login_required
+def purchase_orders():
+    return render_template('purchase_orders.html')
+
+@app.route('/supplier_quotations')
+@login_required
+def supplier_quotations():
+    return render_template('supplier_quotations.html')
+
+@app.route('/create_purchase_request')
+@login_required
+def create_purchase_request():
+    return render_template('create_purchase_request.html')
+
+@app.route('/purchase_requests')
+@login_required
+def purchase_requests():
+    return render_template('purchase_requests.html')
+
+@app.route('/goods_receipt')
+@login_required
+def goods_receipt():
+    return render_template('goods_receipt.html')
+
+@app.route('/pending_grn')
+@login_required
+def pending_grn():
+    return render_template('pending_grn.html')
+
+@app.route('/suppliers')
+@login_required
+def suppliers():
+    return render_template('suppliers.html')
+
+@app.route('/supplier_contracts')
+@login_required
+def supplier_contracts():
+    return render_template('supplier_contracts.html')
+
+@app.route('/create_purchase_invoice')
+@login_required
+def create_purchase_invoice():
+    return render_template('create_purchase_invoice.html')
+
+@app.route('/purchase_invoices')
+@login_required
+def purchase_invoices():
+    return render_template('purchase_invoices.html')
+
+@app.route('/record_supplier_payment')
+@login_required
+def record_supplier_payment():
+    return render_template('record_supplier_payment.html')
+
+@app.route('/supplier_payments')
+@login_required
+def supplier_payments():
+    return render_template('supplier_payments.html')
+
+@app.route('/purchase_returns')
+@login_required
+def purchase_returns():
+    return render_template('purchase_returns.html')
+
+@app.route('/purchase_summary_report')
+@login_required
+def purchase_summary_report():
+    return render_template('purchase_summary_report.html')
+
+@app.route('/purchase_by_supplier_report')
+@login_required
+def purchase_by_supplier_report():
+    return render_template('purchase_by_supplier_report.html')
+
+@app.route('/purchase_item_report')
+@login_required
+def purchase_item_report():
+    return render_template('purchase_item_report.html')
+
+@app.route('/purchase_price_tracking')
+@login_required
+def purchase_price_tracking():
+    return render_template('purchase_price_tracking.html')
+
+@app.route('/purchase_landed_cost')
+@login_required
+def purchase_landed_cost():
+    return render_template('purchase_landed_cost.html')
+
+@app.route('/purchase_settings')
+@login_required
+def purchase_settings():
+    return render_template('purchase_settings.html')
+
+@app.route('/purchase_po_numbering')
+@login_required
+def purchase_po_numbering():
+    return render_template('purchase_po_numbering.html')
+@app.route('/warehouse')
+@login_required
+def warehouse_dashboard():
+    return render_template('warehouse_dashboard.html')
+
+@app.route('/manage_warehouses')
+@login_required
+def manage_warehouses():
+    return render_template('manage_warehouses.html')
+
+@app.route('/warehouse_zones')
+@login_required
+def warehouse_zones():
+    return render_template('warehouse_zones.html')
+
+@app.route('/warehouse_managers')
+@login_required
+def warehouse_managers():
+    return render_template('warehouse_managers.html')
+
+@app.route('/putaway_rules')
+@login_required
+def putaway_rules():
+    return render_template('putaway_rules.html')
+
+@app.route('/picking_rules')
+@login_required
+def picking_rules():
+    return render_template('picking_rules.html')
+
+@app.route('/warehouse_transfers')
+@login_required
+def warehouse_transfers():
+    return render_template('warehouse_transfers.html')
+
+@app.route('/bins_shelves')
+@login_required
+def bins_shelves():
+    return render_template('bins_shelves.html')
+
+@app.route('/bin_capacity')
+@login_required
+def bin_capacity():
+    return render_template('bin_capacity.html')
+
+@app.route('/stock_by_warehouse')
+@login_required
+def stock_by_warehouse():
+    return render_template('stock_by_warehouse.html')
+
+@app.route('/batch_serial_tracking')
+@login_required
+def batch_serial_tracking():
+    return render_template('batch_serial_tracking.html')
+
+@app.route('/bin_stock_alerts')
+@login_required
+def bin_stock_alerts():
+    return render_template('bin_stock_alerts.html')
+
+@app.route('/warehouse_receiving')
+@login_required
+def warehouse_receiving():
+    return render_template('warehouse_receiving.html')
+
+@app.route('/warehouse_discrepancy')
+@login_required
+def warehouse_discrepancy():
+    return render_template('warehouse_discrepancy.html')
+
+@app.route('/warehouse_dispatch')
+@login_required
+def warehouse_dispatch():
+    return render_template('warehouse_dispatch.html')
+
+@app.route('/warehouse_delivery')
+@login_required
+def warehouse_delivery():
+    return render_template('warehouse_delivery.html')
+
+@app.route('/warehouse_audits')
+@login_required
+def warehouse_audits():
+    return render_template('warehouse_audits.html')
+
+@app.route('/warehouse_multiuser_count')
+@login_required
+def warehouse_multiuser_count():
+    return render_template('warehouse_multiuser_count.html')
+
+@app.route('/warehouse_alerts')
+@login_required
+def warehouse_alerts():
+    return render_template('warehouse_alerts.html')
+
+@app.route('/warehouse_automation')
+@login_required
+def warehouse_automation():
+    return render_template('warehouse_automation.html')
+
+@app.route('/warehouse_stock_report')
+@login_required
+def warehouse_stock_report():
+    return render_template('warehouse_stock_report.html')
+
+@app.route('/warehouse_transfer_report')
+@login_required
+def warehouse_transfer_report():
+    return render_template('warehouse_transfer_report.html')
+
+@app.route('/warehouse_bin_audit_report')
+@login_required
+def warehouse_bin_audit_report():
+    return render_template('warehouse_bin_audit_report.html')
+
+@app.route('/warehouse_rfid_barcode')
+@login_required
+def warehouse_rfid_barcode():
+    return render_template('warehouse_rfid_barcode.html')
+
+@app.route('/warehouse_mobile_geo')
+@login_required
+def warehouse_mobile_geo():
+    return render_template('warehouse_mobile_geo.html')
+@app.route('/order_management')
+@login_required
+def order_management_dashboard():
+    return render_template('order_management_dashboard.html')
+
+@app.route('/create_sales_order')
+@login_required
+def create_sales_order():
+    return render_template('create_sales_order.html')
+
+@app.route('/sales_orders')
+@login_required
+def sales_orders():
+    return render_template('sales_orders.html')
+
+@app.route('/order_fulfillment')
+@login_required
+def order_fulfillment():
+    return render_template('order_fulfillment.html')
+
+@app.route('/backorders')
+@login_required
+def backorders():
+    return render_template('backorders.html')
+
+@app.route('/preorders')
+@login_required
+def preorders():
+    return render_template('preorders.html')
+
+@app.route('/order_returns')
+@login_required
+def order_returns():
+    return render_template('order_returns.html')
+
+@app.route('/order_invoicing')
+@login_required
+def order_invoicing():
+    return render_template('order_invoicing.html')
+
+@app.route('/order_tracking')
+@login_required
+def order_tracking():
+    return render_template('order_tracking.html')
+
+@app.route('/order_integration')
+@login_required
+def order_integration():
+    return render_template('order_integration.html')
+
+@app.route('/order_reports')
+@login_required
+def order_reports():
+    return render_template('order_reports.html')
+
+@app.route('/order_advanced')
+@login_required
+def order_advanced():
+    return render_template('order_advanced.html')
+
+@app.route('/employee_profiles')
+@login_required
+def employee_profiles():
+    return render_template('employee_profiles.html')
+
+@app.route('/departments_locations')
+@login_required
+def departments_locations():
+    return render_template('departments_locations.html')
+
+@app.route('/employee_exit')
+@login_required
+def employee_exit():
+    return render_template('employee_exit.html')
+
+@app.route('/performance_kpi')
+@login_required
+def performance_kpi():
+    return render_template('performance_kpi.html')
+
+@app.route('/performance_goals')
+@login_required
+def performance_goals():
+    return render_template('performance_goals.html')
+
+@app.route('/recruitment_jobs')
+@login_required
+def recruitment_jobs():
+    return render_template('recruitment_jobs.html')
+
+@app.route('/recruitment_applicants')
+@login_required
+def recruitment_applicants():
+    return render_template('recruitment_applicants.html')
+
+@app.route('/training_calendar')
+@login_required
+def training_calendar():
+    return render_template('training_calendar.html')
+
+@app.route('/training_resources')
+@login_required
+def training_resources():
+    return render_template('training_resources.html')
+
+@app.route('/disciplinary_actions')
+@login_required
+def disciplinary_actions():
+    return render_template('disciplinary_actions.html')
+
+@app.route('/benefits_assets')
+@login_required
+def benefits_assets():
+    return render_template('benefits_assets.html')
+
+@app.route('/awards_events')
+@login_required
+def awards_events():
+    return render_template('awards_events.html')
+
+@app.route('/employee_contracts')
+@login_required
+def employee_contracts():
+    return render_template('employee_contracts.html')
+
+@app.route('/employee_policies')
+@login_required
+def employee_policies():
+    return render_template('employee_policies.html')
+
+@app.route('/hr_analytics')
+@login_required
+def hr_analytics():
+    return render_template('hr_analytics.html')
+
+@app.route('/self_service_dashboard')
+@login_required
+def self_service_dashboard():
+    return render_template('self_service_dashboard.html')
+
+@app.route('/self_service_announcements')
+@login_required
+def self_service_announcements():
+    return render_template('self_service_announcements.html')
+@app.route('/attendance')
+@login_required
+def attendance_dashboard():
+    return render_template('attendance_dashboard.html')
+
+@app.route('/attendance/checkin')
+@login_required
+def attendance_checkin():
+    return render_template('attendance_checkin.html')
+
+@app.route('/attendance/biometric')
+@login_required
+def attendance_biometric():
+    return render_template('attendance_biometric.html')
+
+@app.route('/attendance/logs')
+@login_required
+def attendance_logs():
+    return render_template('attendance_logs.html')
+
+@app.route('/attendance/export')
+@login_required
+def attendance_export():
+    return render_template('attendance_export.html')
+
+@app.route('/attendance/shifts')
+@login_required
+def attendance_shifts():
+    return render_template('attendance_shifts.html')
+
+@app.route('/attendance/shift_swap')
+@login_required
+def attendance_shift_swap():
+    return render_template('attendance_shift_swap.html')
+
+@app.route('/attendance/overtime')
+@login_required
+def attendance_overtime():
+    return render_template('attendance_overtime.html')
+
+@app.route('/attendance/exceptions')
+@login_required
+def attendance_exceptions():
+    return render_template('attendance_exceptions.html')
+
+@app.route('/attendance/reports')
+@login_required
+def attendance_reports():
+    return render_template('attendance_reports.html')
+
+@app.route('/attendance/analytics_export')
+@login_required
+def attendance_analytics_export():
+    return render_template('attendance_analytics_export.html')
+# ...existing code...
+
+@app.route('/finance/bank_cash')
+@login_required
+def finance_bank_cash_dashboard():
+    return render_template('finance_bank_cash_dashboard.html')
+
+
+@app.route('/finance/cash_accounts')
+@login_required
+def cash_accounts():
+    return render_template('cash_accounts.html')
+
+@app.route('/finance/fund_transfers')
+@login_required
+def fund_transfers():
+    return render_template('fund_transfers.html')
+
+@app.route('/finance/bank_reconciliation')
+@login_required
+def bank_reconciliation():
+    return render_template('bank_reconciliation.html')
+
+@app.route('/finance/daily_cash_position')
+@login_required
+def daily_cash_position():
+    return render_template('daily_cash_position.html')
+
+@app.route('/finance/loan_tracking')
+@login_required
+def loan_tracking():
+    return render_template('loan_tracking.html')
+
+@app.route('/finance/bank_deposits_withdrawals')
+@login_required
+def bank_deposits_withdrawals():
+    return render_template('bank_deposits_withdrawals.html')
+
+
+from forms import BankAccountForm
+
+@app.route('/bank_accounts', methods=['GET', 'POST'])
+@login_required
+def bank_accounts():
+    form = BankAccountForm()
+
+    if form.validate_on_submit():
+        new_account = BankAccount(
+            name=form.name.data,
+            bank_name=form.bank_name.data,
+            account_number=form.account_number.data,
+            account_type=form.account_type.data,
+            currency=form.currency.data,
+            opening_balance=form.opening_balance.data,
+            chart_of_accounts=form.chart_of_accounts.data
+        )
+        db.session.add(new_account)
+        db.session.commit()
+        flash('Bank account added!', 'success')
+        return redirect(url_for('bank_accounts'))
+
+    accounts = BankAccount.query.all()
+
+    # ✅ Serialize account data for Chart.js
+    accounts_json = [
+        {
+            "name": acc.name,
+            "bank_name": acc.bank_name,
+            "account_number": acc.account_number,
+            "account_type": acc.account_type,
+            "currency": acc.currency,
+            "opening_balance": float(acc.opening_balance),
+            "chart_of_accounts": acc.chart_of_accounts,
+            "created_at": acc.created_at.strftime('%Y-%m-%d') if acc.created_at else None
+        }
+        for acc in accounts
+    ]
+
+    return render_template(
+        'bank_accounts.html',
+        form=form,
+        accounts=accounts,            # Used for table display
+        accounts_json=accounts_json  # Used for JSON/Chart.js
+    )
 
 @app.route('/create_user', methods=['GET', 'POST'])
 @login_required
@@ -323,20 +1098,21 @@ def audit_logs():
 
 @app.route('/verify_email/<token>')
 def verify_email(token):
-    try:
-        email = serializer.loads(token, salt='email-verify-salt', max_age=3600)
-        user = User.query.filter_by(email=email).first()
-        if user:
-            user.email_confirmed = True
-            db.session.commit()
-            flash("Email verified successfully. You can now log in.", "success")
-            return redirect(url_for('welcome.html'))
-        else:
-            flash("Invalid or expired token.", "danger")
-            return redirect(url_for('register'))
-    except Exception as e:
-        flash("Verification link is invalid or has expired.", "danger")
+    user = User.verify_token(token, purpose='confirm')  # uses your model's staticmethod
+
+    if not user:
+        flash("⛔ This verification link is invalid or has expired.", "danger")
         return redirect(url_for('register'))
+
+    if user.email_confirmed:
+        flash("✅ Your email is already verified. Please log in.", "info")
+        return redirect(url_for('login_page'))
+
+    user.confirm_email()  # sets email_confirmed = True and email_confirmed_on = now
+    db.session.commit()
+
+    flash("🎉 Email verified successfully! You can now log in.", "success")
+    return redirect(url_for('login_page'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -344,12 +1120,12 @@ def register():
     if form.validate_on_submit():
         full_name = form.full_name.data.strip()
         username = form.username.data.strip()
-        email = form.email.data.strip()
+        email = form.email.data.strip().lower()
         phone_number = form.phone_number.data.strip()
         password = form.password.data
         role = form.role.data or 'attendant'
 
-        # Check if user exists
+        # Check if user already exists
         existing_user = User.query.filter(
             (User.username == username) | (User.email == email)
         ).first()
@@ -357,7 +1133,7 @@ def register():
             flash("⚠️ Username or email already exists.", "danger")
             return redirect(url_for('register'))
 
-        # Assign first user as admin
+        # Assign admin to the first user
         if User.query.count() == 0:
             role = 'admin'
 
@@ -373,17 +1149,67 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        flash("✅ Registration successful!", "success")
+        # ✅ Send account confirmation email
+        token = new_user.generate_token(purpose='confirm')
+        send_verification_email(new_user.email, token)
+
+        # ✅ Send Welcome Email with credentials
+        try:
+            msg = Message(
+                subject="🎉 Welcome to RahaSoft!",
+                recipients=[new_user.email]
+            )
+            msg.body = f"""
+Hello {new_user.full_name},
+
+🎉 Congratulations on registering with RahaSoft!
+
+You're now part of a smart system designed to streamline your operations.
+
+Here are your login credentials:
+----------------------------------------
+Username: {new_user.username}
+Email: {new_user.email}
+Password: {password}
+----------------------------------------
+
+You can log in using either your username or your email address.
+
+🔐 Please keep this email confidential as it contains sensitive information. Do NOT share it with anyone.
+
+We’re thrilled to have you onboard.
+
+Warm regards,  
+The RahaSoft Team
+"""
+            mail.send(msg)
+        except Exception as e:
+            print(f"[Email Error] Welcome email failed: {e}")
+            flash("✅ Account created. Email confirmation sent, but welcome email failed.", "warning")
+            return redirect(url_for('login_page'))
+
+        flash("✅ Registration successful! Please check your email to confirm your account.", "success")
         return redirect(url_for('login_page'))
 
     return render_template('register.html', form=form)
 
 
 
+from flask import render_template, request, redirect, url_for, flash
+from flask_mail import Message
+import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from itsdangerous import SignatureExpired, BadSignature
+
+# === RESET PASSWORD ROUTE ===
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    form = ResetPasswordForm()
+
     try:
-        email = serializer.loads(token, salt='reset-password-salt', max_age=3600)
+        email = serializer.loads(token, salt='reset-password-salt', max_age=900)
         user = User.query.filter_by(email=email).first()
         if not user:
             flash("Invalid or expired token.", "danger")
@@ -392,18 +1218,61 @@ def reset_password(token):
         flash("The password reset link is invalid or has expired.", "danger")
         return redirect(url_for('forgot_password'))
 
-    if request.method == 'POST':
-        new_password = request.form.get('password')
-        if new_password:
-            user.password = new_password
-            db.session.commit()
-            flash("Your password has been reset. You can now log in.", "success")
-            return redirect(url_for('welcome.html'))
-        else:
-            flash("Please enter a new password.", "warning")
+    if form.validate_on_submit():
+        new_password = form.password.data
+        # 🔒 HASH the password before saving
+        user.password = generate_password_hash(new_password)
+        db.session.commit()
+        flash("Your password has been reset. You can now log in.", "success")
+        return redirect(url_for('login'))  # Use your login route here
 
-    return render_template('reset_password.html')
+    return render_template('reset_password.html', form=form)
 
+# === FORGOT PASSWORD ROUTE ===
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        email = form.email.data.strip().lower()
+        user = User.query.filter_by(email=email).first()
+
+        if user:
+            token = serializer.dumps(user.email, salt='reset-password-salt')
+            send_reset_email(user.email, token)
+
+        flash("A password reset link will be sent to your email if it's associated with a RahaSoft account. Check your inbox or spam folder.", "info")
+        return redirect(url_for('forgot_password_confirmation'))
+
+    return render_template('forgot_password.html', form=form)
+
+
+# === RESET EMAIL FUNCTION ===
+def send_reset_email(to_email, token):
+    reset_url = url_for('reset_password', token=token, _external=True)
+    subject = "Reset Your RahaSoft Password"
+
+    body = f"""Hello,
+
+We received a request to reset the password for your RahaSoft account.
+
+Click the link below to reset your password:
+{reset_url}
+
+This link will expire in 1 hour for your security.
+
+If you did not request this, you can safely ignore this email — no changes will be made to your account.
+
+Sincerely,  
+The RahaSoft Team  
+support@rahasoft.app
+"""
+
+    msg = Message(subject=subject, recipients=[to_email], body=body, reply_to='support@rahasoft.app')
+    mail.send(msg)
+    app.logger.info(f"✅ Sent password reset email to {to_email}")
+
+
+# === ACCOUNT CREATION EMAIL FUNCTION ===
 def send_account_email(user_email, username, password):
     SMTP_SERVER = os.getenv('SMTP_SERVER')
     SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
@@ -413,8 +1282,7 @@ def send_account_email(user_email, username, password):
     APP_NAME = "RahaSoft"
 
     subject = f"{APP_NAME} - Your Account Details"
-    body = f"""
-Hi {username},
+    body = f"""Hi {username},
 
 Your account has been created successfully on {APP_NAME}.
 
@@ -425,7 +1293,7 @@ Here are your login details:
 
 You can log in at: http://localhost:5000/login
 
-Make sure to change your password after logging in.
+Please change your password after logging in for security.
 
 Regards,  
 {APP_NAME} Team
@@ -446,24 +1314,6 @@ Regards,
     except Exception as e:
         app.logger.error(f"❌ Failed to send account email to {user_email}: {e}")
 
-
-@app.route('/forgot_password', methods=['GET', 'POST'])
-def forgot_password():
-    form = ForgotPasswordForm()
-    if form.validate_on_submit():
-        email = form.email.data.strip().lower()
-        user = User.query.filter_by(email=email).first()
-        if user:
-            token = serializer.dumps(user.email, salt='reset-password-salt')
-            # You could call a send_reset_email() function here
-            send_reset_email(user.email, token)
-            flash("Password reset instructions have been sent to your email.", "info")
-        else:
-            flash("Email not found.", "danger")
-        return redirect(url_for('welcome.html'))
-
-    return render_template('forgot_password.html', form=form)
-
 @app.route('/make_admin')
 def make_admin():
     user = User.query.filter_by(username='Bilford').first()
@@ -473,13 +1323,16 @@ def make_admin():
         return f"{user.username} is now a super_admin"
     return "User not found"
 
+@app.route('/forgot-password-confirmation')
+def forgot_password_confirmation():
+    return render_template('forgot_password_confirmation.html')
+
 # -------------------- Inventory --------------------
 @app.route('/inventory')
 @login_required
+@email_verified_required
 def inventory():
-    if not has_permission(current_user.role, 'view_inventory'):
-        flash("⛔ You don't have permission to view inventory.", "danger")
-        return redirect(url_for('home'))
+    # Anyone logged in can view inventory now!
 
     company_id = current_user.company_id  # 🏢 Multi-tenant filter
     category_filter = request.args.get('category')
@@ -880,6 +1733,7 @@ def hr_dashboard():
 @app.route('/payroll/new', methods=['GET', 'POST'])
 @login_required
 def new_payroll_record():
+    from models import PayrollRecord  # ✅ Import PayrollRecord here
     if not has_permission(current_user.role, 'manage_payroll'):
         flash("⛔ You don't have permission to add payroll records.", "danger")
         return redirect(url_for('inventory'))
@@ -916,10 +1770,29 @@ def payroll_records():
     from models import PayrollRecord  # Ensure the model is imported
     payroll_list = PayrollRecord.query.order_by(PayrollRecord.date.desc()).all()
     return render_template('payroll_list.html', payroll_list=payroll_list, user_role=session.get('role'))
+@app.route('/stock_management', methods=['GET'])
+@login_required
+def stock_management():
+    products = Product.query.all()
+    return render_template('stock_management.html', products=products)
+
+@app.route('/add_product', methods=['POST'])
+@login_required
+def add_product():
+    name = request.form['name']
+    quantity = int(request.form['quantity'])
+    price = float(request.form['price'])
+    new_product = Product(name=name, quantity=quantity, price=price)
+    db.session.add(new_product)
+    db.session.commit()
+    flash('Product added!', 'success')
+    return redirect(url_for('stock_management'))
 
 @app.route("/add_payroll", methods=["GET", "POST"])
 @login_required
 def add_payroll():
+    from models import PayrollRecord  # ✅ Import PayrollRecord here
+
     if not has_permission(current_user.role, 'manage_users'):
         flash("⛔ You don't have permission to manage payroll.", "danger")
         return redirect(url_for('inventory'))
@@ -1313,3 +2186,4 @@ def landing_page():
 
 if __name__ == '__main__':
     app.run(debug=True)
+

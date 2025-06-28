@@ -1,6 +1,7 @@
 # models/product.py
 from models import db
 
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_code = db.Column(db.String(100), unique=True)

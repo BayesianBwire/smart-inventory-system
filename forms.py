@@ -7,26 +7,35 @@ from wtforms.validators import (
     DataRequired, Email, Length, EqualTo, Optional, URL, NumberRange
 )
 
-# ✅ Registration Form
+# --------------------------
+# 🔐 Authentication Forms
+# --------------------------
+
 class RegisterForm(FlaskForm):
     full_name = StringField('Full Name', validators=[
         DataRequired(), Length(min=3, max=100)
-    ])
+    ], render_kw={"placeholder": "John Doe"})
+
     username = StringField('Username', validators=[
         DataRequired(), Length(min=3, max=80)
-    ])
+    ], render_kw={"placeholder": "johndoe"})
+
     email = StringField('Email', validators=[
         DataRequired(), Email(), Length(max=120)
-    ])
+    ], render_kw={"placeholder": "user@example.com"})
+
     phone_number = StringField('Phone Number', validators=[
         Optional(), Length(min=7, max=20)
-    ])
+    ], render_kw={"placeholder": "+254712345678"})
+
     password = PasswordField('Password', validators=[
         DataRequired(), Length(min=6)
-    ])
+    ], render_kw={"placeholder": "Enter password"})
+
     confirm_password = PasswordField('Confirm Password', validators=[
         DataRequired(), EqualTo('password', message='Passwords must match.')
-    ])
+    ], render_kw={"placeholder": "Repeat password"})
+
     role = SelectField('Role', choices=[
         ('', 'Select Role'),
         ('admin', 'Admin'),
@@ -43,36 +52,70 @@ class RegisterForm(FlaskForm):
         ('it_support', 'IT Support'),
         ('attendant', 'Attendant')
     ], validators=[DataRequired()])
+
     submit = SubmitField('Register')
 
-# ✅ Login Form
+
 class LoginForm(FlaskForm):
     username = StringField('Username or Email', validators=[
         DataRequired()
-    ])
+    ], render_kw={"placeholder": "Enter your username or email"})
+
     password = PasswordField('Password', validators=[
         DataRequired()
-    ])
+    ], render_kw={"placeholder": "Enter your password"})
+
     submit = SubmitField('Login')
 
-# ✅ Forgot Password Form
+
 class ForgotPasswordForm(FlaskForm):
     email = StringField('Email Address', validators=[
         DataRequired(), Email()
-    ])
+    ], render_kw={"placeholder": "Enter your registered email"})
+
     submit = SubmitField('Send Reset Link')
 
-# ✅ Reset Password Form
+
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[
         DataRequired(), Length(min=6)
-    ])
+    ], render_kw={"placeholder": "New password"})
+
     confirm_password = PasswordField('Confirm New Password', validators=[
         DataRequired(), EqualTo('password', message='Passwords must match.')
-    ])
+    ], render_kw={"placeholder": "Repeat new password"})
+
     submit = SubmitField('Reset Password')
 
-# ✅ Product Management Form
+# --------------------------
+# 💰 Finance Module Forms
+# --------------------------
+
+class BankAccountForm(FlaskForm):
+    name = StringField('Account Name', validators=[DataRequired()])
+    bank_name = StringField('Bank Name', validators=[DataRequired()])
+    account_number = StringField('Account Number', validators=[Optional()])
+    account_type = SelectField('Account Type', choices=[
+        ('current', 'Current'),
+        ('savings', 'Savings'),
+        ('mobile', 'Mobile'),
+        ('other', 'Other')
+    ], validators=[DataRequired()])
+    currency = SelectField('Currency', choices=[
+        ('KES', 'KES'),
+        ('USD', 'USD'),
+        ('EUR', 'EUR')
+    ], validators=[DataRequired()])
+    opening_balance = DecimalField('Opening Balance', validators=[
+        DataRequired(), NumberRange(min=0)
+    ])
+    chart_of_accounts = StringField('Chart of Accounts', validators=[Optional()])
+    submit = SubmitField('Save Account')
+
+# --------------------------
+# 📦 Inventory Module Forms
+# --------------------------
+
 class ProductForm(FlaskForm):
     product_code = StringField('Product Code', validators=[DataRequired()])
     product_name = StringField('Product Name', validators=[DataRequired()])
@@ -82,6 +125,8 @@ class ProductForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
     description = TextAreaField('Description', validators=[Optional()])
     image_url = StringField('Image URL', validators=[Optional(), URL()])
-    average_rating = DecimalField('Average Rating', validators=[Optional(), NumberRange(min=0, max=5)], default=0.0)
+    average_rating = DecimalField('Average Rating', validators=[
+        Optional(), NumberRange(min=0, max=5)
+    ], default=0.0)
     reviews_count = IntegerField('Reviews Count', validators=[Optional()], default=0)
     submit = SubmitField('Submit Product')

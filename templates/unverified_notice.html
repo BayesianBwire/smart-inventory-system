@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="alert alert-warning text-center p-5 rounded shadow">
+    <h2 class="mb-3">⚠️ Email Not Verified</h2>
+    <p class="lead">
+      You need to verify your email address to access this feature.
+    </p>
+    <p>
+      Please check your inbox or spam folder for the verification link.
+    </p>
+    <p class="mt-4">
+      Didn't receive the email?
+    </p>
+    <a href="{{ url_for('resend_verification') }}" class="btn btn-primary btn-lg">
+      Resend Verification Email
+    </a>
+  </div>
+</div>
+{% endblock %}

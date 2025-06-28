@@ -1,51 +1,260 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container mt-4">
-  <div class="text-center mb-4">
-    <h2 class="fw-bold text-primary"> HR Dashboard</h2>
-    <p class="text-muted">Staff Overview Panel</p>
-  </div>
+<div class="container py-4">
+  <h2 class="mb-4 fw-bold" style="color: #dc3545;">
+    <i class="fas fa-user-tie me-2"></i>Human Resources (HR)
+  </h2>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
+  <!-- 1. Employee Management -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-id-badge fa-2x me-2" style="color: #007bff;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #007bff;">Employee Management</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-users fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Employee Profiles</h6>
+            <a href="{{ url_for('employee_profiles') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-building fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Departments & Locations</h6>
+            <a href="{{ url_for('departments_locations') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-user-slash fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Exit/Termination</h6>
+            <a href="{{ url_for('employee_exit') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  {% if staff_users %}
-  <div class="table-responsive mb-5">
-    <table class="table table-bordered table-striped shadow-sm">
-      <thead class="thead-dark">
-        <tr>
-          <th>#</th>
-          <th>Full Name</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Date Joined</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for user in staff_users %}
-        <tr>
-          <td>{{ loop.index }}</td>
-          <td>{{ user.full_name or "N/A" }}</td>
-          <td>{{ user.email }}</td>
-          <td><span class="badge bg-primary">{{ user.role }}</span></td>
-          <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else "N/A" }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% else %}
-    <div class="alert alert-warning text-center">No staff users found.</div>
-  {% endif %}
+  <!-- 2. Performance Management -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-chart-line fa-2x me-2" style="color: #28a745;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #28a745;">Performance Management</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-success">
+          <div class="card-body text-center">
+            <i class="fas fa-bullseye fa-2x mb-2" style="color: #28a745;"></i>
+            <h6>KPI & Appraisals</h6>
+            <a href="{{ url_for('performance_kpi') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-success">
+          <div class="card-body text-center">
+            <i class="fas fa-trophy fa-2x mb-2" style="color: #28a745;"></i>
+            <h6>Goal Tracking</h6>
+            <a href="{{ url_for('performance_goals') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <div class="text-center mt-4">
-    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
-  </div>
+  <!-- 3. Recruitment -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-user-plus fa-2x me-2" style="color: #fd7e14;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #fd7e14;">Recruitment</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-briefcase fa-2x mb-2" style="color: #fd7e14;"></i>
+            <h6>Job Vacancies</h6>
+            <a href="{{ url_for('recruitment_jobs') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-user-check fa-2x mb-2" style="color: #fd7e14;"></i>
+            <h6>Applicants & Onboarding</h6>
+            <a href="{{ url_for('recruitment_applicants') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Training & Development -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-chalkboard-teacher fa-2x me-2" style="color: #6f42c1;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #6f42c1;">Training & Development</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-calendar-alt fa-2x mb-2" style="color: #6f42c1;"></i>
+            <h6>Training Calendar</h6>
+            <a href="{{ url_for('training_calendar') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-certificate fa-2x mb-2" style="color: #6f42c1;"></i>
+            <h6>Resources & Attendance</h6>
+            <a href="{{ url_for('training_resources') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Disciplinary Management -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-gavel fa-2x me-2" style="color: #dc3545;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #dc3545;">Disciplinary Management</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-1 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-danger">
+          <div class="card-body text-center">
+            <i class="fas fa-exclamation-triangle fa-2x mb-2" style="color: #dc3545;"></i>
+            <h6>Disciplinary Actions</h6>
+            <a href="{{ url_for('disciplinary_actions') }}" class="btn btn-outline-danger btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Benefits & Welfare -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-gift fa-2x me-2" style="color: #20c997;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #20c997;">Benefits & Welfare</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-teal">
+          <div class="card-body text-center">
+            <i class="fas fa-medkit fa-2x mb-2" style="color: #20c997;"></i>
+            <h6>Benefits & Assets</h6>
+            <a href="{{ url_for('benefits_assets') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-teal">
+          <div class="card-body text-center">
+            <i class="fas fa-award fa-2x mb-2" style="color: #20c997;"></i>
+            <h6>Awards & Events</h6>
+            <a href="{{ url_for('awards_events') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Employee Documents & Contracts -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-file-contract fa-2x me-2" style="color: #ffc107;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #ffc107;">Employee Documents & Contracts</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-file-alt fa-2x mb-2" style="color: #ffc107;"></i>
+            <h6>Contracts & NDAs</h6>
+            <a href="{{ url_for('employee_contracts') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-bell fa-2x mb-2" style="color: #ffc107;"></i>
+            <h6>Expiry & Policy Docs</h6>
+            <a href="{{ url_for('employee_policies') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Analytics & Reports -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-chart-bar fa-2x me-2" style="color: #6610f2;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #6610f2;">Analytics & Reports</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-users fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Headcount & Distribution</h6>
+            <a href="{{ url_for('hr_analytics') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-chart-line fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Turnover & Trends</h6>
+            <a href="{{ url_for('hr_analytics') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Self-Service Portal -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-user-circle fa-2x me-2" style="color: #343a40;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #343a40;">Self-Service Portal</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-dark">
+          <div class="card-body text-center">
+            <i class="fas fa-user-edit fa-2x mb-2" style="color: #343a40;"></i>
+            <h6>Employee Dashboard</h6>
+            <a href="{{ url_for('self_service_dashboard') }}" class="btn btn-outline-dark btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-dark">
+          <div class="card-body text-center">
+            <i class="fas fa-bullhorn fa-2x mb-2" style="color: #343a40;"></i>
+            <h6>Announcements & Requests</h6>
+            <a href="{{ url_for('self_service_announcements') }}" class="btn btn-outline-dark btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 {% endblock %}

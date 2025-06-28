@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <!-- Form Section -->
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0 mb-5" style="background: #e3f0fb;">
+        <div class="card-body p-5">
+          <h2 class="mb-4 fw-bold" style="color: #36585C;">
+            <i class="fas fa-university me-2"></i>Add Bank Account
+          </h2>
+          <form method="post" autocomplete="off">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+              {{ form.name.label(class="form-label", style="color: #36585C;") }}
+              {{ form.name(class="form-control") }}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" style="color: #36585C;">Bank Name</label>
+              <select name="bank_name" class="form-select" required>
+                <option value="">-- Select Bank --</option>
+                {% for bank in [
+                  'Absa Bank Kenya', 'Bank of Africa', 'Bank of Baroda', 'Bank of India',
+                  'Citibank', 'Co-operative Bank of Kenya', 'Consolidated Bank of Kenya',
+                  'Credit Bank', 'DTB (Diamond Trust Bank)', 'Ecobank Kenya',
+                  'Equity Bank Kenya', 'Family Bank', 'First Community Bank',
+                  'Guaranty Trust Bank', 'Gulf African Bank', 'Habib Bank AG Zurich',
+                  'HF Group (Housing Finance)', 'I&M Bank', 'KCB Bank Kenya',
+                  'Kingdom Bank', 'Mayfair Bank', 'Middle East Bank Kenya',
+                  'NCBA Bank Kenya', 'National Bank of Kenya', 'Prime Bank', 'Sidian Bank',
+                  'Spire Bank', 'Stanbic Bank Kenya', 'Standard Chartered Kenya',
+                  'UBA Kenya Bank', 'Victoria Commercial Bank'
+                ] %}
+                <option value="{{ bank }}">{{ bank }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              {{ form.account_number.label(class="form-label", style="color: #36585C;") }}
+              {{ form.account_number(class="form-control") }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.account_type.label(class="form-label", style="color: #36585C;") }}
+              {{ form.account_type(class="form-select") }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.currency.label(class="form-label", style="color: #36585C;") }}
+              {{ form.currency(class="form-select") }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.opening_balance.label(class="form-label", style="color: #36585C;") }}
+              {{ form.opening_balance(class="form-control") }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.chart_of_accounts.label(class="form-label", style="color: #36585C;") }}
+              {{ form.chart_of_accounts(class="form-control") }}
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+              {{ form.submit(class="btn px-4", style="background: linear-gradient(to right, #36585C, #007bff); color: #fff;") }}
+              <a href="{{ url_for('bank_accounts') }}" class="btn btn-outline-secondary ms-2" style="border-color: #36585C; color: #36585C;">
+                Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bank Accounts Table -->
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card shadow-sm border-0" style="background: #e9f7ef;">
+        <div class="card-body p-4">
+          <h3 class="mb-3 fw-bold" style="color: #36585C;">
+            <i class="fas fa-list me-2"></i>Existing Bank Accounts
+          </h3>
+          {% if accounts %}
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Name</th>
+                    <th>Bank</th>
+                    <th>Account Number</th>
+                    <th>Type</th>
+                    <th>Currency</th>
+                    <th>Opening Balance</th>
+                    <th>Chart of Accounts</th>
+                    <th>Created At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for acc in accounts %}
+                  <tr>
+                    <td>{{ acc.name }}</td>
+                    <td>{{ acc.bank_name }}</td>
+                    <td>{{ acc.account_number or '-' }}</td>
+                    <td>{{ acc.account_type.capitalize() }}</td>
+                    <td>{{ acc.currency }}</td>
+                    <td>{{ acc.opening_balance | round(2) }}</td>
+                    <td>{{ acc.chart_of_accounts or '-' }}</td>
+                    <td>{{ acc.created_at.strftime('%Y-%m-%d') if acc.created_at else '-' }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="alert alert-info mt-4">No bank accounts found.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Charts -->
+  <div class="row justify-content-center mt-5">
+    <div class="col-lg-10">
+      <div class="card shadow-sm border-0" style="background: #fffbe6;">
+        <div class="card-body p-4">
+          <h3 class="mb-3 fw-bold" style="color: #b8860b;">
+            <i class="fas fa-chart-bar me-2"></i>Bank Accounts Analytics
+          </h3>
+          <div class="row">
+            <div class="col-md-6 mb-4 mb-md-0">
+              <canvas id="accountsByType"></canvas>
+            </div>
+            <div class="col-md-6">
+              <canvas id="accountsByBank"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js and JS logic -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="text/javascript">
+    const accountsData = {{ accounts_json | tojson | safe }};
+
+    const typeCounts = {};
+    const bankCounts = {};
+    accountsData.forEach(acc => {
+      typeCounts[acc.account_type] = (typeCounts[acc.account_type] || 0) + 1;
+      bankCounts[acc.bank_name] = (bankCounts[acc.bank_name] || 0) + 1;
+    });
+
+    new Chart(document.getElementById('accountsByType'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(typeCounts),
+        datasets: [{
+          label: 'Accounts by Type',
+          data: Object.values(typeCounts),
+          backgroundColor: '#36585C'
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    new Chart(document.getElementById('accountsByBank'), {
+      type: 'pie',
+      data: {
+        labels: Object.keys(bankCounts),
+        datasets: [{
+          label: 'Accounts by Bank',
+          data: Object.values(bankCounts),
+          backgroundColor: [
+            '#36585C', '#007bff', '#e3f0fb', '#e9f7ef', '#b8860b',
+            '#ff6384', '#36a2eb', '#ffce56', '#8bc34a', '#f44336',
+            '#9c27b0', '#00bcd4', '#ffc107', '#795548', '#607d8b'
+          ]
+        }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+  </script>
+</div>
+{% endblock %}

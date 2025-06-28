@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 fw-bold" style="color: #ffc107;">
+    <i class="fas fa-cash-register me-2"></i>POS (Point of Sale)
+  </h2>
+
+  <!-- 1. Sales Interface -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-search fa-2x me-2" style="color: #007bff;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #007bff;">Sales Interface</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-4 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-barcode fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Quick Product Search</h6>
+            <a href="{{ url_for('pos_new_sale') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-cart-plus fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Cart & Stock Check</h6>
+            <a href="{{ url_for('pos_new_sale') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-user-friends fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Customer Selection</h6>
+            <a href="{{ url_for('pos_new_sale') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Billing & Payment -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-money-check-alt fa-2x me-2" style="color: #28a745;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #28a745;">Billing & Payment</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-4 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-success">
+          <div class="card-body text-center">
+            <i class="fas fa-coins fa-2x mb-2" style="color: #28a745;"></i>
+            <h6>Multiple Payment Options</h6>
+            <a href="{{ url_for('pos_payment') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-success">
+          <div class="card-body text-center">
+            <i class="fas fa-percent fa-2x mb-2" style="color: #28a745;"></i>
+            <h6>Discounts & VAT</h6>
+            <a href="{{ url_for('pos_payment') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-success">
+          <div class="card-body text-center">
+            <i class="fas fa-balance-scale fa-2x mb-2" style="color: #28a745;"></i>
+            <h6>Split Payments</h6>
+            <a href="{{ url_for('pos_payment') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Customer Management -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-users fa-2x me-2" style="color: #fd7e14;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #fd7e14;">Customer Management</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-user-plus fa-2x mb-2" style="color: #fd7e14;"></i>
+            <h6>Add Customer</h6>
+            <a href="{{ url_for('pos_add_customer') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-history fa-2x mb-2" style="color: #fd7e14;"></i>
+            <h6>Purchase History</h6>
+            <a href="{{ url_for('pos_customer_history') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-gift fa-2x mb-2" style="color: #fd7e14;"></i>
+            <h6>Loyalty & Credit</h6>
+            <a href="{{ url_for('pos_loyalty') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Receipts & Invoices -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-receipt fa-2x me-2" style="color: #6f42c1;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #6f42c1;">Receipts & Invoices</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-print fa-2x mb-2" style="color: #6f42c1;"></i>
+            <h6>Print/Email Receipt</h6>
+            <a href="{{ url_for('pos_receipt') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-redo fa-2x mb-2" style="color: #6f42c1;"></i>
+            <h6>Reprint/Refund</h6>
+            <a href="{{ url_for('pos_receipt') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-cog fa-2x mb-2" style="color: #6f42c1;"></i>
+            <h6>Receipt Settings</h6>
+            <a href="{{ url_for('pos_settings') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Cash Register Management -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-cash-register fa-2x me-2" style="color: #dc3545;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #dc3545;">Cash Register Management</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-danger">
+          <div class="card-body text-center">
+            <i class="fas fa-door-open fa-2x mb-2" style="color: #dc3545;"></i>
+            <h6>Open/Close Shift</h6>
+            <a href="{{ url_for('pos_shift') }}" class="btn btn-outline-danger btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-danger">
+          <div class="card-body text-center">
+            <i class="fas fa-coins fa-2x mb-2" style="color: #dc3545;"></i>
+            <h6>Cash In/Out</h6>
+            <a href="{{ url_for('pos_cash') }}" class="btn btn-outline-danger btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-danger">
+          <div class="card-body text-center">
+            <i class="fas fa-file-invoice-dollar fa-2x mb-2" style="color: #dc3545;"></i>
+            <h6>Register Summary</h6>
+            <a href="{{ url_for('pos_register_report') }}" class="btn btn-outline-danger btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Hold / Park Orders -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-pause-circle fa-2x me-2" style="color: #20c997;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #20c997;">Hold / Park Orders</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-teal">
+          <div class="card-body text-center">
+            <i class="fas fa-pause fa-2x mb-2" style="color: #20c997;"></i>
+            <h6>Park/Retrieve Orders</h6>
+            <a href="{{ url_for('pos_park_order') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-teal">
+          <div class="card-body text-center">
+            <i class="fas fa-play fa-2x mb-2" style="color: #20c997;"></i>
+            <h6>Suspend/Resume</h6>
+            <a href="{{ url_for('pos_park_order') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Return & Refunds -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-undo fa-2x me-2" style="color: #17a2b8;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #17a2b8;">Return & Refunds</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-info">
+          <div class="card-body text-center">
+            <i class="fas fa-undo-alt fa-2x mb-2" style="color: #17a2b8;"></i>
+            <h6>Product Returns</h6>
+            <a href="{{ url_for('pos_returns') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-info">
+          <div class="card-body text-center">
+            <i class="fas fa-credit-card fa-2x mb-2" style="color: #17a2b8;"></i>
+            <h6>Refunds & Store Credit</h6>
+            <a href="{{ url_for('pos_returns') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. POS Settings & Configuration -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-cogs fa-2x me-2" style="color: #ffc107;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #ffc107;">POS Settings & Configuration</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-file-invoice fa-2x mb-2" style="color: #ffc107;"></i>
+            <h6>Invoice Layout</h6>
+            <a href="{{ url_for('pos_settings') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-user-lock fa-2x mb-2" style="color: #ffc107;"></i>
+            <h6>Cashier PINs & Permissions</h6>
+            <a href="{{ url_for('pos_settings') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. POS Reports -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-chart-bar fa-2x me-2" style="color: #6610f2;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #6610f2;">POS Reports</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-calendar-day fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Daily Sales</h6>
+            <a href="{{ url_for('pos_reports') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-list fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Sales by Item/Cashier</h6>
+            <a href="{{ url_for('pos_reports') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-receipt fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Refund & Discount Reports</h6>
+            <a href="{{ url_for('pos_reports') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Offline POS Support -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-wifi-slash fa-2x me-2" style="color: #343a40;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #343a40;">Offline POS Support</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-1 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-dark">
+          <div class="card-body text-center">
+            <i class="fas fa-sync fa-2x mb-2" style="color: #343a40;"></i>
+            <h6>Offline Billing & Sync</h6>
+            <a href="{{ url_for('pos_offline') }}" class="btn btn-outline-dark btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Hardware Integration -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-print fa-2x me-2" style="color: #20c997;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #20c997;">Hardware Integration</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-teal">
+          <div class="card-body text-center">
+            <i class="fas fa-receipt fa-2x mb-2" style="color: #20c997;"></i>
+            <h6>Receipt Printer</h6>
+            <a href="{{ url_for('pos_hardware') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-teal">
+          <div class="card-body text-center">
+            <i class="fas fa-barcode fa-2x mb-2" style="color: #20c997;"></i>
+            <h6>Barcode Scanner</h6>
+            <a href="{{ url_for('pos_hardware') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-teal">
+          <div class="card-body text-center">
+            <i class="fas fa-desktop fa-2x mb-2" style="color: #20c997;"></i>
+            <h6>Touchscreen & Drawer</h6>
+            <a href="{{ url_for('pos_hardware') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

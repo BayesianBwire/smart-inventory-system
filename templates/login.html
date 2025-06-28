@@ -170,22 +170,48 @@
   <div class="container">
     <div class="login-box">
       <h1>Welcome back</h1>
-      <form method="POST" action="{{ url_for('login_page') }}">
-        {{ form.hidden_tag() }}
+      <!-- Show flashed messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+         {% if messages %}
+           {% for category, message in messages %}
+             <div class="alert alert-{{ category }}">{{ message }}</div>
+           {% endfor %}
+        {% endif %}
+     {% endwith %}
 
-        <div class="input-group">
-          <i class="fas fa-user fa-icon"></i>
-          {{ form.username(class_="form-control", placeholder="Username or Email") }}
-        </div>
+<!-- Show form validation errors -->
+     {% if form.errors %}
+       <div class="alert alert-danger">
+         {% for field, errors in form.errors.items() %}
+           {% for error in errors %}
+             <div>{{ error }}</div>
+           {% endfor %}
+         {% endfor %}
+       </div>
+     {% endif %}
 
-        <div class="input-group">
-          <i class="fas fa-lock fa-icon"></i>
-          {{ form.password(class_="form-control", id="password", placeholder="Password") }}
-          <i class="fas fa-eye toggle-password" onclick="togglePassword()"></i>
-        </div>
+    <form method="POST" action="{{ url_for('login_page') }}" novalidate>
+    {{ form.hidden_tag() }}
 
-        {{ form.submit(class_="btn") }}
-      </form>
+    <!-- Username or Email -->
+    <div class="input-group mb-3">
+        <i class="fas fa-user fa-icon"></i>
+        {{ form.username(class_="form-control", placeholder="Username or Email", autocomplete="username") }}
+    </div>
+
+    <!-- Password -->
+    <div class="input-group mb-3">
+        <i class="fas fa-lock fa-icon"></i>
+        {{ form.password(class_="form-control", id="password", placeholder="Password", autocomplete="current-password") }}
+        <i class="fas fa-eye toggle-password" onclick="togglePassword()" title="Show/Hide password" role="button" tabindex="0"></i>
+    </div>
+
+    <!-- Submit button -->
+    <div class="d-grid">
+        {{ form.submit(class_="btn btn-primary w-100") }}
+    </div>
+</form>
+
 
       <div class="options">
         <p><a href="{{ url_for('forgot_password') }}">Forgot Password?</a></p>
