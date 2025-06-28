@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="container py-5">
+  <h2 class="text-center mb-4 text-primary">👋 Welcome to RahaSoft</h2>
+  <p class="text-center text-muted">Please choose a module from the navigation above.</p>
+
+  <div class="row justify-content-center g-4 mt-4">
+    <div class="col-md-3">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-boxes text-primary fa-2x mb-3"></i>
+          <h5 class="card-title">Inventory</h5>
+          <a href="{{ url_for('inventory') }}" class="btn btn-sm btn-outline-primary">Open</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-money-bill text-success fa-2x mb-3"></i>
+          <h5 class="card-title">Sales</h5>
+          <a href="{{ url_for('sales') }}" class="btn btn-sm btn-outline-success">Open</a>
+        </div>
+      </div>
+    </div>
+    <!-- Add more cards for HR, CRM, etc. as needed -->
+  </div>
+</section>
+{% endblock %}

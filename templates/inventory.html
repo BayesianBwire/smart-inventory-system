@@ -1,216 +1,560 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container-fluid">
-  <div class="row">
-    
-    <!-- Fixed Admin Panel -->
-    {% if user_role in ['superadmin', 'admin', 'manager', 'hr_manager'] %}
-    <div class="col-md-2 bg-light border-end p-3">
-      <h5 class="text-primary fw-bold mb-3">Admin Tools</h5>
-      <div class="d-grid gap-2">
-        <a href="{{ url_for('create_user') }}" class="btn btn-success btn-sm">
-          👤 Create User
-        </a>
-        <a href="{{ url_for('import_adidas') }}" class="btn btn-secondary btn-sm">
-          📥 CSV Import
-        </a>
-        <a href="{{ url_for('new_product') }}" class="btn btn-primary btn-sm">
-          ➕ Add Product
-        </a>
-        <a href="{{ url_for('download_inventory') }}" class="btn btn-outline-primary btn-sm">
-          📤 Export Excel
-        </a>
-        <a href="{{ url_for('sales') }}" class="btn btn-info btn-sm">
-          📈 View Sales
-        </a>
-        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">
-          🚪 Logout
-        </a>
-      </div>
-    </div>
-    {% endif %}
 
-    <!-- Main Content -->
-    <div class="col-md-10 p-4">
-      <div class="mb-4 text-center">
-        <h2 class="fw-bold text-primary">RahaSoft Inventory</h2>
-      </div>
-
-      <div class="mb-4">
-        <h4 class="fw-bold text-primary">{{ session['user'] }}</h4>
-      </div>
-
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-
-      <div class="mb-3 d-flex justify-content-between align-items-center">
-        <form method="get" class="form-inline d-flex flex-wrap gap-2">
-          <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ search_query }}">
-          <select name="category" class="form-control">
-            <option value="">All Categories</option>
-            {% for category in categories %}
-              <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
-            {% endfor %}
-          </select>
-          <label class="form-check-label">
-            <input type="checkbox" name="low_stock" {% if low_stock_checked %}checked{% endif %}> Low Stock
-          </label>
-          <button type="submit" class="btn btn-sm btn-primary">🔍 Apply</button>
-        </form>
-
-        <div class="position-relative">
-          <a href="{{ url_for('cart') }}" class="btn btn-primary btn-sm">🛒 Cart</a>
-          {% if cart_item_count > 0 %}
-            <span class="cart-badge">{{ cart_item_count }}</span>
-          {% endif %}
-        </div>
-      </div>
-
-      {% if most_valuable %}
-      <div class="alert alert-primary">
-        <strong>Top Product:</strong> {{ most_valuable.product_name }} (Value: KES {{ most_valuable.quantity * most_valuable.price }})
-      </div>
-      {% endif %}
-
-      <!-- KPI Cards -->
-      <div class="row mb-4">
-        <div class="col-md-4">
-          <div class="card shadow-sm bg-light h-100">
-            <div class="card-body text-center">
-              <h6 class="text-muted">Total Stock</h6>
-              <h4 class="fw-bold text-primary">{{ total_stock }}</h4>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card shadow-sm bg-light h-100">
-            <div class="card-body text-center">
-              <h6 class="text-muted">Inventory Value (KES)</h6>
-              <h4 class="fw-bold text-success">KES {{ total_value }}</h4>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card shadow-sm bg-light h-100">
-            <div class="card-body text-center">
-              <h6 class="text-muted">Low Stock Items</h6>
-              <h4 class="fw-bold text-danger">{{ low_stock_count }}</h4>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Product Cards -->
-      <form method="POST" action="{{ url_for('bulk_action') }}">
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-          {% for product in products %}
-          <div class="col">
-            <div class="card h-100 border-0 shadow-sm position-relative">
-
-              <!-- Product Checkbox -->
-              <div class="form-check position-absolute" style="top: 10px; right: 10px;">
-                <input class="form-check-input" type="checkbox" name="selected_products[]" value="{{ product.id }}">
-              </div>
-
-              <img src="{{ product.image_url or 'https://via.placeholder.com/150' }}" class="card-img-top" alt="{{ product.product_name }}" style="object-fit: cover; height: 180px;">
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title">{{ product.product_name }}</h5>
-                <p class="card-text text-muted mb-1">{{ product.category }}</p>
-                <p class="card-text text-primary fw-bold mb-1">KES {{ product.price }}</p>
-                <p class="card-text mb-3">In Stock: {{ product.quantity }}</p>
-
-                <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-sm btn-primary mt-auto">
-                  ➕ Add to Cart
-                </a>
-
-                {% if user_role not in ['supervisor'] %}
-                <a href="{{ url_for('delete_product', product_id=product.id) }}" class="btn btn-sm btn-danger mt-2">
-                  🗑️ Delete
-                </a>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-
-        <div class="text-center mt-4">
-          <button type="submit" class="btn btn-danger btn-sm" {% if user_role == 'supervisor' %}disabled{% endif %}>
-            🗑️ Apply Bulk Action
-          </button>
-        </div>
-      </form>
-
-      <!-- Pagination -->
-      <nav>
-        <ul class="pagination justify-content-center mt-4">
-          {% if page > 1 %}
-          <li class="page-item">
-            <a class="page-link" href="{{ url_for('inventory', page=page-1, category=selected_category, low_stock='on' if low_stock_checked else '', search=search_query) }}">← Previous</a>
-          </li>
-          {% endif %}
-          {% if page < total_pages %}
-          <li class="page-item">
-            <a class="page-link" href="{{ url_for('inventory', page=page+1, category=selected_category, low_stock='on' if low_stock_checked else '', search=search_query) }}">Next →</a>
-          </li>
-          {% endif %}
-        </ul>
-      </nav>
-
-      <!-- Charts -->
-      <div class="row mt-5">
-        <div class="col-md-6">
-          <h5>📊 Inventory Quantities</h5>
-          <div id="bar-chart"></div>
-        </div>
-        <div class="col-md-6">
-          <h5>🥧 Category Values</h5>
-          <div id="pie-chart"></div>
-        </div>
-      </div>
-
-      <div class="mt-4 alert alert-info text-center">
-        💰 Total Estimated Profit: <strong>KES {{ total_profit }}</strong>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Scripts -->
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script>
-  Plotly.newPlot('bar-chart', [{
-    x: {{ labels | tojson }},
-    y: {{ quantities | tojson }},
-    type: 'bar'
-  }]);
-
-  Plotly.newPlot('pie-chart', [{
-    labels: {{ pie_labels | tojson }},
-    values: {{ pie_values | tojson }},
-    type: 'pie'
-  }]);
-</script>
-
-<!-- Styles -->
 <style>
-  body {
-    background-color: #f0f8ff;
+  /* Background colors for each section */
+  section.core-operations {
+    background-color: #e9f5f5; /* light teal */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
   }
-  .cart-badge {
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 7px;
-    font-size: 0.75rem;
-    position: absolute;
-    top: -8px;
-    right: -10px;
+  section.sales-marketing {
+    background-color: #fff8e1; /* light yellow */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.finance-accounting {
+    background-color: #e8f0fe; /* light blue */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.human-resources {
+    background-color: #fdecea; /* light pink */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.projects-collaboration {
+    background-color: #f3f0ff; /* very light purple */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.analytics-reports {
+    background-color: #e6f4ea; /* light green */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.it-security {
+    background-color: #fef6e4; /* very light orange */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.utilities {
+    background-color: #f5f5f5; /* light gray */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
   }
 </style>
+
+<div class="container py-4">
+  <h3 class="mb-4 fw-bold" style="color: #36585C;">Welcome to RahaSoft Suite</h3>
+
+  <!-- Core Operations -->
+  <section class="mb-5 core-operations">
+    <h5 class="mb-3 text-secondary fw-semibold">Core Operations</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-boxes fa-3x mb-3" style="color: #007bff;"></i>
+            <h6 class="card-title">Stock Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('stock_management') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-shopping-cart fa-3x mb-3" style="color: #ffc107;"></i>
+            <h6 class="card-title">POS</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('pos_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-truck-loading fa-3x mb-3" style="color: #6c757d;"></i>
+            <h6 class="card-title">Purchasing</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('purchasing_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-warehouse fa-3x mb-3" style="color: #17a2b8;"></i>
+            <h6 class="card-title">Warehouse</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('warehouse_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-box-open fa-3x mb-3" style="color: #28a745;"></i>
+            <h6 class="card-title">Order Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('order_management_dashboard') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Sales & Marketing -->
+  <section class="mb-5 sales-marketing">
+    <h5 class="mb-3 text-secondary fw-semibold">Sales & Marketing</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-cash-register fa-3x mb-3" style="color: #28a745;"></i>
+            <h6 class="card-title">Sales</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-users fa-3x mb-3" style="color: #ffc107;"></i>
+            <h6 class="card-title">CRM</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-bullhorn fa-3x mb-3" style="color: #17a2b8;"></i>
+            <h6 class="card-title">Marketing</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-info btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-envelope fa-3x mb-3" style="color: #dc3545;"></i>
+            <h6 class="card-title">Email Campaigns</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-danger btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-comment-dots fa-3x mb-3" style="color: #6f42c1;"></i>
+            <h6 class="card-title">Live Chat</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Finance & Accounting -->
+  <section class="mb-5 finance-accounting">
+    <h5 class="mb-3 text-secondary fw-semibold">Finance & Accounting</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-coins fa-3x mb-3" style="color: #17a2b8;"></i>
+            <h6 class="card-title">Finance</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('finance_bank_cash_dashboard') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-calculator fa-3x mb-3" style="color: #ffc107;"></i>
+            <h6 class="card-title">Accounting</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-invoice-dollar fa-3x mb-3" style="color: #fd7e14;"></i>
+            <h6 class="card-title">Invoicing</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-contract fa-3x mb-3" style="color: #6610f2;"></i>
+            <h6 class="card-title">Billing</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-chart-line fa-3x mb-3" style="color: #198754;"></i>
+            <h6 class="card-title">Financial Analytics</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Human Resources -->
+  <section class="mb-5 human-resources">
+    <h5 class="mb-3 text-secondary fw-semibold">Human Resources</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-user-tie fa-3x mb-3" style="color: #dc3545;"></i>
+            <h6 class="card-title">HR</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('hr_dashboard') }}" class="btn btn-outline-danger btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-calendar-check fa-3x mb-3" style="color: #20c997;"></i>
+            <h6 class="card-title">Attendance</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('attendance_dashboard') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-medical fa-3x mb-3" style="color: #0d6efd;"></i>
+            <h6 class="card-title">Leave Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-handshake fa-3x mb-3" style="color: #fd7e14;"></i>
+            <h6 class="card-title">Payroll</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-headset fa-3x mb-3" style="color: #007bff;"></i>
+            <h6 class="card-title">Support / Helpdesk</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Projects & Collaboration -->
+  <section class="mb-5 projects-collaboration">
+    <h5 class="mb-3 text-secondary fw-semibold">Projects & Collaboration</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-folder fa-3x mb-3" style="color: #6c757d;"></i>
+            <h6 class="card-title">Projects</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-secondary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-comments fa-3x mb-3" style="color: #6610f2;"></i>
+            <h6 class="card-title">Team Chat</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-tasks fa-3x mb-3" style="color: #198754;"></i>
+            <h6 class="card-title">Task Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: #0d6efd;"></i>
+            <h6 class="card-title">File Sharing</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-calendar-alt fa-3x mb-3" style="color: #fd7e14;"></i>
+            <h6 class="card-title">Calendar</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Analytics & Reports -->
+  <section class="mb-5 analytics-reports">
+    <h5 class="mb-3 text-secondary fw-semibold">Analytics & Reports</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-chart-pie fa-3x mb-3" style="color: #6610f2;"></i>
+            <h6 class="card-title">Reports</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-chart-line fa-3x mb-3" style="color: #198754;"></i>
+            <h6 class="card-title">Business Intelligence</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-database fa-3x mb-3" style="color: #0d6efd;"></i>
+            <h6 class="card-title">Data Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-alt fa-3x mb-3" style="color: #6f42c1;"></i>
+            <h6 class="card-title">Compliance</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- IT & Security -->
+  <section class="mb-5 it-security">
+    <h5 class="mb-3 text-secondary fw-semibold">IT & Security</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-server fa-3x mb-3" style="color: #6c757d;"></i>
+            <h6 class="card-title">IT Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-secondary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-user-shield fa-3x mb-3" style="color: #dc3545;"></i>
+            <h6 class="card-title">Security</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-danger btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-network-wired fa-3x mb-3" style="color: #007bff;"></i>
+            <h6 class="card-title">Network Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-shield-alt fa-3x mb-3" style="color: #198754;"></i>
+            <h6 class="card-title">Compliance & Audit</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Utilities -->
+  <section class="mb-5 utilities">
+    <h5 class="mb-3 text-secondary fw-semibold">Utilities</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-cogs fa-3x mb-3" style="color: #6c757d;"></i>
+            <h6 class="card-title">Settings</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-secondary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-export fa-3x mb-3" style="color: #0d6efd;"></i>
+            <h6 class="card-title">Data Export</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-sync-alt fa-3x mb-3" style="color: #198754;"></i>
+            <h6 class="card-title">Backup & Restore</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-alt fa-3x mb-3" style="color: #ffc107;"></i>
+            <h6 class="card-title">Logs & Audit Trail</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
 {% endblock %}

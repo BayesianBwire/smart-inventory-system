@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 fw-bold" style="color: #20c997;">
+    <i class="fas fa-calendar-check me-2"></i>Attendance Management
+  </h2>
+
+  <!-- 1. Check-In/Check-Out -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-sign-in-alt fa-2x me-2" style="color: #007bff;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #007bff;">Check-In/Check-Out</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-clock fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Real-time Clock-In/Out</h6>
+            <a href="{{ url_for('attendance_checkin') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-fingerprint fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Manual/Biometric Entry</h6>
+            <a href="{{ url_for('attendance_biometric') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Daily Attendance Logs -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-list-alt fa-2x me-2" style="color: #28a745;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #28a745;">Daily Attendance Logs</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-success">
+          <div class="card-body text-center">
+            <i class="fas fa-calendar-day fa-2x mb-2" style="color: #28a745;"></i>
+            <h6>View Logs</h6>
+            <a href="{{ url_for('attendance_logs') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-success">
+          <div class="card-body text-center">
+            <i class="fas fa-file-export fa-2x mb-2" style="color: #28a745;"></i>
+            <h6>Export Logs</h6>
+            <a href="{{ url_for('attendance_export') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Shift Scheduling -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-calendar-alt fa-2x me-2" style="color: #fd7e14;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #fd7e14;">Shift Scheduling</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-user-clock fa-2x mb-2" style="color: #fd7e14;"></i>
+            <h6>Manage Shifts</h6>
+            <a href="{{ url_for('attendance_shifts') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-exchange-alt fa-2x mb-2" style="color: #fd7e14;"></i>
+            <h6>Shift Swap Requests</h6>
+            <a href="{{ url_for('attendance_shift_swap') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Overtime & Exceptions -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-business-time fa-2x me-2" style="color: #6f42c1;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #6f42c1;">Overtime & Exceptions</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-hourglass-half fa-2x mb-2" style="color: #6f42c1;"></i>
+            <h6>Overtime Tracking</h6>
+            <a href="{{ url_for('attendance_overtime') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-exclamation-triangle fa-2x mb-2" style="color: #6f42c1;"></i>
+            <h6>Exceptions Handling</h6>
+            <a href="{{ url_for('attendance_exceptions') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Reports & Analytics -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-chart-bar fa-2x me-2" style="color: #6610f2;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #6610f2;">Reports & Analytics</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-chart-pie fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Attendance Reports</h6>
+            <a href="{{ url_for('attendance_reports') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-file-export fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Export Analytics</h6>
+            <a href="{{ url_for('attendance_analytics_export') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

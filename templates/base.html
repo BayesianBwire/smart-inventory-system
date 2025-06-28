@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,75 +11,125 @@
   <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
-  <!-- Lucide -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Flag Icon CSS for language flags -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icon.min.css" rel="stylesheet" />
 
   <style>
     body {
-      background-color: var(--bs-body-bg);
-      color: var(--bs-body-color);
-    }
-    [data-theme="dark"] {
-      --bs-body-bg: #212529;
-      --bs-body-color: #f8f9fa;
-    }
-    [data-theme="light"] {
-      --bs-body-bg: #f8f9fa;
-      --bs-body-color: #212529;
+      background-color: #f1f1f1;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    .navbar-brand {
-      font-weight: bold;
-      font-size: 1.5rem;
-    }
-    .logo-tagline {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .logo-tagline img {
-      height: 60px;
-    }
-    .logo-tagline h6 {
-      font-style: italic;
-      color: #555;
-      margin-top: 0.5rem;
-    }
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background-color: #343a40;
-      color: white;
-      margin-top: 4rem;
-    }
-    .cart-icon {
-      position: relative;
-      display: inline-block;
-      color: white;
-      font-size: 1.25rem;
-      cursor: pointer;
-      padding: 0.25rem 0.5rem;
-    }
-    .cart-badge {
-      position: absolute;
+    header {
+      background: white;
+      box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 0.075);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      position: sticky;
       top: 0;
-      right: 0;
-      background: #dc3545;
-      color: white;
+      z-index: 1030;
+    }
+
+    header .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    header .brand div {
+      width: 60px;
+      height: 20px;
+      background: radial-gradient(ellipse at center, #36585C 0%, transparent 70%);
       border-radius: 50%;
-      padding: 0.15rem 0.4rem;
-      font-size: 0.75rem;
+      transform: rotate(-5deg);
+    }
+
+    header .brand h4 {
+      margin: 0;
+      color: #36585C !important;
       font-weight: 700;
-      line-height: 1;
-      transform: translate(50%, -50%);
-      pointer-events: none;
     }
-    .theme-toggle {
-      border: none;
-      background: transparent;
-      font-size: 1.2rem;
-      color: white;
-      cursor: pointer;
+
+    header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: #6c757d;
     }
+
+    header .user-info strong {
+      color: #36585C;
+    }
+
+    footer {
+      background: white;
+      box-shadow: 0 -0.125rem 0.25rem rgb(0 0 0 / 0.075);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin-top: auto;
+      flex-wrap: wrap;
+    }
+
+    /* Container for footer content */
+    footer .footer-content {
+      width: 100%;
+      max-width: 1140px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Center copyright */
+    footer .copyright {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* Language selector aligned right */
+    #language-selector {
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1050;
+    }
+
+    #language-selector .dropdown-menu {
+      min-width: 160px;
+    }
+
+    #language-selector .dropdown-menu .dropdown-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    #lang-btn {
+      white-space: nowrap;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.75rem;
+    }
+
     #toast-container {
       position: fixed;
       top: 1rem;
@@ -90,102 +140,109 @@
 </head>
 <body>
 
-  <!-- Logo -->
-  <div class="logo-tagline">
-    <img src="{{ url_for('static', filename='rahasoft-logo.png') }}" alt="RahaSoft Logo" />
-    <h6>Where comfort meets business</h6>
-  </div>
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div></div>
+      <h4>RahaSoft</h4>
+    </div>
+    <div class="user-info">
+      <span>
+        Logged in as <strong>{{ session['user'] }}</strong>
+        {% if session['role'] %} ({{ session['role'].replace('_', ' ').title() }}){% endif %}
+      </span>
+      <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">🚪 Logout</a>
+    </div>
+  </header>
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/">RahaSoft</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+  <!-- Main Content -->
+  <main class="container-fluid py-3">
+    {% block content %}{% endblock %}
+  </main>
 
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item me-3">
-            <button id="themeToggle" class="theme-toggle" title="Toggle Theme">
-              <i class="fas fa-moon" id="themeIcon"></i>
-            </button>
-          </li>
-          <li class="nav-item"><a class="nav-link" href="/inventory"><i class="fas fa-box-open"></i> Inventory</a></li>
-          <li class="nav-item"><a class="nav-link" href="/import_adidas"><i data-lucide="upload"></i> Import Adidas</a></li>
-          {% if session.get('role') == 'admin' %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('create_user') }}"><i class="fas fa-user-plus"></i> Create User</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('new_product') }}"><i data-lucide="plus-square"></i> Add Product</a></li>
-          {% endif %}
-          <li class="nav-item">
-            <a class="nav-link position-relative" href="{{ url_for('cart') }}">
-              <i class="fas fa-shopping-cart cart-icon"></i>
-              {% if cart_item_count and cart_item_count > 0 %}
-              <span class="cart-badge">{{ cart_item_count }}</span>
-              {% endif %}
-            </a>
-          </li>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="copyright">
+        RahaSoft System © 2025 — All Rights Reserved.
+      </div>
+      <div id="language-selector">
+        <button id="lang-btn" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+          <span id="current-lang-flag" class="flag-icon flag-icon-us me-1"></span>
+          <span id="current-lang-name">English</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="lang-btn">
+          <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='en') }}">
+            <span>English</span>
+            <span class="flag-icon flag-icon-us ms-2"></span>
+          </a></li>
+          <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='fr') }}">
+            <span>Français</span>
+            <span class="flag-icon flag-icon-fr ms-2"></span>
+          </a></li>
+          <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='es') }}">
+            <span>Español</span>
+            <span class="flag-icon flag-icon-es ms-2"></span>
+          </a></li>
+          <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='de') }}">
+            <span>Deutsch</span>
+            <span class="flag-icon flag-icon-de ms-2"></span>
+          </a></li>
+          <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='sw') }}">
+            <span>Kiswahili</span>
+            <span class="flag-icon flag-icon-ke ms-2"></span>
+          </a></li>
         </ul>
       </div>
     </div>
-  </nav>
+  </footer>
 
-  <!-- Toast Container -->
+  <!-- Toast Messages -->
   <div id="toast-container">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-        <div class="toast align-items-center text-bg-{{ category }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
-          <div class="d-flex">
-            <div class="toast-body">{{ message }}</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          <div class="toast align-items-center text-bg-{{ category }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+            <div class="d-flex">
+              <div class="toast-body">{{ message }}</div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
           </div>
-        </div>
         {% endfor %}
       {% endif %}
     {% endwith %}
   </div>
 
-  <!-- Main Content -->
-  <div class="container my-4">
-    <div class="row justify-content-center">
-      <div class="col-lg-11">
-        <div class="card p-4 shadow-sm border-0">
-          {% block content %}{% endblock %}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer>
-    RahaSoft Inventory & Sales System &copy; 2025
-  </footer>
-
-  <!-- Scripts -->
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Toast initialization -->
   <script>
-    lucide.createIcons();
-
-    // Theme toggle logic
-    const toggleBtn = document.getElementById("themeToggle");
-    const themeIcon = document.getElementById("themeIcon");
-    const html = document.documentElement;
-
-    const currentTheme = localStorage.getItem("theme") || "light";
-    html.setAttribute("data-theme", currentTheme);
-    themeIcon.className = currentTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
-
-    toggleBtn.addEventListener("click", () => {
-      const newTheme = html.getAttribute("data-theme") === "light" ? "dark" : "light";
-      html.setAttribute("data-theme", newTheme);
-      themeIcon.className = newTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
-      localStorage.setItem("theme", newTheme);
-    });
-
-    // Initialize all toasts
     const toastElList = [].slice.call(document.querySelectorAll('.toast'));
     toastElList.forEach(toastEl => new bootstrap.Toast(toastEl).show());
   </script>
+
+  <!-- Language Selector update script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentLangCode = "{{ session.get('lang', 'en') }}";
+      const flagElement = document.getElementById('current-lang-flag');
+      const nameElement = document.getElementById('current-lang-name');
+
+      const langData = {
+        'en': {name: 'English', flag: 'us'},
+        'fr': {name: 'Français', flag: 'fr'},
+        'es': {name: 'Español', flag: 'es'},
+        'de': {name: 'Deutsch', flag: 'de'},
+        'sw': {name: 'Kiswahili', flag: 'ke'}
+      };
+
+      if(langData[currentLangCode]){
+        flagElement.className = 'flag-icon flag-icon-' + langData[currentLangCode].flag + ' me-1';
+        nameElement.textContent = langData[currentLangCode].name;
+      }
+    });
+  </script>
+
 </body>
 </html>

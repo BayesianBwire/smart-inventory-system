@@ -1,6 +1,7 @@
 # models/product.py
 from models import db
 
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_code = db.Column(db.String(100), unique=True)
@@ -15,6 +16,10 @@ class Product(db.Model):
     average_rating = db.Column(db.Float)
     reviews_count = db.Column(db.Integer)
 
+    # Multi-tenant support
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
+    company = db.relationship('Company', backref=db.backref('products', lazy=True))
+
     def to_dict(self):
         return {
             'Product Code': self.product_code,
@@ -23,7 +28,7 @@ class Product(db.Model):
             'Price': self.price,
             'Cost Price': self.cost_price,
             'Quantity': self.quantity,
-            'Sold': self.sold,  # ✅ Include in dict
+            'Sold': self.sold,
             'Description': self.description,
             'Image URL': self.image_url,
             'Average Rating': self.average_rating,

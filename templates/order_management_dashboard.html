@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 fw-bold" style="color: #28a745;">
+    <i class="fas fa-box-open me-2"></i>Order Management
+  </h2>
+
+  <!-- 1. Sales Orders -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-file-alt fa-2x me-2" style="color: #007bff;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #007bff;">Sales Orders</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-plus fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Create Sales Order</h6>
+            <a href="{{ url_for('create_sales_order') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-list fa-2x mb-2" style="color: #007bff;"></i>
+            <h6>Sales Order List</h6>
+            <a href="{{ url_for('sales_orders') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Purchase Orders (linked) -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-file-signature fa-2x me-2" style="color: #6c757d;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #6c757d;">Purchase Orders (Linked)</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-secondary">
+          <div class="card-body text-center">
+            <i class="fas fa-link fa-2x mb-2" style="color: #6c757d;"></i>
+            <h6>POs from Sales Demand</h6>
+            <a href="{{ url_for('purchase_orders') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-secondary">
+          <div class="card-body text-center">
+            <i class="fas fa-calendar-check fa-2x mb-2" style="color: #6c757d;"></i>
+            <h6>PO Lifecycle</h6>
+            <a href="{{ url_for('purchase_orders') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Order Fulfillment -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-truck-loading fa-2x me-2" style="color: #fd7e14;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #fd7e14;">Order Fulfillment</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-list-ol fa-2x mb-2" style="color: #fd7e14;"></i>
+            <h6>Pick-Pack-Ship</h6>
+            <a href="{{ url_for('order_fulfillment') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-boxes fa-2x mb-2" style="color: #fd7e14;"></i>
+            <h6>Partial Fulfillment</h6>
+            <a href="{{ url_for('order_fulfillment') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Backorders & Pre-orders -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-clock fa-2x me-2" style="color: #20c997;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #20c997;">Backorders & Pre-orders</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-teal">
+          <div class="card-body text-center">
+            <i class="fas fa-hourglass-half fa-2x mb-2" style="color: #20c997;"></i>
+            <h6>Backorder Management</h6>
+            <a href="{{ url_for('backorders') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-teal">
+          <div class="card-body text-center">
+            <i class="fas fa-calendar-plus fa-2x mb-2" style="color: #20c997;"></i>
+            <h6>Pre-orders</h6>
+            <a href="{{ url_for('preorders') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Order Returns (RMA) -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-undo fa-2x me-2" style="color: #17a2b8;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #17a2b8;">Order Returns (RMA)</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-info">
+          <div class="card-body text-center">
+            <i class="fas fa-undo-alt fa-2x mb-2" style="color: #17a2b8;"></i>
+            <h6>Return Management</h6>
+            <a href="{{ url_for('order_returns') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-info">
+          <div class="card-body text-center">
+            <i class="fas fa-check-circle fa-2x mb-2" style="color: #17a2b8;"></i>
+            <h6>Return Authorization</h6>
+            <a href="{{ url_for('order_returns') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Invoicing & Billing -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-file-invoice-dollar fa-2x me-2" style="color: #dc3545;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #dc3545;">Invoicing & Billing</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-danger">
+          <div class="card-body text-center">
+            <i class="fas fa-file-invoice fa-2x mb-2" style="color: #dc3545;"></i>
+            <h6>Generate Invoice</h6>
+            <a href="{{ url_for('order_invoicing') }}" class="btn btn-outline-danger btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-danger">
+          <div class="card-body text-center">
+            <i class="fas fa-credit-card fa-2x mb-2" style="color: #dc3545;"></i>
+            <h6>Payment Tracking</h6>
+            <a href="{{ url_for('order_invoicing') }}" class="btn btn-outline-danger btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Order Tracking & Notifications -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-bell fa-2x me-2" style="color: #ffc107;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #ffc107;">Order Tracking & Notifications</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-shipping-fast fa-2x mb-2" style="color: #ffc107;"></i>
+            <h6>Status Updates</h6>
+            <a href="{{ url_for('order_tracking') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-warning">
+          <div class="card-body text-center">
+            <i class="fas fa-bell fa-2x mb-2" style="color: #ffc107;"></i>
+            <h6>Customer Notifications</h6>
+            <a href="{{ url_for('order_tracking') }}" class="btn btn-outline-warning btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Order Integration -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-plug fa-2x me-2" style="color: #6f42c1;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #6f42c1;">Order Integration</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-store fa-2x mb-2" style="color: #6f42c1;"></i>
+            <h6>POS Integration</h6>
+            <a href="{{ url_for('order_integration') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-globe fa-2x mb-2" style="color: #6f42c1;"></i>
+            <h6>E-commerce Integration</h6>
+            <a href="{{ url_for('order_integration') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-link fa-2x mb-2" style="color: #6f42c1;"></i>
+            <h6>CRM/API Integration</h6>
+            <a href="{{ url_for('order_integration') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Reports & Analytics -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-chart-bar fa-2x me-2" style="color: #6610f2;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #6610f2;">Reports & Analytics</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-list-alt fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Order Summary</h6>
+            <a href="{{ url_for('order_reports') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-tachometer-alt fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Fulfillment Rate</h6>
+            <a href="{{ url_for('order_reports') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-purple">
+          <div class="card-body text-center">
+            <i class="fas fa-chart-line fa-2x mb-2" style="color: #6610f2;"></i>
+            <h6>Sales by Product/Customer</h6>
+            <a href="{{ url_for('order_reports') }}" class="btn btn-outline-secondary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Advanced Features -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="fas fa-star fa-2x me-2" style="color: #343a40;"></i>
+      <h4 class="fw-semibold mb-0" style="color: #343a40;">Advanced Features</h4>
+    </div>
+    <div class="row row-cols-2 row-cols-md-2 g-4">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-dark">
+          <div class="card-body text-center">
+            <i class="fas fa-tags fa-2x mb-2" style="color: #343a40;"></i>
+            <h6>Order Tagging & Bulk Upload</h6>
+            <a href="{{ url_for('order_advanced') }}" class="btn btn-outline-dark btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-dark">
+          <div class="card-body text-center">
+            <i class="fas fa-robot fa-2x mb-2" style="color: #343a40;"></i>
+            <h6>Chatbot & Offline Orders</h6>
+            <a href="{{ url_for('order_advanced') }}" class="btn btn-outline-dark btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
