@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4 text-center text-primary">➕ Add Payroll Record</h2>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" class="row g-3">
+    <div class="col-md-6">
+      <label for="user_id" class="form-label">Select Employee</label>
+      <select name="user_id" id="user_id" class="form-control" required>
+        <option value="">-- Select --</option>
+        {% for user in users %}
+        <option value="{{ user.id }}">{{ user.full_name }} ({{ user.role }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label for="salary" class="form-label">Base Salary (KES)</label>
+      <input type="number" step="0.01" name="salary" id="salary" class="form-control" required />
+    </div>
+
+    <div class="col-md-4">
+      <label for="bonuses" class="form-label">Bonuses</label>
+      <input type="number" step="0.01" name="bonuses" id="bonuses" class="form-control" />
+    </div>
+
+    <div class="col-md-4">
+      <label for="deductions" class="form-label">Deductions</label>
+      <input type="number" step="0.01" name="deductions" id="deductions" class="form-control" />
+    </div>
+
+    <div class="col-md-4">
+      <label for="loan_balance" class="form-label">Loan Balance</label>
+      <input type="number" step="0.01" name="loan_balance" id="loan_balance" class="form-control" />
+    </div>
+
+    <div class="col-12 text-center mt-3">
+      <button type="submit" class="btn btn-success">💾 Save Payroll Record</button>
+      <a href="{{ url_for('inventory') }}" class="btn btn-secondary">↩️ Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

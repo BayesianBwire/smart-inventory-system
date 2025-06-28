@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h4 class="text-primary mb-4">➕ Add Payroll Record</h4>
+
+<form method="POST">
+  <div class="mb-3">
+    <label for="user_id" class="form-label">Employee</label>
+    <select class="form-control" name="user_id" required>
+      {% for user in users %}
+      <option value="{{ user.id }}">{{ user.username }} ({{ user.role }})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="salary" class="form-label">Salary (Ksh)</label>
+    <input type="number" name="salary" class="form-control" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="loan" class="form-label">Loan Deduction (Ksh)</label>
+    <input type="number" name="loan" class="form-control" value="0">
+  </div>
+
+  <div class="mb-3">
+    <label for="date" class="form-label">Date Paid</label>
+    <input type="date" name="date" class="form-control" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="remarks" class="form-label">Remarks</label>
+    <textarea name="remarks" class="form-control" rows="2"></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-success">💾 Save Record</button>
+</form>
+{% endblock %}

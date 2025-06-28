@@ -1,16 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Inventory System</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RahaSoft</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+  <!-- Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
   <style>
     body {
-      background-color: #f8f9fa;
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
     }
+    [data-theme="dark"] {
+      --bs-body-bg: #212529;
+      --bs-body-color: #f8f9fa;
+    }
+    [data-theme="light"] {
+      --bs-body-bg: #f8f9fa;
+      --bs-body-color: #212529;
+    }
+
     .navbar-brand {
       font-weight: bold;
+      font-size: 1.5rem;
+    }
+    .logo-tagline {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .logo-tagline img {
+      height: 60px;
+    }
+    .logo-tagline h6 {
+      font-style: italic;
+      color: #555;
+      margin-top: 0.5rem;
     }
     footer {
       text-align: center;
@@ -19,39 +51,141 @@
       color: white;
       margin-top: 4rem;
     }
+    .cart-icon {
+      position: relative;
+      display: inline-block;
+      color: white;
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+    }
+    .cart-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: #dc3545;
+      color: white;
+      border-radius: 50%;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1;
+      transform: translate(50%, -50%);
+      pointer-events: none;
+    }
+    .theme-toggle {
+      border: none;
+      background: transparent;
+      font-size: 1.2rem;
+      color: white;
+      cursor: pointer;
+    }
+    #toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Logo -->
+  <div class="logo-tagline">
+    <img src="{{ url_for('static', filename='rahasoft-logo.png') }}" alt="RahaSoft Logo" />
+    <h6>Where comfort meets business</h6>
+  </div>
+
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/">SmartShop</a>
+      <a class="navbar-brand" href="/">RahaSoft</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="/inventory">Inventory</a>
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item me-3">
+            <button id="themeToggle" class="theme-toggle" title="Toggle Theme">
+              <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
           </li>
+          <li class="nav-item"><a class="nav-link" href="/inventory"><i class="fas fa-box-open"></i> Inventory</a></li>
+          <li class="nav-item"><a class="nav-link" href="/import_adidas"><i data-lucide="upload"></i> Import Adidas</a></li>
+          {% if session.get('role') == 'admin' %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('create_user') }}"><i class="fas fa-user-plus"></i> Create User</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('new_product') }}"><i data-lucide="plus-square"></i> Add Product</a></li>
+          {% endif %}
           <li class="nav-item">
-            <a class="nav-link" href="/import_adidas">Import Adidas</a>
+            <a class="nav-link position-relative" href="{{ url_for('cart') }}">
+              <i class="fas fa-shopping-cart cart-icon"></i>
+              {% if cart_item_count and cart_item_count > 0 %}
+              <span class="cart-badge">{{ cart_item_count }}</span>
+              {% endif %}
+            </a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
 
+  <!-- Toast Container -->
+  <div id="toast-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+        <div class="toast align-items-center text-bg-{{ category }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+          <div class="d-flex">
+            <div class="toast-body">{{ message }}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
   <!-- Main Content -->
-  <main>
-    {% block content %}{% endblock %}
-  </main>
+  <div class="container my-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-11">
+        <div class="card p-4 shadow-sm border-0">
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer>
-    Smart Inventory & Sales System &copy; 2025
+    RahaSoft Inventory & Sales System &copy; 2025
   </footer>
 
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    lucide.createIcons();
+
+    // Theme toggle logic
+    const toggleBtn = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const html = document.documentElement;
+
+    const currentTheme = localStorage.getItem("theme") || "light";
+    html.setAttribute("data-theme", currentTheme);
+    themeIcon.className = currentTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+
+    toggleBtn.addEventListener("click", () => {
+      const newTheme = html.getAttribute("data-theme") === "light" ? "dark" : "light";
+      html.setAttribute("data-theme", newTheme);
+      themeIcon.className = newTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+      localStorage.setItem("theme", newTheme);
+    });
+
+    // Initialize all toasts
+    const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    toastElList.forEach(toastEl => new bootstrap.Toast(toastEl).show());
+  </script>
 </body>
 </html>

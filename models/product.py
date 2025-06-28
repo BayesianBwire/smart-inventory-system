@@ -9,6 +9,7 @@ class Product(db.Model):
     price = db.Column(db.Float)
     cost_price = db.Column(db.Float)
     quantity = db.Column(db.Integer)
+    sold = db.Column(db.Integer, default=0)  # ✅ Newly added
     description = db.Column(db.Text)
     image_url = db.Column(db.String(255))
     average_rating = db.Column(db.Float)
@@ -22,8 +23,16 @@ class Product(db.Model):
             'Price': self.price,
             'Cost Price': self.cost_price,
             'Quantity': self.quantity,
+            'Sold': self.sold,  # ✅ Include in dict
             'Description': self.description,
             'Image URL': self.image_url,
             'Average Rating': self.average_rating,
             'Reviews Count': self.reviews_count,
         }
+
+    def get_value(self):
+        """Returns the total value of this product in stock (price × quantity)."""
+        return self.price * self.quantity
+
+    def __repr__(self):
+        return f"<Product {self.product_code} - {self.product_name}>"

@@ -2,73 +2,122 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Shopping Cart - Smart Inventory</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Your Cart - RahaSoft</title>
     <style>
-        body {
-            background-color: #f0f2f5;
-        }
-        .cart-container {
-            background-color: #ffffff;
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.07);
-        }
-        .table th, .table td {
-            vertical-align: middle !important;
-        }
-    </style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 20px;
+    }
+    .cart-container {
+        max-width: 900px;
+        margin: auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #0047b3; /* Deep Blue */
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 25px;
+    }
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+    }
+    th {
+        background-color: #e6f0ff; /* Light Blue Background */
+        color: #003366; /* Darker Blue Text */
+    }
+    .checkout-btn {
+        display: inline-block;
+        background-color: #007bff; /* Bootstrap Blue */
+        color: white;
+        padding: 12px 20px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+    .checkout-btn:hover {
+        background-color: #0056b3;
+    }
+    .remove-btn {
+        background-color: #3399ff;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .remove-btn:hover {
+        background-color: #1a75ff;
+    }
+    .clear-btn {
+        background-color: #66b3ff;
+        color: #000;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+    }
+    .clear-btn:hover {
+        background-color: #3399ff;
+        color: white;
+    }
+</style>
+
 </head>
 <body>
-<div class="container">
     <div class="cart-container">
-        <h4 class="mb-4">🛒 Your Cart</h4>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
+        <h2>Your Shopping Cart</h2>
         {% if cart_items %}
-            <table class="table table-bordered table-hover">
-                <thead class="thead-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Unit Price (KES)</th>
-                        <th>Subtotal (KES)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td>{{ item.product.product_name }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>{{ item.product.price }}</td>
-                        <td>{{ item.subtotal }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <div class="text-right mt-3">
-                <h5>Total: <strong>KES {{ total }}</strong></h5>
-            </div>
-            <div class="text-right mt-4">
-                <a href="{{ url_for('checkout') }}" class="btn btn-success">✅ Proceed to Checkout</a>
-                <a href="{{ url_for('inventory') }}" class="btn btn-secondary ml-2">← Continue Shopping</a>
-            </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.product.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>KES {{ item.subtotal }}</td>
+                    <td>
+                        <form action="{{ url_for('remove_from_cart', product_id=item.product.id) }}" method="get">
+                            <button type="submit" class="remove-btn">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Total: KES {{ total }}</h3>
+
+        <!-- Clear All Button -->
+        <form action="{{ url_for('clear_cart') }}" method="post" style="display: inline;">
+            {{ csrf_token() }}
+            <button type="submit" class="clear-btn">🗑 Clear All</button>
+        </form>
+
+        <!-- Proceed to Checkout -->
+        <a href="{{ url_for('checkout') }}" class="checkout-btn">✅ Proceed to Checkout</a>
         {% else %}
-            <div class="alert alert-warning">Your cart is currently empty.</div>
-            <a href="{{ url_for('inventory') }}" class="btn btn-primary">Browse Products</a>
+        <p>Your cart is empty.</p>
         {% endif %}
     </div>
-</div>
 </body>
 </html>

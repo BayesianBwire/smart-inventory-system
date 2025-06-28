@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-primary">Welcome, {{ session['user'] }} 👋</h2>
+    <p class="text-muted">Custom User View - Read-only Inventory Dashboard</p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- ✅ Cart and Export Buttons -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="cart-container position-relative">
+      <a href="{{ url_for('cart') }}" class="btn btn-outline-primary btn-sm">Cart</a>
+      {% if cart_item_count > 0 %}
+        <span class="cart-badge">{{ cart_item_count }}</span>
+      {% endif %}
+    </span>
+    <a href="{{ url_for('download_inventory') }}" class="btn btn-outline-success btn-sm">
+      <i class="fas fa-file-csv me-1"></i> Export CSV
+    </a>
+  </div>
+
+  <!-- Search and Filter -->
+  <form method="get" class="form-inline mb-4 d-flex flex-wrap gap-2 justify-content-center">
+    <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ search_query }}">
+    <select name="category" class="form-control">
+      <option value="">All Categories</option>
+      {% for category in categories %}
+        <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+      {% endfor %}
+    </select>
+    <label class="form-check-label mx-2">
+      <input type="checkbox" name="low_stock" {% if low_stock_checked %}checked{% endif %}> Low Stock
+    </label>
+    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+  </form>
+
+  <!-- Product Cards -->
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for product in products %}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <img src="{{ product.image_url or 'https://via.placeholder.com/150' }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ product.product_name }}">
+        <div class="card-body">
+          <h5 class="card-title">{{ product.product_name }}</h5>
+          <p class="text-muted mb-1">Category: {{ product.category }}</p>
+          <p class="text-primary fw-bold mb-1">KES {{ product.price }}</p>
+          <p class="text-muted">In Stock: {{ product.quantity }}</p>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center text-muted">No products found for this view.</div>
+    {% endfor %}
+  </div>
+
+  <!-- Charts -->
+  <div class="row mt-5">
+    <div class="col-md-6">
+      <h5 class="text-center">Product Quantities</h5>
+      <div id="bar-chart"></div>
+    </div>
+    <div class="col-md-6">
+      <h5 class="text-center">Category Inventory Value</h5>
+      <div id="pie-chart"></div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if page > 1 %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('inventory', page=page-1, category=selected_category, low_stock='on' if low_stock_checked else '', search=search_query) }}">← Previous</a>
+      </li>
+      {% endif %}
+      {% if page < total_pages %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('inventory', page=page+1, category=selected_category, low_stock='on' if low_stock_checked else '', search=search_query) }}">Next →</a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  <!-- Logout -->
+  <div class="text-center mt-4">
+    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+  </div>
+</div>
+
+<!-- Plotly Charts Script -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+  const barData = [{
+    x: {{ labels | tojson }},
+    y: {{ quantities | tojson }},
+    type: 'bar',
+    marker: { color: '#007bff' }
+  }];
+  Plotly.newPlot('bar-chart', barData);
+
+  const pieData = [{
+    labels: {{ pie_labels | tojson }},
+    values: {{ pie_values | tojson }},
+    type: 'pie'
+  }];
+  Plotly.newPlot('pie-chart', pieData);
+</script>
+
+<!-- Styles -->
+<style>
+  .cart-badge {
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 7px;
+    font-size: 0.75rem;
+    position: absolute;
+    top: -8px;
+    right: -10px;
+  }
+</style>
+{% endblock %}

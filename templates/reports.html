@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container bg-white p-4 rounded shadow">
+  <h2 class="text-center text-primary mb-4">📊 Business Intelligence Reports</h2>
+
+  <!-- Filters -->
+  <form method="GET" action="{{ url_for('reports') }}" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <label for="user_id" class="form-label">Filter by User</label>
+      <select name="user_id" class="form-select">
+        <option value="">All Users</option>
+        {% for user in users %}
+          <option value="{{ user.id }}" {% if request.args.get('user_id') == user.id|string %}selected{% endif %}>
+            {{ user.username }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="product_id" class="form-label">Filter by Product</label>
+      <select name="product_id" class="form-select">
+        <option value="">All Products</option>
+        {% for product in products %}
+          <option value="{{ product.id }}" {% if request.args.get('product_id') == product.id|string %}selected{% endif %}>
+            {{ product.product_name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Date Range</label>
+      <input type="date" name="start_date" class="form-control mb-2" value="{{ request.args.get('start_date', '') }}">
+      <input type="date" name="end_date" class="form-control" value="{{ request.args.get('end_date', '') }}">
+    </div>
+
+    <div class="col-12 d-flex justify-content-end">
+      <button type="submit" class="btn btn-primary">🔍 Generate Report</button>
+    </div>
+  </form>
+
+  <!-- Results -->
+  {% if sales %}
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th>Date</th>
+            <th>User</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Total Price (Ksh)</th>
+            <th>Profit (Ksh)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sale in sales %}
+          <tr>
+            <td>{{ sale.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ sale.user.username }}</td>
+            <td>{{ sale.product.product_name }}</td>
+            <td>{{ sale.quantity }}</td>
+            <td>{{ "%.2f"|format(sale.total_price) }}</td>
+            <td>{{ "%.2f"|format(sale.total_price - (sale.product.cost_price * sale.quantity)) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-end mt-3">
+      <h5>Total Revenue: <span class="text-success">Ksh {{ "%.2f"|format(total_revenue) }}</span></h5>
+      <h5>Total Profit: <span class="text-primary">Ksh {{ "%.2f"|format(total_profit) }}</span></h5>
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center">
+      📌 Report results will appear here once filters are applied.
+    </div>
+  {% endif %}
+
+  <!-- Back -->
+  <div class="text-end mt-3">
+    <a href="{{ url_for('inventory') }}" class="btn btn-secondary">⬅ Back to Inventory</a>
+  </div>
+</div>
+{% endblock %}

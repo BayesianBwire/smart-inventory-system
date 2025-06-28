@@ -1,0 +1,22 @@
+<form method="POST">
+  <div class="mb-3">
+    <label for="product_id" class="form-label">Select Product</label>
+    <select name="product_id" class="form-select" required>
+      {% for p in products %}
+        <option value="{{ p.id }}">{{ p.product_name }} - KES {{ p.price }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="quantity" class="form-label">Quantity</label>
+    <input type="number" name="quantity" class="form-control" min="1" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="customer_name" class="form-label">Customer Name (optional)</label>
+    <input type="text" name="customer_name" class="form-control">
+  </div>
+
+  <button type="submit" class="btn btn-success">🧾 Record Sale</button>
+</form>

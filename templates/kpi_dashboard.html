@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container bg-white p-4 rounded shadow">
+  <h2 class="text-center text-primary mb-4">📈 KPI Dashboard</h2>
+
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <canvas id="revenueChart"></canvas>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <h5 class="text-center text-success">Top Performing Products</h5>
+      <ul class="list-group">
+        {% for name, revenue in top_products %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ name }}</span>
+            <span>Ksh {{ "%.2f"|format(revenue) }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="text-end mt-4">
+    <a href="{{ url_for('inventory') }}" class="btn btn-secondary">⬅ Back to Inventory</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  const revenueChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ labels|tojson }},
+      datasets: [{
+        label: 'Monthly Revenue (Ksh)',
+        data: {{ revenue|tojson }},
+        backgroundColor: 'rgba(0, 123, 255, 0.2)',
+        borderColor: '#007bff',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

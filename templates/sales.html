@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sales Dashboard - Danjul Investment</title>
+    <title>Sales Dashboard - RahaSoft</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -31,7 +31,7 @@
 </head>
 <body>
 <div class="container">
-    <h2 class="text-center mb-4">📈 Sales Dashboard - Danjul Investment</h2>
+    <h2 class="text-center mb-4">Sales Dashboard - Rahasoft</h2>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -41,38 +41,51 @@
         {% endif %}
     {% endwith %}
 
-    {% for username, sales in grouped_sales.items() %}
-        <div class="user-section">
-            <div class="user-header">
-                <h5>🧍 Sales by: {{ username }}</h5>
-            </div>
-            <table class="table table-bordered table-hover mt-3">
-                <thead class="thead-light">
-                    <tr>
-                        <th>🧾 Product</th>
-                        <th>🔢 Quantity</th>
-                        <th>💰 Price (KES)</th>
-                        <th>🧮 Subtotal (KES)</th>
-                        <th>⏰ Time of Sale</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for sale in sales %}
+    {% if grouped_sales %}
+        {% for username, sales in grouped_sales.items() %}
+            <div class="user-section">
+                <div class="user-header">
+                    <h5>Sales by: {{ username }}</h5>
+                </div>
+                <table class="table table-bordered table-hover mt-3">
+                    <thead class="thead-light">
                         <tr>
-                            <td>{{ sale.product_name }}</td>
-                            <td>{{ sale.quantity }}</td>
-                            <td>{{ sale.price }}</td>
-                            <td>{{ sale.subtotal }}</td>
-                            <td>{{ sale.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price (KES)</th>
+                            <th>Subtotal (KES)</th>
+                            <th>Time of Sale</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales %}
+                            <tr>
+                                <td>{{ sale.product_name }}</td>
+                                <td>{{ sale.quantity }}</td>
+                                <td>{{ sale.price }}</td>
+                                <td>{{ sale.subtotal }}</td>
+                                <td>
+                                    {% if sale.timestamp %}
+                                        {{ sale.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-warning text-center">
+            No sales data available.
         </div>
-    {% endfor %}
+    {% endif %}
 
+    
     <div class="alert alert-info text-center mt-4">
-        💼 Total Revenue from All Sales: <strong>KES {{ total_profit }}</strong>
+         Total Revenue from All Sales: <strong>KES {{ total_profit }}</strong>
     </div>
 
     <div class="text-center">
