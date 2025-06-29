@@ -10,5 +10,5 @@ openpyxl
 reportlab
 pyzbar
 opencv-python
-python-dotenvgit add requirements.txt
+python-dotenv
 gunicorn
