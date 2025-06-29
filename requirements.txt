@@ -12,3 +12,4 @@ pyzbar
 opencv-python
 python-dotenv
 gunicorn
+Flask-WTF
