@@ -5,6 +5,7 @@
   <title>Welcome - Where Comfort Meets Business</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
       margin: 0;
@@ -257,9 +258,9 @@
     <div class="main-panel">
       <h1 class="brand-title">Where Comfort Meets Business</h1>
       <p class="stepped-paragraph">
-From inventory and sales to reporting and staff access, the platform handles it all.  
-     Say goodbye to scattered systems—manage your entire retail  
-          operation in one smooth, reliable platform.  
+From inventory and sales to reporting and staff access, the platform handles it all.
+     Say goodbye to scattered systems—manage your entire retail
+          operation in one smooth, reliable platform.
                Built for clarity, speed, and control.
       </p>
       <p class="notice">
@@ -296,6 +297,14 @@ From inventory and sales to reporting and staff access, the platform handles it 
     </div>
   </section>
 
+<div class="flex justify-center items-center h-40"> <!-- or h-screen -->
+  <a href="https://www.youtube.com/@YourChannelName" target="_blank" rel="noopener noreferrer" title="Visit our YouTube channel">
+    <img src="https://www.svgrepo.com/show/349502/youtube.svg"
+         alt="YouTube Logo"
+         class="w-10 h-10 hover:scale-110 transition duration-300" />
+  </a>
+</div>
+
   <section class="core-values">
     <h2>Our Core Values</h2>
     <div class="core-values-list">
@@ -326,6 +335,79 @@ From inventory and sales to reporting and staff access, the platform handles it 
       </div>
     </div>
   </section>
+
+  <div class="absolute top-32 left-4 max-w-xs w-full">
+  <h2 class="text-blue-600 font-bold text-xl mb-4">Key Features</h2>
+  <ul id="features-list" class="space-y-3">
+  </ul>
+</div>
+
+<script>
+  const features = {
+    "Core Operations": ["Stock Management", "POS", "Purchasing", "Warehouse", "Order Management"],
+    "Sales Management": ["Sales", "CRM", "Marketing", "Email Campaigns", "Live Chat"],
+    "Finance & Accounting": ["Finance", "Accounting", "Invoicing", "Billing", "Financial Analytics"],
+    "Human Resources": ["HR", "Attendance", "Leave Management", "Payroll", "Support/Helpdesk"],
+    "Projects & Collaboration": ["Projects", "Team Chat", "Task Management", "File Sharing", "Calendar"],
+    "Analytics and Reports": ["Reports", "Business Intelligence", "Data Management", "Compliance"],
+    "IT & Security": ["I.T Management", "Security", "Network Management", "Compliance & Audit"],
+    "Utilities": ["Settings", "Data Exports", "Backup & Restore", "Logs & Audit Trail"]
+  };
+
+  const container = document.getElementById('features-list');
+
+  for (const [mainFeature, subFeatures] of Object.entries(features)) {
+    const li = document.createElement('li');
+    li.className = 'relative';
+
+    const main = document.createElement('button');
+    main.textContent = mainFeature;
+    main.setAttribute('aria-expanded', 'false');
+    main.setAttribute('aria-haspopup', 'true');
+    main.className = 'text-blue-600 font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 transition';
+
+    const sub = document.createElement('ul');
+    sub.className = `
+      hidden bg-white shadow-lg p-3 rounded-lg border border-gray-200 z-10 space-y-1 mt-2
+      transition-all duration-300 transform opacity-0 scale-y-95 origin-top
+    `;
+
+    subFeatures.forEach(feature => {
+      const subLi = document.createElement('li');
+      const subBtn = document.createElement('button');
+      subBtn.textContent = feature;
+      subBtn.className = 'text-black hover:text-blue-500 text-sm w-full text-left px-2 py-1 rounded hover:bg-blue-50 focus:bg-blue-100 focus:outline-none transition';
+      subBtn.addEventListener('click', () => {
+        alert(`You selected: ${mainFeature} → ${feature}`);
+      });
+      subLi.appendChild(subBtn);
+      sub.appendChild(subLi);
+    });
+
+    let isOpen = false;
+    main.addEventListener('click', () => {
+      isOpen = !isOpen;
+      sub.classList.toggle('hidden', !isOpen);
+      sub.classList.toggle('opacity-0', !isOpen);
+      sub.classList.toggle('scale-y-95', !isOpen);
+      sub.classList.toggle('opacity-100', isOpen);
+      sub.classList.toggle('scale-y-100', isOpen);
+      main.setAttribute('aria-expanded', isOpen);
+    });
+
+    main.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        main.click();
+      }
+    });
+
+    li.appendChild(main);
+    li.appendChild(sub);
+    container.appendChild(li);
+  }
+</script>
+
 
   <footer>
     <div style="margin-bottom: 10px;">
