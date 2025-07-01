@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="container mt-5">
+    <h2 class="mb-4">Record Attendance</h2>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.employee.label }} {{ form.employee(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.date.label }} {{ form.date(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.check_in.label }} {{ form.check_in(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.check_out.label }} {{ form.check_out(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.status.label }} {{ form.status(class="form-control") }}
+      </div>
+      <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
+    </form>
+  </div>
+{% endblock %}

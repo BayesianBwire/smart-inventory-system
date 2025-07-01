@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Companies & Employees</title>
+</head>
+<body>
+    <h1>Companies and Their Employees</h1>
+    {% for company in companies %}
+        <h2>{{ company.name }}</h2>
+        <ul>
+            {% for employee in company.employees %}
+                <li>{{ employee.full_name }} - {{ employee.designation }}</li>
+            {% else %}
+                <li><em>No employees listed.</em></li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+</body>
+</html>

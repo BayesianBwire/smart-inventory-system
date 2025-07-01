@@ -87,7 +87,6 @@
       flex-wrap: wrap;
     }
 
-    /* Container for footer content */
     footer .footer-content {
       width: 100%;
       max-width: 1140px;
@@ -97,14 +96,12 @@
       position: relative;
     }
 
-    /* Center copyright */
     footer .copyright {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
     }
 
-    /* Language selector aligned right */
     #language-selector {
       position: absolute;
       right: 1.5rem;
@@ -151,6 +148,7 @@
         Logged in as <strong>{{ session['user'] }}</strong>
         {% if session['role'] %} ({{ session['role'].replace('_', ' ').title() }}){% endif %}
       </span>
+      <a href="{{ url_for('user_bp.user_list') }}" class="btn btn-outline-primary btn-sm">👥 Users</a>
       <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">🚪 Logout</a>
     </div>
   </header>

@@ -1,16 +1,24 @@
-from datetime import datetime
-from models import db
+from datetime import date
+from . import db
+from .employee import Employee
 
-class PayrollRecord(db.Model):
-    __tablename__ = 'payroll_record'
+class Payroll(db.Model):
+    __tablename__ = 'payrolls'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # <-- FIXED: 'users.id'
-    amount = db.Column(db.Float, nullable=False)
-    month = db.Column(db.String(20), nullable=False)
-    loan_deduction = db.Column(db.Float, default=0.0)
-    remarks = db.Column(db.String(255))
-    date = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationship to User
-    user = db.relationship('User', backref='payroll_records')
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
+    employee = db.relationship('Employee', backref='payrolls')
+
+    basic_salary = db.Column(db.Float, nullable=False)
+    allowances = db.Column(db.Float, default=0.0)
+    deductions = db.Column(db.Float, default=0.0)
+    bonus = db.Column(db.Float, default=0.0)
+
+    net_pay = db.Column(db.Float, nullable=False)
+
+    month = db.Column(db.String(20), nullable=False)  # e.g., "July 2025"
+    payment_date = db.Column(db.Date, default=date.today)
+
+    payslip_filename = db.Column(db.String(255), nullable=True)
+    remarks = db.Column(db.String(255), nullable=True)

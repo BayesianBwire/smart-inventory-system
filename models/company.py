@@ -11,8 +11,8 @@ class Company(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
-    # reverse relationship
     users = db.relationship("User", back_populates="company")
+    employees = db.relationship("Employee", backref="company", lazy=True)  # 👈 Added line
 
     def __repr__(self):
         return f"<Company {self.name}>"

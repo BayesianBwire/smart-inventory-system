@@ -6,13 +6,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
       background: #f5f5f5;
       color: #000;
     }
-
     header {
       background: #fff;
       padding: 20px 40px;
@@ -24,7 +24,6 @@
       top: 0;
       z-index: 10;
     }
-
     .logo-block {
       display: flex;
       flex-direction: column;
@@ -32,41 +31,27 @@
       color: #36585C;
       font-family: 'Playfair Display', serif;
     }
-
-    .wave {
-      width: 60px;
-      height: 20px;
-      background: radial-gradient(ellipse at center, #36585C 0%, transparent 70%);
-      border-radius: 50%;
-      transform: rotate(-5deg);
-      margin-bottom: 5px;
-    }
-
     .logo-text {
       font-size: 1.6rem;
       font-weight: 600;
       margin: 0;
     }
-
     nav a {
       margin: 0 10px;
       color: #000;
       text-decoration: none;
       font-weight: 500;
     }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
+    nav a:hover { text-decoration: underline; }
 
     .main-wrapper {
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 80px 20px;
+      padding: 80px 20px 40px;
       background: #e4e7eb;
+      flex-direction: column;
     }
-
     .main-panel {
       background: #fff;
       padding: 50px 40px;
@@ -75,16 +60,15 @@
       max-width: 720px;
       text-align: center;
     }
-
     .brand-title {
       font-family: 'Playfair Display', serif;
       font-size: 2.6rem;
       background: linear-gradient(to right, #004d7a, #008793);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       margin: 0 0 20px;
     }
-
     .stepped-paragraph {
       font-size: 1.1rem;
       color: #000;
@@ -93,12 +77,10 @@
       text-align: center;
       white-space: pre-line;
     }
-
     .notice {
       font-size: 1rem;
       color: #555;
     }
-
     .get-started-btn {
       display: inline-block;
       margin-top: 25px;
@@ -111,136 +93,137 @@
       font-size: 1rem;
       transition: background 0.3s ease;
     }
-
     .get-started-btn:hover {
       background: linear-gradient(to right, #00334d, #00707a);
     }
 
-    .featured-section {
-      background-color: #fff;
-      padding: 60px 20px;
-      border-top: 1px solid #e0e0e0;
-    }
-
-    .featured-section h2 {
-      font-family: 'Playfair Display', serif;
-      color: #36585C;
-      font-size: 2rem;
-      margin-bottom: 40px;
-      text-align: center;
-    }
-
-    .apps-container {
+    .card-group {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 40px;
+      gap: 20px;
+      max-width: 900px;
+      margin: 40px auto;
     }
-
-    .app-box {
-      width: 140px;
+    .card {
+      border-radius: 1rem;
+      transition: box-shadow 0.2s;
+      background: white;
+      padding: 25px;
       text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      margin: 15px;
+      flex: 1;
+      cursor: pointer;
     }
+    .card i { font-size: 2rem; margin-bottom: 10px; }
+    .card:nth-child(1) i { color: #1976d2; }
+    .card:nth-child(2) i { color: #43a047; }
+    .card:nth-child(3) i { color: #fbc02d; }
+    .card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
 
-    .app-icon {
-      font-size: 28px;
-      color: #36585C;
-      margin-bottom: 10px;
-    }
-
-    .app-box h3 {
-      font-size: 1rem;
-      color: #000;
-      margin: 5px 0;
-    }
-
-    .app-box p {
-      font-size: 0.85rem;
-      color: #555;
-    }
-
-    .core-values {
-      background-color: #ffffff;
-      margin: 60px 20px;
+    .featured-section, .core-values {
+      background: #fff;
       padding: 60px 20px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
     }
 
-    .core-values h2 {
-      text-align: center;
-      font-size: 2rem;
-      font-family: 'Playfair Display', serif;
-      color: #36585C;
-      margin-bottom: 40px;
-    }
-
-    .core-values-list {
+    .apps-container, .core-values-list, .card-group, .pricing-table {
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 30px;
     }
 
-    .value-item {
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    .app-box, .value-item, .pricing-card, .testimonial-item {
       text-align: center;
-      width: 100%;
+      padding: 25px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.05);
+      max-width: 220px;
+      cursor: pointer;
     }
 
-    .value-item .app-icon {
+    .app-box:hover, .card:hover, .pricing-card:hover { transform: scale(1.05); }
+
+    .app-icon {
       font-size: 26px;
       margin-bottom: 10px;
+      color: #36585C;
     }
 
-    .value-item h3 {
-      margin: 5px 0;
-      font-size: 1.2rem;
-      color: #222;
-    }
-
-    .value-item p {
-      font-size: 0.95rem;
-      color: #555;
-    }
-
-    .value-item:nth-child(1) { background-color: #E6F4F1; color: #2D5E5E; }
-    .value-item:nth-child(2) { background-color: #FDF2E9; color: #704212; }
-    .value-item:nth-child(3) { background-color: #F0F4FF; color: #2C3E75; }
-    .value-item:nth-child(4) { background-color: #FFF3F5; color: #712B3B; }
-    .value-item:nth-child(5) { background-color: #F5F8EB; color: #46662C; }
+    .value-item:nth-child(1) { background-color: #E6F4F1; }
+    .value-item:nth-child(2) { background-color: #FDF2E9; }
+    .value-item:nth-child(3) { background-color: #F0F4FF; }
+    .value-item:nth-child(4) { background-color: #FFF3F5; }
+    .value-item:nth-child(5) { background-color: #F5F8EB; }
 
     footer {
       background-color: #000;
-      padding: 20px 40px;
+      padding: 20px;
       text-align: center;
-      font-size: 0.9rem;
       color: #fff;
-      border-top: 1px solid #333;
-      margin-top: 60px;
     }
-
     footer a {
-      margin: 0 10px;
       color: #ccc;
+      margin: 0 8px;
       text-decoration: none;
     }
+    footer a:hover { text-decoration: underline; }
 
-    footer a:hover {
-      color: #fff;
-      text-decoration: underline;
+    .section-title {
+      font-size: 2rem;
+      text-align: center;
+      margin: 50px 0 20px;
+      font-family: 'Playfair Display', serif;
+      color: #36585C;
     }
+
+    .pricing-card {
+      padding: 30px;
+      max-width: 300px;
+      text-align: center;
+    }
+    .pricing-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+    .pricing-card .price {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #008793;
+      margin: 15px 0;
+    }
+
+    .contact-section {
+      text-align: center;
+      background: #004d7a;
+      color: #fff;
+      padding: 50px 20px;
+    }
+
+    .team-section {
+      background: #fff;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .team-member {
+      display: inline-block;
+      margin: 20px;
+      max-width: 180px;
+    }
+    .team-member img {
+      width: 100%;
+      border-radius: 50%;
+    }
+    .team-member h4 { margin-top: 10px; font-size: 1rem; }
+    .team-member span { font-size: 0.9rem; color: #666; }
   </style>
 </head>
 <body>
   <header>
     <div class="logo-block">
-      <div class="wave"></div>
       <div class="logo-text">RahaSoft</div>
     </div>
     <nav>
@@ -253,6 +236,7 @@
     </nav>
   </header>
 
+  <!-- ✅ Welcome Section -->
   <div class="main-wrapper">
     <div class="main-panel">
       <h1 class="brand-title">Where Comfort Meets Business</h1>
@@ -268,36 +252,61 @@ From inventory and sales to reporting and staff access, the platform handles it 
       </p>
       <a href="{{ url_for('register') }}" class="get-started-btn">Get Started</a>
     </div>
+
+    <div class="card-group">
+      <div class="card">
+        <i class="fa fa-users"></i>
+        <h5 class="card-title">For Teams</h5>
+        <p>Manage your employees, payroll, and HR tasks with ease.</p>
+      </div>
+      <div class="card">
+        <i class="fa fa-chart-line"></i>
+        <h5 class="card-title">Business Insights</h5>
+        <p>Get real-time analytics and reports for smarter decisions.</p>
+      </div>
+      <div class="card">
+        <i class="fa fa-lock"></i>
+        <h5 class="card-title">Secure & Reliable</h5>
+        <p>Your data is protected with industry-leading security.</p>
+      </div>
+    </div>
   </div>
 
+  <!-- ✅ Featured Apps -->
   <section class="featured-section">
-    <h2>Featured Apps</h2>
+    <h2 class="section-title">Featured Apps</h2>
     <div class="apps-container">
-      <div class="app-box">
+      <a href="/inventory" class="app-box">
         <div class="app-icon"><i class="fas fa-boxes"></i></div>
         <h3>Inventory</h3>
         <p>Track stock levels and suppliers.</p>
-      </div>
-      <div class="app-box">
+      </a>
+      <a href="/sales" class="app-box">
         <div class="app-icon"><i class="fas fa-chart-line"></i></div>
         <h3>Sales</h3>
         <p>Visualize and record your sales.</p>
-      </div>
-      <div class="app-box">
+      </a>
+      <a href="/reports" class="app-box">
         <div class="app-icon"><i class="fas fa-chart-pie"></i></div>
         <h3>Reports</h3>
         <p>Insights with graphs and data.</p>
-      </div>
-      <div class="app-box">
+      </a>
+      <a href="/users" class="app-box">
         <div class="app-icon"><i class="fas fa-users-cog"></i></div>
         <h3>Staff Access</h3>
         <p>Control user permissions easily.</p>
-      </div>
+      </a>
     </div>
+    <section class="success-stories">
+  <h2 class="section-title">Success Stories</h2>
+  <p style="text-align:center">"RahaSoft helped Kaka Traders reduce stock loss by 40% in 3 months."</p>
+</section>
+
   </section>
 
+  <!-- ✅ Core Values -->
   <section class="core-values">
-    <h2>Our Core Values</h2>
+    <h2 class="section-title">Our Core Values</h2>
     <div class="core-values-list">
       <div class="value-item">
         <div class="app-icon"><i class="fas fa-lightbulb"></i></div>
@@ -327,15 +336,81 @@ From inventory and sales to reporting and staff access, the platform handles it 
     </div>
   </section>
 
+  <!-- ✅ Testimonials Section -->
+  <section class="testimonials">
+    <h2 class="section-title">What Our Users Say</h2>
+    <div class="apps-container">
+      <div class="testimonial-item">
+        <p>"RahaSoft helped us automate inventory in less than a week. Game changer!"</p>
+        <strong>— Naomi, Kisumu</strong>
+      </div>
+      <div class="testimonial-item">
+        <p>"Now I can manage sales across branches. Love the reports!"</p>
+        <strong>— David, Eldoret</strong>
+      </div>
+      <div class="testimonial-item">
+        <p>"Clean interface and fast support. Proud it's built in Africa."</p>
+        <strong>— Achieng', Nairobi</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Pricing Section -->
+  <section class="pricing">
+    <h2 class="section-title">Affordable Plans for Every Business</h2>
+    <div class="pricing-table">
+      <div class="pricing-card">
+        <h3>Starter</h3>
+        <p>Perfect for all businesses</p>
+        <div class="price">Ksh 0</div>
+        <p>Basic features<br>Up to 3 users<br>Email support</p>
+      </div>
+      <div class="pricing-card">
+        <h3>Pro</h3>
+        <p>For growing businesses</p>
+        <div class="price">Ksh 2,500/mo</div>
+        <p>All modules<br>Up to 10 users<br>Priority support</p>
+      </div>
+      <div class="pricing-card">
+        <h3>Enterprise</h3>
+        <p>Custom setup</p>
+        <div class="price">Contact Us</div>
+        <p>Unlimited users<br>Dedicated support<br>API access</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Contact CTA Section -->
+  <section class="contact-section">
+    <h2>Have Questions or Need a Demo?</h2>
+    <p>Email us at <strong>rahasoft.app@gmail.com</strong> or <br>Call <strong>+254 701482108</strong></p>
+  </section>
+
+  <!-- ✅ Team Section -->
+  <section class="team-section">
+    <h2 class="section-title">Meet the Team</h2>
+    <div class="apps-container">
+      <div class="team-member">
+        <img src="https://via.placeholder.com/150" alt="Team Member">
+        <h4>Bilford Bwire</h4>
+        <span>Founder & Lead Engineer</span>
+      </div>
+      <div class="team-member">
+        <img src="https://via.placeholder.com/150" alt="Team Member">
+        <h4>Doreen Masinde</h4>
+        <span>Chief Systems Architect</span>
+      </div>
+    </div>
+  </section>
+
   <footer>
-    <div style="margin-bottom: 10px;">
+    <div>
       <a href="#">Home</a> |
       <a href="#">Compliance</a> |
       <a href="#">Terms of Service</a> |
-      <a href="#">Privacy Policy</a> |
-      <a href="#">Security</a>
+      <a href="#">Privacy Policy</a>
     </div>
-    <div>© 2025 RahaSoft. All rights reserved.</div>
+    <div style="margin-top: 10px;">© 2025 RahaSoft. All rights reserved.</div>
   </footer>
 </body>
 </html>
