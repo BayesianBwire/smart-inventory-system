@@ -148,7 +148,22 @@
         Logged in as <strong>{{ session['user'] }}</strong>
         {% if session['role'] %} ({{ session['role'].replace('_', ' ').title() }}){% endif %}
       </span>
-      <a href="{{ url_for('user_bp.user_list') }}" class="btn btn-outline-primary btn-sm">👥 Users</a>
+
+      <!-- ✅ CRM Dropdown -->
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="crmDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          📊 CRM
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="crmDropdown">
+          <li><a class="dropdown-item" href="{{ url_for('crm.crm_dashboard') }}">📈 CRM Dashboard</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('crm.add_company') }}">🏢 Add Company</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('crm.add_contact') }}">👤 Add Contact</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('crm.add_deal') }}">💼 Add Deal</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('crm.add_lead') }}">🧲 Add Lead</a></li>
+        </ul>
+      </div>
+
+      <a href="{{ url_for('user_list') }}" class="btn btn-outline-primary btn-sm">👥 Users</a>
       <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">🚪 Logout</a>
     </div>
   </header>
@@ -171,28 +186,42 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="lang-btn">
           <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='en') }}">
-            <span>English</span>
-            <span class="flag-icon flag-icon-us ms-2"></span>
+            <span>English</span><span class="flag-icon flag-icon-us ms-2"></span>
           </a></li>
           <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='fr') }}">
-            <span>Français</span>
-            <span class="flag-icon flag-icon-fr ms-2"></span>
+            <span>Français</span><span class="flag-icon flag-icon-fr ms-2"></span>
           </a></li>
           <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='es') }}">
-            <span>Español</span>
-            <span class="flag-icon flag-icon-es ms-2"></span>
+            <span>Español</span><span class="flag-icon flag-icon-es ms-2"></span>
           </a></li>
           <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='de') }}">
-            <span>Deutsch</span>
-            <span class="flag-icon flag-icon-de ms-2"></span>
+            <span>Deutsch</span><span class="flag-icon flag-icon-de ms-2"></span>
           </a></li>
           <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='sw') }}">
-            <span>Kiswahili</span>
-            <span class="flag-icon flag-icon-ke ms-2"></span>
+            <span>Kiswahili</span><span class="flag-icon flag-icon-ke ms-2"></span>
           </a></li>
         </ul>
       </div>
     </div>
+    <script>
+  let idleTime = 0;
+
+  // Increment the idle time counter every second
+  const idleInterval = setInterval(timerIncrement, 1000); // 1 sec
+
+  function timerIncrement() {
+    idleTime++;
+    if (idleTime >= 20) { // 20 seconds idle time
+      window.location.href = "{{ url_for('logout') }}";
+    }
+  }
+
+  // Reset timer on mouse or key press
+  document.onmousemove = document.onkeypress = () => {
+    idleTime = 0;
+  };
+</script>
+
   </footer>
 
   <!-- Toast Messages -->

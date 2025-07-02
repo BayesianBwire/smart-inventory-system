@@ -15,15 +15,18 @@ from functools import wraps
 from dotenv import load_dotenv
 import random
 import string
+from werkzeug.security import generate_password_hash
 from models import db, Employee
 from forms.employee_form import EmployeeForm
 from routes.employee_routes import employee_bp
 from routes.payroll_routes import payroll_bp
 from routes.support import support_bp
 from routes.user_routes import user_bp
+from models.contact import Contact  # Import the Contact model
 
 load_dotenv()
-
+# Add this line in the form only when ready for production
+# recaptcha = RecaptchaField()
 # Import your extensions correctly (only this part changed)
 from extensions import db, mail
 
@@ -40,6 +43,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "fallback-secret-key")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI") + "?sslmode=require"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS", "False").lower() == "true"
+app.config['RECAPTCHA_PUBLIC_KEY'] = os.getenv('RECAPTCHA_PUBLIC_KEY')
+app.config['RECAPTCHA_PRIVATE_KEY'] = os.getenv('RECAPTCHA_PRIVATE_KEY')
 
 # -------------------- Mail Config --------------------
 app.config['MAIL_SERVER'] = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
@@ -67,7 +72,7 @@ migrate = Migrate(app, db)
 csrf = CSRFProtect(app)
 
 login_manager = LoginManager(app)
-login_manager.login_view = 'login_page'
+login_manager.init_app(app)
 
 serializer = URLSafeTimedSerializer(app.secret_key)
 
@@ -79,7 +84,7 @@ from models.company import Company
 from models.login_log import LoginLog
 from models.user import User
 from models.sale import Sale
-from forms import ProductForm, LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm
+from forms import ProductForm, LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm, support_ticket_form
 from utils.permissions import has_permission
 
 app.register_blueprint(employee_bp)
@@ -116,6 +121,24 @@ def email_verified_required (f):
         return f(*args, **kwargs)
     return decorated_function
 
+@app.route("/login/google/authorized")
+def google_authorized():
+    if not google.authorized:
+        return redirect(url_for("login_page"))
+
+    resp = google.get("/oauth2/v2/userinfo")
+    user_info = resp.json()
+
+    # Example response: {'email': ..., 'name': ..., 'picture': ...}
+    email = user_info["email"]
+    name = user_info.get("name", "")
+    
+    # Logic to check if user exists in DB, else create one
+    # Then log in the user (you can use Flask-Login)
+
+    flash(f"Logged in as {email} via Google.", "success")
+    return redirect(url_for("dashboard"))
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -136,6 +159,15 @@ def role_required(*roles):
         return decorated_function
     return wrapper
 
+from flask_dance.contrib.google import make_google_blueprint, google
+
+google_bp = make_google_blueprint(
+    client_id=os.getenv('GOOGLE_OAUTH_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_OAUTH_CLIENT_SECRET'),
+    scope=["profile", "email"],
+    redirect_url='/login/google/authorized'
+)
+app.register_blueprint(google_bp, url_prefix="/login")
 # -------------------- Audit Log --------------------
 def log_action(action, entity, entity_id=None):
     if 'user' in session:
@@ -252,6 +284,8 @@ def set_language(lang_code):
 
 @login_required
 def create_ticket():
+    from models.support_ticket import SupportTicket  # <-- Import the model here
+    from forms import SupportTicketForm  # <-- Import the form here
     form = SupportTicketForm()
 
     # 🔄 Populate staff choices
@@ -288,9 +322,12 @@ def create_ticket():
 
     return render_template("support/create.html", form=form)
 
+from forms import AttendanceForm  # <-- Add this import at the top of your file or before this function
+
 @app.route('/attendance', methods=['GET', 'POST'])
 @login_required
 def attendance():
+    from models import AttendanceRecord  # <-- Add this import to fix the error
     form = AttendanceForm()
     if form.validate_on_submit():
         record = AttendanceRecord(
@@ -366,6 +403,11 @@ def login_page():
         ).first()
 
         if user:
+            # 🔐 Check for lockout
+            if user.lockout_until and datetime.utcnow() < user.lockout_until:
+                flash("⛔ Your account is temporarily locked due to too many failed attempts. Try again later.", "danger")
+                return redirect(url_for('login_page'))
+
             if not user.email_confirmed:
                 token = serializer.dumps(user.email, salt='email-confirm')
                 confirm_url = url_for('verify_email', token=token, _external=True)
@@ -394,14 +436,31 @@ Note: This link expires in 15 minutes.
 
                 return redirect(url_for('login_page'))
 
+            # ✅ Password Check
             if user.verify_password(password):
+                user.failed_login_attempts = 0
+                user.lockout_until = None
+                db.session.commit()
+
                 login_user(user, remember=True)
                 flash(f"✅ Welcome back, {user.username}", "success")
-                return redirect(url_for('dashboard'))  # Update this to your actual post-login route
+                return redirect(url_for('dashboard'))
 
-        flash("❌ Invalid credentials. Please try again.", "danger")
+            else:
+                # ❌ Wrong password → update failed attempts
+                user.failed_login_attempts += 1
+                if user.failed_login_attempts >= 5:
+                    user.lockout_until = datetime.utcnow() + timedelta(hours=6)
+                    flash("⛔ Too many failed attempts. Your account is locked for 6 hours.", "danger")
+                else:
+                    flash("❌ Invalid password. Please try again.", "danger")
 
-    # 👇 This line must always be reached if login fails or it’s a GET request
+                db.session.commit()
+                return redirect(url_for('login_page'))
+
+        else:
+            flash("❌ Invalid credentials. Please try again.", "danger")
+
     return render_template('login.html', form=form)
 
 
@@ -409,7 +468,7 @@ Note: This link expires in 15 minutes.
 def logout():
     logout_user()
     flash("You have been logged out of RahaSoft.", "info")
-    return redirect(url_for('welcome'))
+    return redirect(url_for('login'))
 # --- Product Master Data ---
 @app.route('/products')
 @login_required
@@ -417,6 +476,13 @@ def product_list():
     from models.product import Product
     products = Product.query.all()
     return render_template('product_list.html', products=products)
+
+@app.route('/crm')
+@login_required
+def crm():
+    print(f"User Authenticated? {current_user.is_authenticated}")
+    print(f"User ID: {current_user.id}")
+    return render_template("crm.html")
 
 @app.route('/products')
 @login_required
@@ -430,18 +496,32 @@ def categories_units():
     # Manage categories, subcategories, and units
     return render_template('categories_units.html')
 
+from forms import CompanyForm
+
 @app.route('/register-company', methods=['GET', 'POST'])
 def register_company():
     form = CompanyForm()
+    
     if form.validate_on_submit():
+        # Normalize and check for duplicate name
+        name = form.name.data.strip()
+        phone = form.phone.data.strip()
+
+        existing = Company.query.filter(func.lower(Company.name) == name.lower()).first()
+        if existing:
+            flash("⚠️ A company with this name already exists.", "warning")
+            return redirect(url_for('register_company'))
+
+        # Create new company
         new_company = Company(
-            name=form.name.data,
-            address=form.address.data,
-            phone=form.phone.data
+            name=name,
+            address=form.address.data.strip(),
+            phone=phone
         )
         db.session.add(new_company)
         db.session.commit()
-        flash('✅ Company registered successfully!', 'success')
+
+        flash("✅ Company registered successfully!", "success")
         return redirect(url_for('register_company'))
 
     return render_template('register_company.html', form=form)
@@ -1233,6 +1313,9 @@ def audit_logs():
     logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).all()
     return render_template('audit_logs.html', logs=logs)
 
+from datetime import datetime, timedelta
+from flask import request
+
 @app.route('/verify_email/<token>')
 def verify_email(token):
     user = User.confirm_token(token)
@@ -1245,11 +1328,16 @@ def verify_email(token):
         flash("✅ Your email is already verified. Please log in.", "info")
         return redirect(url_for('login_page'))
 
-    user.confirm_email()  # sets email_confirmed = True and email_confirmed_on = now
+    # Optional: Log IP address that verified the email
+    ip_address = request.remote_addr
+    print(f"📧 Email verified for {user.email} from IP {ip_address} at {datetime.utcnow()}")
+
+    user.confirm_email()  # Sets email_confirmed and email_confirmed_on
     db.session.commit()
 
     flash("🎉 Email verified successfully! You can now log in.", "success")
     return redirect(url_for('login_page'))
+
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -1464,6 +1552,23 @@ def make_admin():
 def view_employees():
     employees = Employee.query.all()
     return render_template('view_employees.html', employees=employees)
+
+
+def check_login_allowed(user):
+    # 1. Lockout rule: too many failed logins
+    if user.failed_login_attempts >= 5:
+        if datetime.utcnow() < user.lockout_until:
+            return False
+
+    # 2. Email must be confirmed
+    if not user.email_confirmed:
+        return False
+
+    # 3. Optional: suspended accounts
+    # if user.status == 'suspended':
+    #     return False
+
+    return True
 
 @app.route('/forgot-password-confirmation')
 def forgot_password_confirmation():

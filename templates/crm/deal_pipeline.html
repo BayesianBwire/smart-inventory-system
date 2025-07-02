@@ -1,0 +1,64 @@
+{% extends 'shared/base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <h2 class="mb-4">🗂️ Deal Pipeline</h2>
+  <div class="row">
+    {% for stage in stages %}
+      <div id="{{ stage }}" class="col-md-2 bg-light border rounded mx-2 px-2 py-2" style="min-height: 400px;">
+        <h5 class="text-center">{{ stage }}</h5>
+        <hr>
+        {% for deal in pipeline[stage] %}
+          <div class="card mb-3 shadow-sm">
+            <div class="card-body p-2">
+              <h6>{{ deal.title }}</h6>
+              <p class="mb-0"><strong>Ksh:</strong> {{ deal.value }}</p>
+              <small>Status: {{ deal.status }}</small>
+            </div>
+          </div>
+        {% else %}
+          <p class="text-muted text-center"><small>No deals</small></p>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+  const stageNames = {{ stages | tojson }};
+
+  stageNames.forEach(stage => {
+    const el = document.getElementById(stage);
+    if (el) {
+      new Sortable(el, {
+        group: 'deals',
+        animation: 150,
+        onEnd: function (evt) {
+          const dealId = evt.item.dataset.dealid;
+          const newStage = evt.to.id;
+
+          // Send AJAX to update deal's stage in DB
+          fetch('/crm/deals/update_stage', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+              deal_id: dealId,
+              new_stage: newStage
+            })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (!data.success) {
+              alert("❌ Failed to update stage");
+            }
+          });
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
