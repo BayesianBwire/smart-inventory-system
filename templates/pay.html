@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>STK Push - Pay</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+  <div class="container mt-5">
+    <h2 class="mb-4 text-center">Send Payment via M-Pesa STK</h2>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- STK Push Form -->
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }} <!-- CSRF token -->
+
+      <div class="form-group">
+        {{ form.phone.label(class="form-label") }}
+        {{ form.phone(class="form-control", placeholder="2547...") }}
+        {% for error in form.phone.errors %}
+          <div class="text-danger small mt-1">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="form-group">
+        {{ form.amount.label(class="form-label") }}
+        {{ form.amount(class="form-control", placeholder="e.g. 100") }}
+        {% for error in form.amount.errors %}
+          <div class="text-danger small mt-1">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {{ form.submit(class="btn btn-success btn-block") }}
+    </form>
+  </div>
+</body>
+</html>

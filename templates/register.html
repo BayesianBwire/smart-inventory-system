@@ -178,13 +178,13 @@
 
   <header>
     <div class="logo-block">
+      <div class="wave"></div>
       <div class="logo-text">RahaSoft</div>
     </div>
     <div class="login-group">
       <span>Already have an account?</span>
       <a class="login-link" href="{{ url_for('login_page') }}">Sign In</a>
     </div>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </header>
 
   <div class="container">
@@ -248,12 +248,6 @@
           {{ form.role(class_="form-control") }}
           {% for error in form.role.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
         </div>
-        <div class="input-group">
-          {{ form.recaptcha }}
-          {% for error in form.recaptcha.errors %}
-            <div class="text-danger">{{ error }}</div>
-          {% endfor %}
-        </div>
 
         <div class="checkbox">
           <input type="checkbox" required>
@@ -263,13 +257,9 @@
             <a href="{{ url_for('privacy') }}" target="_blank">Privacy Policy</a>.
           </label>
         </div>
-        
+
         {{ form.submit(class_="btn") }}
-        <a href="{{ url_for('google.login') }}" class="btn btn-outline-danger btn-block mt-3">
-      <i class="fab fa-google mr-2"></i> Continue with Google
-    </a>
       </form>
-  
 
       <div class="options">
         <p><a href="{{ url_for('welcome') }}">← Back to Home</a></p>
@@ -298,5 +288,3 @@
 
 </body>
 </html>
-# Add this line in the form only when ready for production
-# recaptcha = RecaptchaField()

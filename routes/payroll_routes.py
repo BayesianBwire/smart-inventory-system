@@ -2,14 +2,17 @@ import os
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required
 from werkzeug.utils import secure_filename
+
 from models import db
 from models.payroll import Payroll
 from forms.payroll_form import PayrollForm
+from utils.role_required import role_required  # ✅ Add this import
 
 payroll_bp = Blueprint("payroll_bp", __name__)
 
 @payroll_bp.route('/payroll/create', methods=['GET', 'POST'])
 @login_required
+@role_required('hr')  # ✅ Only HR role allowed
 def create_payroll():
     form = PayrollForm()
 

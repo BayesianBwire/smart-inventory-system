@@ -8,4 +8,3 @@ from .attendance_form import AttendanceForm
 from .register_form import RegisterForm
 from .leave_form import LeaveRequestForm
 from .payroll_form import PayrollForm
-from .company_form import CompanyForm

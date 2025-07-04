@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 fw-bold text-primary">
+    <i class="fas fa-user-tag me-2"></i> Filter Users by Role
+  </h2>
+
+  <!-- Filter Form -->
+  <form method="get" action="{{ url_for('user_bp.filter_users_by_role') }}" class="row mb-4">
+    <div class="col-md-6">
+      <select name="role" class="form-select">
+        <option value="">-- All Roles --</option>
+        {% for role in roles %}
+          <option value="{{ role }}" {% if role == selected_role %}selected{% endif %}>
+            {{ role|capitalize }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-primary" type="submit">Filter</button>
+    </div>
+  </form>
+
+  <!-- User Table -->
+  {% if users %}
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Full Name</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ user.full_name }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.phone_number or '—' }}</td>
+          <td>{{ user.role|capitalize }}</td>
+          <td>
+            <a href="{{ url_for('user_bp.edit_user', user_id=user.id) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+            <form action="{{ url_for('user_bp.delete_user', user_id=user.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete {{ user.full_name }}?');">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="alert alert-info">No users found for this role.</div>
+  {% endif %}
+</div>
+{% endblock %}

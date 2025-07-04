@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 text-success fw-bold">
+    <i class="fas fa-plus-circle me-2"></i>Add Payroll Record
+  </h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.employee.label(class="form-label") }}
+      {{ form.employee(class="form-select", id="employee") }}
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.basic_salary.label(class="form-label") }}
+        {{ form.basic_salary(class="form-control", id="basic_salary") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.allowances.label(class="form-label") }}
+        {{ form.allowances(class="form-control", id="allowances") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.deductions.label(class="form-label") }}
+        {{ form.deductions(class="form-control", id="deductions") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.bonus.label(class="form-label") }}
+        {{ form.bonus(class="form-control", id="bonus") }}
+      </div>
+    </div>
+
+    <!-- ✅ Net Pay Preview -->
+    <div class="alert alert-info fw-semibold">
+      Net Pay: <span id="net_pay_display">Ksh 0.00</span>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.month.label(class="form-label") }}
+        {{ form.month(class="form-control", id="month") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.payment_date.label(class="form-label") }}
+        {{ form.payment_date(class="form-control", id="payment_date") }}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      {{ form.remarks.label(class="form-label") }}
+      {{ form.remarks(class="form-control", id="remarks") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.payslip_file.label(class="form-label") }}
+      {{ form.payslip_file(class="form-control", id="payslip_file") }}
+    </div>
+
+    <button type="submit" class="btn btn-success">
+      <i class="fas fa-save me-1"></i> Save Payroll
+    </button>
+    <a href="{{ url_for('payroll_bp.view_payrolls') }}" class="btn btn-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function calculateNetPay() {
+    const basic = parseFloat(document.getElementById("basic_salary").value) || 0;
+    const allowance = parseFloat(document.getElementById("allowances").value) || 0;
+    const bonus = parseFloat(document.getElementById("bonus").value) || 0;
+    const deduction = parseFloat(document.getElementById("deductions").value) || 0;
+    const net = basic + allowance + bonus - deduction;
+    document.getElementById("net_pay_display").innerText = `Ksh ${net.toFixed(2)}`;
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    ["basic_salary", "allowances", "bonus", "deductions"].forEach(id => {
+      const input = document.getElementById(id);
+      if (input) input.addEventListener("input", calculateNetPay);
+    });
+    calculateNetPay();
+  });
+</script>
+{% endblock %}

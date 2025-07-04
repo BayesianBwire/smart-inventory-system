@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from itsdangerous import URLSafeTimedSerializer as Serializer
@@ -15,7 +15,7 @@ class User(db.Model, UserMixin):
     phone_number = db.Column(db.String(20), nullable=True)
 
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(30), default='attendant')
+    role = db.Column(db.String(30), default='attendant')  # Default user role
     created_by = db.Column(db.String(80), nullable=True)
 
     reset_token = db.Column(db.String(128), nullable=True)
@@ -25,13 +25,7 @@ class User(db.Model, UserMixin):
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
     company = db.relationship('Company', back_populates='users')
 
-    # 🔒 Security fields
-    failed_login_attempts = db.Column(db.Integer, default=0)
-    last_failed_login = db.Column(db.DateTime, nullable=True)
-    is_locked = db.Column(db.Boolean, default=False)
-    locked_until = db.Column(db.DateTime, nullable=True)
-
-    # ----------- Password Handling ----------
+    # ---------- Password Handling ----------
     @property
     def password(self):
         raise AttributeError("❌ Direct access to password is not allowed.")
@@ -48,7 +42,7 @@ class User(db.Model, UserMixin):
         self.email_confirmed = True
         self.email_confirmed_on = datetime.utcnow()
 
-    # ---------- Flask-Login ----------
+    # ---------- Flask-Login Requirement ----------
     def get_id(self):
         return str(self.id)
 
@@ -66,6 +60,13 @@ class User(db.Model, UserMixin):
 
     def has_any_role(self, *roles):
         return self.role in roles
+
+    # ---------- Debugging & Display ----------
+    def __repr__(self):
+        return f"<User {self.username} ({self.role}) - Confirmed: {self.email_confirmed}>"
+
+    def __str__(self):
+        return self.username
 
     # ---------- Token Generators ----------
     def generate_token(self, purpose='reset', expires_sec=3600):
@@ -93,10 +94,3 @@ class User(db.Model, UserMixin):
         except Exception:
             return None
         return User.query.get(data.get('user_id'))
-
-    # ---------- Debugging & Display ----------
-    def __repr__(self):
-        return f"<User {self.username} ({self.role}) - Confirmed: {self.email_confirmed}>"
-
-    def __str__(self):
-        return self.username

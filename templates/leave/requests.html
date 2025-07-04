@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 fw-bold text-success">
+    <i class="fas fa-calendar-check me-2"></i> Leave Requests
+  </h2>
+
+  {% if requests %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Employee</th>
+          <th>Type</th>
+          <th>Period</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in requests %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ req.employee.full_name }}</td>
+          <td>{{ req.leave_type }}</td>
+          <td>{{ req.start_date }} to {{ req.end_date }}</td>
+          <td>{{ req.reason or '—' }}</td>
+          <td>
+            <span class="badge 
+              {% if req.status == 'Approved' %}bg-success
+              {% elif req.status == 'Rejected' %}bg-danger
+              {% else %}bg-warning text-dark{% endif %}">
+              {{ req.status }}
+            </span>
+          </td>
+          <td>
+            <form action="{{ url_for('leave_bp.update_leave_status', request_id=req.id) }}" method="POST" class="d-flex gap-1">
+              <input type="hidden" name="status" value="Approved">
+              <button type="submit" class="btn btn-success btn-sm">Approve</button>
+            </form>
+            <form action="{{ url_for('leave_bp.update_leave_status', request_id=req.id) }}" method="POST" class="d-flex gap-1 mt-1">
+              <input type="hidden" name="status" value="Rejected">
+              <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="alert alert-info">No leave requests submitted yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

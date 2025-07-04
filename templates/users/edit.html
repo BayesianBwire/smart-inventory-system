@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 fw-bold text-warning">
+    <i class="fas fa-user-edit me-2"></i> Edit User: {{ user.full_name }}
+  </h2>
+
+  <form method="post">
+    {{ form.hidden_tag() }}
+    
+    <div class="mb-3">
+      {{ form.full_name.label(class="form-label") }}
+      {{ form.full_name(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.username.label(class="form-label") }}
+      {{ form.username(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.email.label(class="form-label") }}
+      {{ form.email(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.phone_number.label(class="form-label") }}
+      {{ form.phone_number(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.role.label(class="form-label") }}
+      {{ form.role(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.password.label(class="form-label") }}
+      {{ form.password(class="form-control", placeholder="Leave blank to keep current password") }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update User</button>
+    <a href="{{ url_for('user_bp.list_users') }}" class="btn btn-secondary">Back</a>
+  </form>
+</div>
+{% endblock %}
