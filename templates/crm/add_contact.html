@@ -1,0 +1,31 @@
+{% extends 'shared/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">👤 Add New Contact</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group mb-3">
+      {{ form.full_name.label }} {{ form.full_name(class="form-control") }}
+    </div>
+    <div class="form-group mb-3">
+      {{ form.email.label }} {{ form.email(class="form-control") }}
+    </div>
+    <div class="form-group mb-3">
+      {{ form.phone.label }} {{ form.phone(class="form-control") }}
+    </div>
+    <div class="form-group mb-3">
+      {{ form.company.label }} {{ form.company(class="form-control") }}
+    </div>
+    <div class="form-group mb-3">
+      {{ form.title.label }} {{ form.title(class="form-control") }}
+    </div>
+    <div class="form-group mb-3">
+      {{ form.notes.label }} {{ form.notes(class="form-control", rows="3") }}
+    </div>
+
+    <button type="submit" class="btn btn-success">{{ form.submit.label }}</button>
+  </form>
+</div>
+{% endblock %}

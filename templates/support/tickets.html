@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-primary"><i class="fas fa-headset me-2"></i> Support Tickets</h2>
+  </div>
+
+  {% if tickets %}
+  <div class="table-responsive shadow-sm bg-white rounded p-3">
+    <table class="table table-hover table-bordered align-middle">
+      <thead class="table-primary text-center">
+        <tr>
+          <th>#</th>
+          <th>Subject</th>
+          <th>Priority</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Submitted By</th>
+          <th>Assigned To</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ticket in tickets %}
+        <tr>
+          <td class="text-center">{{ loop.index }}</td>
+          <td>{{ ticket.subject }}</td>
+          <td><span class="badge bg-{{ 'danger' if ticket.priority == 'High' else 'warning' if ticket.priority == 'Medium' else 'secondary' }}">{{ ticket.priority }}</span></td>
+          <td>{{ ticket.category }}</td>
+          <td>
+            {% if ticket.status == 'Open' %}
+              <span class="badge bg-success">{{ ticket.status }}</span>
+            {% elif ticket.status == 'In Progress' %}
+              <span class="badge bg-warning text-dark">{{ ticket.status }}</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ ticket.status }}</span>
+            {% endif %}
+          </td>
+          <td>{{ ticket.submitted_by.full_name }}</td>
+          <td>{{ ticket.assigned_staff.full_name if ticket.assigned_staff else '—' }}</td>
+          <td>{{ ticket.created_at.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="alert alert-info text-center mt-4">
+      <i class="fas fa-info-circle me-2"></i> No support tickets found.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -18,6 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
+<<<<<<< HEAD
     :root {
       --primary-color: #3b82f6;
       --secondary-color: #1e40af;
@@ -38,12 +39,16 @@
       box-sizing: border-box;
     }
 
+=======
+    html { scroll-behavior: smooth; }
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
     body {
       font-family: 'Inter', sans-serif;
       line-height: 1.6;
       color: var(--dark-color);
       overflow-x: hidden;
     }
+<<<<<<< HEAD
 
     /* Navigation */
     .navbar {
@@ -65,9 +70,87 @@
       font-size: 1.8rem;
       font-weight: 700;
       background: var(--gradient-primary);
+=======
+    header {
+      background: #fff;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .logo-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      color: #36585C;
+      font-family: 'Playfair Display', serif;
+    }
+    .logo-text {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    nav a {
+      margin: 0 10px;
+      color: #000;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    nav a:hover { text-decoration: underline; }
+
+    .main-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 80px 20px 40px;
+      background: #e4e7eb;
+      flex-direction: column;
+    }
+    .main-panel {
+      background: #fff;
+      padding: 50px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      max-width: 720px;
+      text-align: center;
+    }
+    .brand-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      background: linear-gradient(to right, #004d7a, #008793);
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
       -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       background-clip: text;
+      -webkit-text-fill-color: transparent;
+<<<<<<< HEAD
+      background-clip: text;
+=======
+      margin: 0 0 20px;
+    }
+    .stepped-paragraph {
+      font-size: 1.1rem;
+      color: #000;
+      line-height: 1.8;
+      margin-bottom: 30px;
+      text-align: center;
+      white-space: pre-line;
+    }
+    .notice {
+      font-size: 1rem;
+      color: #555;
+    }
+    .get-started-btn {
+      display: inline-block;
+      margin-top: 25px;
+      background: linear-gradient(to right, #004d7a, #008793);
+      color: #fff;
+      padding: 12px 30px;
+      border-radius: 30px;
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
       text-decoration: none;
     }
 
@@ -92,6 +175,7 @@
       text-decoration: none;
       transition: all 0.3s ease;
     }
+<<<<<<< HEAD
 
     .btn-primary-custom:hover {
       transform: translateY(-2px);
@@ -103,6 +187,13 @@
     .hero {
       background: var(--gradient-primary);
       min-height: 100vh;
+=======
+    .get-started-btn:hover {
+      background: linear-gradient(to right, #00334d, #00707a);
+    }
+
+    .card-group {
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
       display: flex;
       align-items: center;
       padding: 6rem 0 2rem;
@@ -154,6 +245,7 @@
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
+<<<<<<< HEAD
     }
 
     .btn-hero-primary,
@@ -212,8 +304,31 @@
       padding: 2rem;
       text-align: center;
       transition: all 0.3s ease;
+=======
+      justify-content: center;
+      gap: 20px;
+      max-width: 900px;
+      margin: 40px auto;
     }
+    .card {
+      border-radius: 1rem;
+      transition: box-shadow 0.2s;
+      background: white;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      margin: 15px;
+      flex: 1;
+      cursor: pointer;
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
+    }
+    .card i { font-size: 2rem; margin-bottom: 10px; }
+    .card:nth-child(1) i { color: #1976d2; }
+    .card:nth-child(2) i { color: #43a047; }
+    .card:nth-child(3) i { color: #fbc02d; }
+    .card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
 
+<<<<<<< HEAD
     .stat-card:hover {
       transform: translateY(-5px);
       background: rgba(255, 255, 255, 0.15);
@@ -366,10 +481,59 @@
 
     .footer-links a {
       color: rgba(255, 255, 255, 0.7);
+=======
+    .featured-section, .core-values {
+      background: #fff;
+      padding: 60px 20px;
+    }
+
+    .apps-container, .core-values-list, .card-group, .pricing-table {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .app-box, .value-item, .pricing-card, .testimonial-item {
+      text-align: center;
+      padding: 25px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.05);
+      max-width: 220px;
+      cursor: pointer;
+    }
+
+    .app-box:hover, .card:hover, .pricing-card:hover { transform: scale(1.05); }
+
+    .app-icon {
+      font-size: 26px;
+      margin-bottom: 10px;
+      color: #36585C;
+    }
+
+    .value-item:nth-child(1) { background-color: #E6F4F1; }
+    .value-item:nth-child(2) { background-color: #FDF2E9; }
+    .value-item:nth-child(3) { background-color: #F0F4FF; }
+    .value-item:nth-child(4) { background-color: #FFF3F5; }
+    .value-item:nth-child(5) { background-color: #F5F8EB; }
+
+    footer {
+      background-color: #000;
+      padding: 20px;
+      text-align: center;
+      color: #fff;
+    }
+    footer a {
+      color: #ccc;
+      margin: 0 8px;
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
       text-decoration: none;
       transition: color 0.3s ease;
     }
+    footer a:hover { text-decoration: underline; }
 
+<<<<<<< HEAD
     .footer-links a:hover {
       color: white;
     }
@@ -660,9 +824,59 @@
     @keyframes ticker {
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
+=======
+    .section-title {
+      font-size: 2rem;
+      text-align: center;
+      margin: 50px 0 20px;
+      font-family: 'Playfair Display', serif;
+      color: #36585C;
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
     }
+
+    .pricing-card {
+      padding: 30px;
+      max-width: 300px;
+      text-align: center;
+    }
+    .pricing-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+    .pricing-card .price {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #008793;
+      margin: 15px 0;
+    }
+
+    .contact-section {
+      text-align: center;
+      background: #004d7a;
+      color: #fff;
+      padding: 50px 20px;
+    }
+
+    .team-section {
+      background: #fff;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .team-member {
+      display: inline-block;
+      margin: 20px;
+      max-width: 180px;
+    }
+    .team-member img {
+      width: 100%;
+      border-radius: 50%;
+    }
+    .team-member h4 { margin-top: 10px; font-size: 1rem; }
+    .team-member span { font-size: 0.9rem; color: #666; }
   </style>
 </head>
+<<<<<<< HEAD
 
 <body>
   <!-- Navigation -->
@@ -749,6 +963,32 @@
       <h2 class="section-title" data-aos="fade-up">Powerful Features for Modern Business</h2>
       <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
         Everything you need to run your business efficiently, all in one integrated platform
+=======
+<body>
+  <header>
+    <div class="logo-block">
+      <div class="logo-text">RahaSoft</div>
+    </div>
+    <nav>
+      <a href="#">Products</a>
+      <a href="#">Customers</a>
+      <a href="#">Partners</a>
+      <a href="#">Company</a>
+      <a href="{{ url_for('register') }}">Register</a>
+      <a href="{{ url_for('login_page') }}" style="color: red;">Sign In</a>
+    </nav>
+  </header>
+
+  <!-- ✅ Welcome Section -->
+  <div class="main-wrapper">
+    <div class="main-panel">
+      <h1 class="brand-title">Where Comfort Meets Business</h1>
+      <p class="stepped-paragraph">
+From inventory and sales to reporting and staff access, the platform handles it all.  
+     Say goodbye to scattered systems—manage your entire retail  
+          operation in one smooth, reliable platform.  
+               Built for clarity, speed, and control.
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
       </p>
       
       <div class="row g-4">
@@ -1095,8 +1335,27 @@
         </a>
       </div>
     </div>
+
+    <div class="card-group">
+      <div class="card">
+        <i class="fa fa-users"></i>
+        <h5 class="card-title">For Teams</h5>
+        <p>Manage your employees, payroll, and HR tasks with ease.</p>
+      </div>
+      <div class="card">
+        <i class="fa fa-chart-line"></i>
+        <h5 class="card-title">Business Insights</h5>
+        <p>Get real-time analytics and reports for smarter decisions.</p>
+      </div>
+      <div class="card">
+        <i class="fa fa-lock"></i>
+        <h5 class="card-title">Secure & Reliable</h5>
+        <p>Your data is protected with industry-leading security.</p>
+      </div>
+    </div>
   </div>
 
+<<<<<<< HEAD
   <!-- Success Stories Ticker -->
   <div class="success-ticker">
     <div class="ticker-content">
@@ -1119,11 +1378,133 @@
         <a href="/privacy">Privacy Policy</a>
         <a href="/terms">Terms of Service</a>
         <a href="#">Support</a>
+=======
+  <!-- ✅ Featured Apps -->
+  <section class="featured-section">
+    <h2 class="section-title">Featured Apps</h2>
+    <div class="apps-container">
+      <a href="/inventory" class="app-box">
+        <div class="app-icon"><i class="fas fa-boxes"></i></div>
+        <h3>Inventory</h3>
+        <p>Track stock levels and suppliers.</p>
+      </a>
+      <a href="/sales" class="app-box">
+        <div class="app-icon"><i class="fas fa-chart-line"></i></div>
+        <h3>Sales</h3>
+        <p>Visualize and record your sales.</p>
+      </a>
+      <a href="/reports" class="app-box">
+        <div class="app-icon"><i class="fas fa-chart-pie"></i></div>
+        <h3>Reports</h3>
+        <p>Insights with graphs and data.</p>
+      </a>
+      <a href="/users" class="app-box">
+        <div class="app-icon"><i class="fas fa-users-cog"></i></div>
+        <h3>Staff Access</h3>
+        <p>Control user permissions easily.</p>
+      </a>
+    </div>
+    <section class="success-stories">
+  <h2 class="section-title">Success Stories</h2>
+  <p style="text-align:center">"RahaSoft helped Kaka Traders reduce stock loss by 40% in 3 months."</p>
+</section>
+
+  </section>
+
+  <!-- ✅ Core Values -->
+  <section class="core-values">
+    <h2 class="section-title">Our Core Values</h2>
+    <div class="core-values-list">
+      <div class="value-item">
+        <div class="app-icon"><i class="fas fa-lightbulb"></i></div>
+        <h3>Customer-Centric Innovation</h3>
+        <p>Smart tools built for real-world growth.</p>
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
       </div>
       <div class="footer-copyright">
         <p>&copy; 2025 RahaSoft. All rights reserved. Built with ❤️ for African businesses.</p>
       </div>
     </div>
+<<<<<<< HEAD
+=======
+  </section>
+
+  <!-- ✅ Testimonials Section -->
+  <section class="testimonials">
+    <h2 class="section-title">What Our Users Say</h2>
+    <div class="apps-container">
+      <div class="testimonial-item">
+        <p>"RahaSoft helped us automate inventory in less than a week. Game changer!"</p>
+        <strong>— Naomi, Kisumu</strong>
+      </div>
+      <div class="testimonial-item">
+        <p>"Now I can manage sales across branches. Love the reports!"</p>
+        <strong>— David, Eldoret</strong>
+      </div>
+      <div class="testimonial-item">
+        <p>"Clean interface and fast support. Proud it's built in Africa."</p>
+        <strong>— Achieng', Nairobi</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Pricing Section -->
+  <section class="pricing">
+    <h2 class="section-title">Affordable Plans for Every Business</h2>
+    <div class="pricing-table">
+      <div class="pricing-card">
+        <h3>Starter</h3>
+        <p>Perfect for all businesses</p>
+        <div class="price">Ksh 0</div>
+        <p>Basic features<br>Up to 3 users<br>Email support</p>
+      </div>
+      <div class="pricing-card">
+        <h3>Pro</h3>
+        <p>For growing businesses</p>
+        <div class="price">Ksh 2,500/mo</div>
+        <p>All modules<br>Up to 10 users<br>Priority support</p>
+      </div>
+      <div class="pricing-card">
+        <h3>Enterprise</h3>
+        <p>Custom setup</p>
+        <div class="price">Contact Us</div>
+        <p>Unlimited users<br>Dedicated support<br>API access</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Contact CTA Section -->
+  <section class="contact-section">
+    <h2>Have Questions or Need a Demo?</h2>
+    <p>Email us at <strong>rahasoft.app@gmail.com</strong> or <br>Call <strong>+254 701482108</strong></p>
+  </section>
+
+  <!-- ✅ Team Section -->
+  <section class="team-section">
+    <h2 class="section-title">Meet the Team</h2>
+    <div class="apps-container">
+      <div class="team-member">
+        <img src="https://via.placeholder.com/150" alt="Team Member">
+        <h4>Bilford Bwire</h4>
+        <span>Founder & Lead Engineer</span>
+      </div>
+      <div class="team-member">
+        <img src="https://via.placeholder.com/150" alt="Team Member">
+        <h4>Doreen Masinde</h4>
+        <span>Chief Systems Architect</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>
+      <a href="#">Home</a> |
+      <a href="#">Compliance</a> |
+      <a href="#">Terms of Service</a> |
+      <a href="#">Privacy Policy</a>
+    </div>
+    <div style="margin-top: 10px;">© 2025 RahaSoft. All rights reserved.</div>
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
   </footer>
 
   <!-- Bootstrap JS -->

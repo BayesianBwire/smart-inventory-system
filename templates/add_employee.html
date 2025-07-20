@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-3 text-primary">Add New Employee</h3>
+  <form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-6">{{ form.full_name.label }} {{ form.full_name(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.employee_id.label }} {{ form.employee_id(class="form-control") }}</div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">{{ form.department.label }} {{ form.department(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.designation.label }} {{ form.designation(class="form-control") }}</div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">{{ form.gender.label }} {{ form.gender(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.dob.label }} {{ form.dob(class="form-control") }}</div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">{{ form.email.label }} {{ form.email(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.phone.label }} {{ form.phone(class="form-control") }}</div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-12">{{ form.address.label }} {{ form.address(class="form-control") }}</div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">{{ form.national_id.label }} {{ form.national_id(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.joining_date.label }} {{ form.joining_date(class="form-control") }}</div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">{{ form.status.label }} {{ form.status(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.photo.label }} {{ form.photo(class="form-control") }}</div>
+    </div>
+    <div class="mt-4">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,41 +1,80 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-5">
   <div class="text-center mb-4">
-    <h2 class="fw-bold text-success">📄 Payroll History</h2>
+    <h2 class="fw-bold text-success">
+      <i class="fas fa-money-check-alt me-2"></i> Payroll History
+    </h2>
   </div>
 
   {% if payroll_list %}
-  <div class="table-responsive">
+  <div class="d-flex justify-content-between mb-3">
+    <form method="get" class="d-flex">
+      <select name="employee_id" class="form-select me-2">
+        <option value="">All Employees</option>
+        {% for emp in employees %}
+          <option value="{{ emp.id }}" {% if selected_employee_id == emp.id|string %}selected{% endif %}>
+            {{ emp.full_name }}
+          </option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-outline-success" type="submit">Filter</button>
+    </form>
+    <a href="{{ url_for('payroll_bp.export_payrolls', employee_id=selected_employee_id) }}"
+       class="btn btn-outline-primary">
+      <i class="fas fa-file-csv me-1"></i> Export CSV
+    </a>
+  </div>
+
+  <div class="table-responsive shadow-sm rounded bg-white p-3">
     <table class="table table-bordered table-hover align-middle">
-      <thead class="table-light">
+      <thead class="table-success text-center">
         <tr>
           <th>#</th>
           <th>Staff</th>
           <th>Month</th>
-          <th>Amount</th>
+          <th>Net Pay</th>
           <th>Paid On</th>
-          <th>Loan Deduction</th>
+          <th>Deductions</th>
           <th>Remarks</th>
+          <th>Payslip</th>
         </tr>
       </thead>
       <tbody>
         {% for record in payroll_list %}
         <tr>
-          <td>{{ loop.index }}</td>
-          <td>{{ record.user.full_name if record.user else '—' }}</td>
-          <td>{{ record.month }}</td>
-          <td>KES {{ record.amount }}</td>
-          <td>{{ record.date.strftime('%Y-%m-%d') }}</td>
-          <td>{{ record.loan_deduction or 0 }}</td>
-          <td>{{ record.remarks or '—' }}</td>
+          <td class="text-center">{{ loop.index }}</td>
+          <td>{{ record.employee.full_name if record.employee else '—' }}</td>
+          <td>{{ record.month or '—' }}</td>
+          <td>KES {{ "{:,.2f}".format(record.net_pay or 0) }}</td>
+          <td>{{ record.payment_date.strftime('%Y-%m-%d') if record.payment_date else '—' }}</td>
+          <td>KES {{ "{:,.2f}".format(record.deductions or 0) }}</td>
+          <td>
+            {% if record.remarks %}
+              <span class="badge bg-secondary">{{ record.remarks }}</span>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td class="text-center">
+            {% if record.payslip_filename %}
+              <a href="{{ url_for('static', filename='payslips/' + record.payslip_filename) }}"
+                 target="_blank" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-file-download"></i> View
+              </a>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% else %}
-    <p class="text-muted text-center">No payroll records found.</p>
+  <div class="alert alert-info text-center mt-4">
+    <i class="fas fa-info-circle me-2"></i> No payroll records found.
+  </div>
   {% endif %}
 </div>
 {% endblock %}

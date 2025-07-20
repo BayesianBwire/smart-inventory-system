@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 fw-bold text-success">
+    <i class="fas fa-paper-plane me-2"></i> Submit Leave Request
+  </h2>
+
+  <form method="POST" action="{{ url_for('leave_bp.leave_request') }}">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.employee.label(class="form-label") }}
+      {{ form.employee(class="form-select") }}
+      {% for error in form.employee.errors %}
+        <div class="text-danger small">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.leave_type.label(class="form-label") }}
+      {{ form.leave_type(class="form-select") }}
+      {% for error in form.leave_type.errors %}
+        <div class="text-danger small">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.start_date.label(class="form-label") }}
+        {{ form.start_date(class="form-control") }}
+        {% for error in form.start_date.errors %}
+          <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.end_date.label(class="form-label") }}
+        {{ form.end_date(class="form-control") }}
+        {% for error in form.end_date.errors %}
+          <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      {{ form.reason.label(class="form-label") }}
+      {{ form.reason(class="form-control", placeholder="Optional reason") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.status.label(class="form-label") }}
+      {{ form.status(class="form-select") }}
+    </div>
+
+    <div class="d-grid">
+      {{ form.submit(class="btn btn-success btn-lg") }}
+    </div>
+  </form>
+</div>
+{% endblock %}

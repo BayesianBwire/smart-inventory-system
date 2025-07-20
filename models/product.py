@@ -1,20 +1,20 @@
-# models/product.py
 from models import db
 
-
 class Product(db.Model):
+    __tablename__ = 'products'
+
     id = db.Column(db.Integer, primary_key=True)
-    product_code = db.Column(db.String(100), unique=True)
-    product_name = db.Column(db.String(255))
-    category = db.Column(db.String(100))
-    price = db.Column(db.Float)
-    cost_price = db.Column(db.Float)
-    quantity = db.Column(db.Integer)
-    sold = db.Column(db.Integer, default=0)  # ✅ Newly added
-    description = db.Column(db.Text)
-    image_url = db.Column(db.String(255))
-    average_rating = db.Column(db.Float)
-    reviews_count = db.Column(db.Integer)
+    product_code = db.Column(db.String(100), unique=True, nullable=False)
+    product_name = db.Column(db.String(255), nullable=False)
+    category = db.Column(db.String(100), nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    cost_price = db.Column(db.Float, nullable=True)
+    quantity = db.Column(db.Integer, nullable=False, default=0)
+    sold = db.Column(db.Integer, default=0)
+    description = db.Column(db.Text, nullable=True)
+    image_url = db.Column(db.String(255), nullable=True)
+    average_rating = db.Column(db.Float, default=0.0)
+    reviews_count = db.Column(db.Integer, default=0)
 
     # Multi-tenant support
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)

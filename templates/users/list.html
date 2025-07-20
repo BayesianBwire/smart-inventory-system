@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mx-auto mt-10">
+  <h2 class="text-2xl font-bold mb-6">👥 All Users</h2>
+
+  <a href="{{ url_for('user_bp.create_user') }}" class="mb-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+    ➕ Add User
+  </a>
+
+  <table class="table-auto w-full border">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="border px-4 py-2">#</th>
+        <th class="border px-4 py-2">Username</th>
+        <th class="border px-4 py-2">Email</th>
+        <th class="border px-4 py-2">Role</th>
+        <th class="border px-4 py-2">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td class="border px-4 py-2">{{ loop.index }}</td>
+        <td class="border px-4 py-2">{{ user.username }}</td>
+        <td class="border px-4 py-2">{{ user.email }}</td>
+        <td class="border px-4 py-2">{{ user.role }}</td>
+        <td class="border px-4 py-2">
+          {% if user.email_confirmed %}
+            ✅ Active
+          {% else %}
+            ❌ Not Confirmed
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

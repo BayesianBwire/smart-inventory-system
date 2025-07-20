@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Virtual Environment
 venv/
 env/
@@ -7,10 +8,14 @@ env/
 .vscode/
 
 # Python cache
+=======
+.env
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+<<<<<<< HEAD
 .Python
 *.so
 
@@ -30,3 +35,5 @@ Thumbs.db
 
 # Backup files
 *.bak
+=======
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66

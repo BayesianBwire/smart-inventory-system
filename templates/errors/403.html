@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 text-center">
+  <h1 class="display-3 text-danger fw-bold">403</h1>
+  <p class="lead">🚫 You are not authorized to view this page.</p>
+  <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mt-3">
+    ⬅️ Back to Dashboard
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}New Payroll Record{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4 text-center text-primary">🧾 New Payroll Record</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" enctype="multipart/form-data" class="shadow p-4 rounded bg-white">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.employee.label(class="form-label") }}
+      {{ form.employee(class="form-select") }}
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.basic_salary.label(class="form-label") }}
+        {{ form.basic_salary(class="form-control", placeholder="Basic Salary") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.allowances.label(class="form-label") }}
+        {{ form.allowances(class="form-control", placeholder="Allowances") }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.bonus.label(class="form-label") }}
+        {{ form.bonus(class="form-control", placeholder="Bonus") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.deductions.label(class="form-label") }}
+        {{ form.deductions(class="form-control", placeholder="Deductions") }}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      {{ form.payment_date.label(class="form-label") }}
+      {{ form.payment_date(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.payslip_file.label(class="form-label") }}
+      {{ form.payslip_file(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Net Pay (Auto-Calculated)</label>
+      <input type="text" class="form-control" value="Will be calculated on submission" disabled>
+    </div>
+
+    <div class="text-end">
+      {{ form.submit(class="btn btn-success") }}
+    </div>
+  </form>
+</div>
+{% endblock %}

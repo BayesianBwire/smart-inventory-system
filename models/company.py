@@ -15,8 +15,8 @@ class Company(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
-    # reverse relationship
     users = db.relationship("User", back_populates="company")
+    employees = db.relationship("Employee", backref="company", lazy=True)  # 👈 Added line
 
     @staticmethod
     def generate_unique_id():

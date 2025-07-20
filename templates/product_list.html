@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-success">
+      <i class="fas fa-money-check-alt me-2"></i> Payroll History
+    </h2>
+  </div>
+
+  {% if payroll_list %}
+  <div class="table-responsive shadow-sm rounded bg-white p-3">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-success text-center">
+        <tr>
+          <th>#</th>
+          <th>Staff</th>
+          <th>Month</th>
+          <th>Net Pay</th>
+          <th>Paid On</th>
+          <th>Loan Deduction</th>
+          <th>Remarks</th>
+          <th>Payslip</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in payroll_list %}
+        <tr>
+          <td class="text-center">{{ loop.index }}</td>
+          <td>{{ record.employee.full_name if record.employee else '—' }}</td>
+          <td>{{ record.month or '—' }}</td>
+          <td>KES {{ "{:,.2f}".format(record.net_pay or 0) }}</td>
+          <td>{{ record.payment_date.strftime('%Y-%m-%d') if record.payment_date else '—' }}</td>
+          <td>KES {{ "{:,.2f}".format(record.deductions or 0) }}</td>
+          <td>
+            {% if record.remarks %}
+              <span class="badge bg-secondary">{{ record.remarks }}</span>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td class="text-center">
+            {% if record.payslip_filename %}
+              <a href="{{ url_for('static', filename='payslips/' + record.payslip_filename) }}"
+                 target="_blank" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-file-download"></i> View
+              </a>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center mt-4">
+    <i class="fas fa-info-circle me-2"></i> No payroll records found.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

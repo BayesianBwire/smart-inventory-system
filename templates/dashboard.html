@@ -2,6 +2,7 @@
 {% block content %}
 
 <style>
+<<<<<<< HEAD
   section.module-section {
     padding: 1.5rem 1rem;
     border-radius: 0.3rem;
@@ -18,12 +19,55 @@
   .dropdown-toggle {
     cursor: pointer;
     user-select: none;
+=======
+  /* Background colors for each section */
+  section.core-operations {
+    background-color: #e9f5f5; /* light teal */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.sales-marketing {
+    background-color: #fff8e1; /* light yellow */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.finance-accounting {
+    background-color: #e8f0fe; /* light blue */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.human-resources {
+    background-color: #fdecea; /* light pink */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.projects-collaboration {
+    background-color: #f3f0ff; /* very light purple */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.analytics-reports {
+    background-color: #e6f4ea; /* light green */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.it-security {
+    background-color: #fef6e4; /* very light orange */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+  }
+  section.utilities {
+    background-color: #f5f5f5; /* light gray */
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
   }
 </style>
 
 <div class="container py-4">
   <h3 class="mb-4 fw-bold" style="color: #36585C;">Welcome to RahaSoft Suite</h3>
 
+<<<<<<< HEAD
   {% set sections = [
     ('Core Operations', 'core-operations'),
     ('Sales & Marketing', 'sales-marketing'),
@@ -63,6 +107,515 @@
       </div>
     </section>
   {% endfor %}
+=======
+  <!-- Core Operations -->
+  <section class="mb-5 core-operations">
+    <h5 class="mb-3 text-secondary fw-semibold">Core Operations</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-boxes fa-3x mb-3" style="color: #007bff;"></i>
+            <h6 class="card-title">Stock Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('stock_management') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-shopping-cart fa-3x mb-3" style="color: #ffc107;"></i>
+            <h6 class="card-title">POS</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('pos_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-truck-loading fa-3x mb-3" style="color: #6c757d;"></i>
+            <h6 class="card-title">Purchasing</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('purchasing_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-warehouse fa-3x mb-3" style="color: #17a2b8;"></i>
+            <h6 class="card-title">Warehouse</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('warehouse_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-box-open fa-3x mb-3" style="color: #28a745;"></i>
+            <h6 class="card-title">Order Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('order_management_dashboard') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Sales & Marketing -->
+  <section class="mb-5 sales-marketing">
+    <h5 class="mb-3 text-secondary fw-semibold">Sales & Marketing</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-cash-register fa-3x mb-3" style="color: #28a745;"></i>
+            <h6 class="card-title">Sales</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-users fa-3x mb-3" style="color: #ffc107;"></i>
+            <h6 class="card-title">CRM</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-bullhorn fa-3x mb-3" style="color: #17a2b8;"></i>
+            <h6 class="card-title">Marketing</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-info btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-envelope fa-3x mb-3" style="color: #dc3545;"></i>
+            <h6 class="card-title">Email Campaigns</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-danger btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-comment-dots fa-3x mb-3" style="color: #6f42c1;"></i>
+            <h6 class="card-title">Live Chat</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Finance & Accounting -->
+  <section class="mb-5 finance-accounting">
+    <h5 class="mb-3 text-secondary fw-semibold">Finance & Accounting</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-coins fa-3x mb-3" style="color: #17a2b8;"></i>
+            <h6 class="card-title">Finance</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('finance_bank_cash_dashboard') }}" class="btn btn-outline-info btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-calculator fa-3x mb-3" style="color: #ffc107;"></i>
+            <h6 class="card-title">Accounting</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-invoice-dollar fa-3x mb-3" style="color: #fd7e14;"></i>
+            <h6 class="card-title">Invoicing</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-contract fa-3x mb-3" style="color: #6610f2;"></i>
+            <h6 class="card-title">Billing</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-chart-line fa-3x mb-3" style="color: #198754;"></i>
+            <h6 class="card-title">Financial Analytics</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Human Resources -->
+  <section class="mb-5 human-resources">
+    <h5 class="mb-3 text-secondary fw-semibold">Human Resources</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-user-tie fa-3x mb-3" style="color: #dc3545;"></i>
+            <h6 class="card-title">HR</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('hr_dashboard') }}" class="btn btn-outline-danger btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-calendar-check fa-3x mb-3" style="color: #20c997;"></i>
+            <h6 class="card-title">Attendance</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="{{ url_for('attendance_dashboard') }}" class="btn btn-outline-success btn-sm">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-medical fa-3x mb-3" style="color: #0d6efd;"></i>
+            <h6 class="card-title">Leave Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-handshake fa-3x mb-3" style="color: #fd7e14;"></i>
+            <h6 class="card-title">Payroll</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-headset fa-3x mb-3" style="color: #007bff;"></i>
+            <h6 class="card-title">Support / Helpdesk</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Projects & Collaboration -->
+  <section class="mb-5 projects-collaboration">
+    <h5 class="mb-3 text-secondary fw-semibold">Projects & Collaboration</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-folder fa-3x mb-3" style="color: #6c757d;"></i>
+            <h6 class="card-title">Projects</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-secondary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-comments fa-3x mb-3" style="color: #6610f2;"></i>
+            <h6 class="card-title">Team Chat</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-tasks fa-3x mb-3" style="color: #198754;"></i>
+            <h6 class="card-title">Task Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: #0d6efd;"></i>
+            <h6 class="card-title">File Sharing</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-calendar-alt fa-3x mb-3" style="color: #fd7e14;"></i>
+            <h6 class="card-title">Calendar</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Analytics & Reports -->
+  <section class="mb-5 analytics-reports">
+    <h5 class="mb-3 text-secondary fw-semibold">Analytics & Reports</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-chart-pie fa-3x mb-3" style="color: #6610f2;"></i>
+            <h6 class="card-title">Reports</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-chart-line fa-3x mb-3" style="color: #198754;"></i>
+            <h6 class="card-title">Business Intelligence</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-database fa-3x mb-3" style="color: #0d6efd;"></i>
+            <h6 class="card-title">Data Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-alt fa-3x mb-3" style="color: #6f42c1;"></i>
+            <h6 class="card-title">Compliance</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- IT & Security -->
+  <section class="mb-5 it-security">
+    <h5 class="mb-3 text-secondary fw-semibold">IT & Security</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-server fa-3x mb-3" style="color: #6c757d;"></i>
+            <h6 class="card-title">IT Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-secondary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-user-shield fa-3x mb-3" style="color: #dc3545;"></i>
+            <h6 class="card-title">Security</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-danger btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-network-wired fa-3x mb-3" style="color: #007bff;"></i>
+            <h6 class="card-title">Network Management</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-shield-alt fa-3x mb-3" style="color: #198754;"></i>
+            <h6 class="card-title">Compliance & Audit</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Utilities -->
+  <section class="mb-5 utilities">
+    <h5 class="mb-3 text-secondary fw-semibold">Utilities</h5>
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-cogs fa-3x mb-3" style="color: #6c757d;"></i>
+            <h6 class="card-title">Settings</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-secondary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-export fa-3x mb-3" style="color: #0d6efd;"></i>
+            <h6 class="card-title">Data Export</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-sync-alt fa-3x mb-3" style="color: #198754;"></i>
+            <h6 class="card-title">Backup & Restore</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <i class="fas fa-file-alt fa-3x mb-3" style="color: #ffc107;"></i>
+            <h6 class="card-title">Logs & Audit Trail</h6>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 text-center">
+            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
 </div>
 
 {% endblock %}

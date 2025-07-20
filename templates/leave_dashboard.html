@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 fw-bold text-primary">
+    <i class="fas fa-calendar-check me-2"></i> Leave Requests Dashboard
+  </h2>
+
+  {% if leave_requests %}
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover align-middle">
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>Employee</th>
+          <th>Type</th>
+          <th>Period</th>
+          <th>Status</th>
+          <th>Reason</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in leave_requests %}
+        <tr class="text-center">
+          <td>{{ loop.index }}</td>
+          <td>{{ req.employee.full_name }}</td>
+          <td>{{ req.leave_type }}</td>
+          <td>{{ req.start_date.strftime('%b %d, %Y') }} - {{ req.end_date.strftime('%b %d, %Y') }}</td>
+          <td>
+            {% if req.status == 'Approved' %}
+              <span class="badge bg-success">{{ req.status }}</span>
+            {% elif req.status == 'Rejected' %}
+              <span class="badge bg-danger">{{ req.status }}</span>
+            {% else %}
+              <span class="badge bg-warning text-dark">{{ req.status }}</span>
+            {% endif %}
+          </td>
+          <td>{{ req.reason or '—' }}</td>
+          <td>
+            {% if req.status == 'Pending' %}
+              <!-- Use POST method for actions -->
+              <form action="{{ url_for('leave_bp.approve_leave', leave_id=req.id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-success me-1">Approve</button>
+              </form>
+              <form action="{{ url_for('leave_bp.reject_leave', leave_id=req.id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+              </form>
+            {% else %}
+              <span class="text-muted">No Action</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">
+    No leave requests submitted yet.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

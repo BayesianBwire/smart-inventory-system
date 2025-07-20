@@ -1,0 +1,21 @@
+{% extends 'shared/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>📊 CRM Dashboard</h2>
+  <ul class="list-group mt-3">
+    <li class="list-group-item d-flex justify-content-between">
+      <span>Deals</span>
+      <span class="badge bg-primary">{{ deals_count }}</span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between">
+      <span>Tasks</span>
+      <span class="badge bg-success">{{ tasks_count }}</span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between">
+      <span>Contacts</span>
+      <span class="badge bg-warning text-dark">{{ contacts_count }}</span>
+    </li>
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center text-primary fw-bold mb-4">📝 Add New Payroll Record</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.employee.label(class="form-label") }}
+      {{ form.employee(class="form-select") }}
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.basic_salary.label(class="form-label") }}
+        {{ form.basic_salary(class="form-control", placeholder="e.g. 40000") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.allowances.label(class="form-label") }}
+        {{ form.allowances(class="form-control", placeholder="e.g. 5000") }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.deductions.label(class="form-label") }}
+        {{ form.deductions(class="form-control", placeholder="e.g. 2000") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.bonus.label(class="form-label") }}
+        {{ form.bonus(class="form-control", placeholder="e.g. 1000") }}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      {{ form.net_pay.label(class="form-label") }}
+      {{ form.net_pay(class="form-control", readonly=true, placeholder="Auto-calculated") }}
+      <small class="text-muted">This will be calculated automatically.</small>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.month.label(class="form-label") }}
+        {{ form.month(class="form-control", placeholder="e.g. July 2025") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.payment_date.label(class="form-label") }}
+        {{ form.payment_date(class="form-control") }}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      {{ form.remarks.label(class="form-label") }}
+      {{ form.remarks(class="form-control", placeholder="Any optional remarks") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.payslip_file.label(class="form-label") }}
+      {{ form.payslip_file(class="form-control") }}
+      <small class="form-text text-muted">Upload optional PDF payslip.</small>
+    </div>
+
+    <div class="text-center">
+      {{ form.submit(class="btn btn-success px-5") }}
+    </div>
+  </form>
+</div>
+
+<script>
+  // Optional: Auto-calculate Net Pay on input
+  document.addEventListener("DOMContentLoaded", function () {
+    function calculateNetPay() {
+      let salary = parseFloat(document.querySelector('#basic_salary').value) || 0;
+      let allowance = parseFloat(document.querySelector('#allowances').value) || 0;
+      let deduction = parseFloat(document.querySelector('#deductions').value) || 0;
+      let bonus = parseFloat(document.querySelector('#bonus').value) || 0;
+
+      let net = salary + allowance + bonus - deduction;
+      document.querySelector('#net_pay').value = net.toFixed(2);
+    }
+
+    ['basic_salary', 'allowances', 'deductions', 'bonus'].forEach(id => {
+      let input = document.querySelector(`#${id}`);
+      if (input) input.addEventListener('input', calculateNetPay);
+    });
+  });
+</script>
+{% endblock %}

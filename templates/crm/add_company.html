@@ -1,0 +1,22 @@
+{% extends 'shared/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">🏢 Register New Company</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group mb-3">
+      {{ form.name.label }} {{ form.name(class="form-control") }}
+    </div>
+    <div class="form-group mb-3">
+      {{ form.address.label }} {{ form.address(class="form-control") }}
+    </div>
+    <div class="form-group mb-3">
+      {{ form.phone.label }} {{ form.phone(class="form-control") }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
+  </form>
+</div>
+{% endblock %}

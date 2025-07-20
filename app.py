@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 from flask_wtf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required as flask_login_required
@@ -6,9 +7,24 @@ from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
+=======
+import os
+import pandas as pd
+import numpy as np
+import smtplib
+from flask import Blueprint, render_template, redirect, url_for, flash
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
 from datetime import datetime, timedelta
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash, current_app
+from flask_wtf import CSRFProtect
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required as flask_login_required
+from flask_migrate import Migrate
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
 from functools import wraps
 from dotenv import load_dotenv
+<<<<<<< HEAD
 import os
 import random
 import string
@@ -27,13 +43,38 @@ from models.sale import Sale
 from forms import ProductForm, LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm, CompanyForm
 from utils.permissions import has_permission
 from translations.translations import TRANSLATIONS
+=======
+import random
+import string
+from models import db, Employee
+from forms.employee_form import EmployeeForm
+from routes.employee_routes import employee_bp
+from routes.payroll_routes import payroll_bp
+from routes.support import support_bp
+from routes.user_routes import user_bp
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
 
 load_dotenv()
 
+# Import your extensions correctly (only this part changed)
+from extensions import db, mail
+
+# -------------------- Load Environment Variables --------------------
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path) and load_dotenv(dotenv_path):
+    print(f"✅ .env loaded from: {dotenv_path}")
+else:
+    print("❌ Could not load .env file")
+
+# -------------------- Flask App Configuration --------------------
 app = Flask(__name__)
 
-# Flask-Mail configuration
-app.config['MAIL_SERVER'] = os.getenv('SMTP_SERVER')
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "fallback-secret-key")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI") + "?sslmode=require"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS", "False").lower() == "true"
+
+# -------------------- Mail Config --------------------
+app.config['MAIL_SERVER'] = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('SMTP_PORT', 587))
 app.config['MAIL_USERNAME'] = os.getenv('SMTP_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('SMTP_PASSWORD')
@@ -41,23 +82,60 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('FROM_EMAIL')
 
-mail = Mail(app)
-app.secret_key = os.getenv('SECRET_KEY')
-app.jinja_env.globals.update(zip=zip)
+# -------------------- Session Settings --------------------
+app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.permanent_session_lifetime = timedelta(minutes=30)
 login_manager = LoginManager()
+login_manager.login_view = 'login_page'  # this should match your @app.route('/login')
 login_manager.init_app(app)
-login_manager.login_view = 'login_page'  # or 'login' depending on your route
 
+# -------------------- Initialize Extensions --------------------
+db.init_app(app)
+mail.init_app(app)
+
+migrate = Migrate(app, db)
+csrf = CSRFProtect(app)
+
+login_manager = LoginManager(app)
+login_manager.login_view = 'login_page'
+
+serializer = URLSafeTimedSerializer(app.secret_key)
+
+# -------------------- Models & Forms --------------------
+from models import User, Product, Sale, LoginLog, BankAccount, Transaction
+from models.audit_log import AuditLog
+from models.product import Product
+from models.company import Company
+from models.login_log import LoginLog
+from models.user import User
+from models.sale import Sale
+from forms import ProductForm, LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm
+from utils.permissions import has_permission
+
+app.register_blueprint(employee_bp)
+app.register_blueprint(payroll_bp)
+app.register_blueprint(user_bp)
+payroll_bp = Blueprint("payroll", __name__)
+# -------------------- User Loader --------------------
 @login_manager.user_loader
 def load_user(user_id):
-    with app.app_context():  # Optional but safe in some async edge cases
-        return db.session.get(User, int(user_id))
+    return User.query.get(int(user_id))
+
+# -------------------- Jinja Context --------------------
+app.jinja_env.globals.update(zip=zip)
+
+@app.before_request
+def set_session_permanent():
+    session.permanent = True
 
 @app.context_processor
 def inject_csrf_token():
     from flask_wtf.csrf import generate_csrf
     return dict(csrf_token=generate_csrf())
 
+<<<<<<< HEAD
 @app.context_processor
 def inject_translation():
     def translate(text):
@@ -99,7 +177,20 @@ def log_action(action, entity, entity_id=None):
 def set_session_permanent():
     session.permanent = True
 
+=======
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
 # -------------------- Auth Helpers --------------------
+def email_verified_required (f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash("Please log in first", "warning")
+            return redirect(url_for('login_page'))
+        if not current_user.email_confirmed:
+            flash("Please verify your email first", "warning")
+            return redirect(url_for('resend_verification'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 def company_required(f):
     @wraps(f)
@@ -142,15 +233,23 @@ def role_required(*roles):
         return decorated_function
     return wrapper
 
-# -------------------- Email Sending --------------------
+# -------------------- Audit Log --------------------
+def log_action(action, entity, entity_id=None):
+    if 'user' in session:
+        audit = AuditLog(
+            action=action,
+            entity=entity,
+            entity_id=entity_id,
+            performed_by=session['user']
+        )
+        try:
+            db.session.add(audit)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"[AuditLog Error] {str(e)}")
 
-import os
-import smtplib
-from flask import url_for
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
-# Shared SMTP config
+# -------------------- Email Helpers --------------------
 def get_smtp_config():
     return {
         'server': os.getenv('SMTP_SERVER'),
@@ -164,7 +263,6 @@ def get_smtp_config():
 def send_verification_email(user_email, token):
     cfg = get_smtp_config()
     verify_url = url_for('verify_email', token=token, _external=True)
-
     subject = f"{cfg['app_name']} - Verify Your Email"
     body = f"""Hi,
 
@@ -179,13 +277,11 @@ If you did not register, please ignore this email.
 Regards,
 {cfg['app_name']} Team
 """
-
     send_email(cfg, user_email, subject, body)
 
 def send_reset_email(user_email, token):
     cfg = get_smtp_config()
     reset_url = url_for('reset_password', token=token, _external=True)
-
     subject = f"{cfg['app_name']} - Password Reset Request"
     body = f"""Hi,
 
@@ -200,7 +296,6 @@ If you didn't request a password reset, please ignore this email.
 Regards,
 {cfg['app_name']} Team
 """
-
     send_email(cfg, user_email, subject, body)
 
 def send_email(cfg, to_email, subject, body):
@@ -240,10 +335,10 @@ def send_welcome_email(user):
     Warm regards,  
     RahaSoft Team
     """
-
     msg = Message(subject, recipients=[recipient], body=message_body)
     mail.send(msg)
 
+<<<<<<< HEAD
 def send_company_id_email(user, company):
     """Send company unique ID to the admin via email"""
     subject = f"🏢 Company Registration Successful - Your Unique ID: {company.unique_id}"
@@ -291,49 +386,175 @@ def send_company_id_email(user, company):
     except Exception as e:
         app.logger.error(f"❌ Failed to send company ID email to {recipient}: {e}")
 
+=======
+# -------------------- Routes --------------------
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
 @app.route('/set_language/<lang_code>')
 def set_language(lang_code):
     supported_langs = ['en', 'fr', 'es', 'de', 'sw', 'ar', 'zh', 'hi', 'pt']
     if lang_code in supported_langs:
         session['lang'] = lang_code
+<<<<<<< HEAD
         flash(f"Language changed successfully", "success")
     else:
         flash("Language not supported", "warning")
     # Redirect back to where user came from or dashboard page as fallback
     next_url = request.referrer or url_for('dashboard')
+=======
+    next_url = request.referrer or url_for('inventory')
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
     return redirect(next_url)
-# -------------------- Routes --------------------
+
+@login_required
+def create_ticket():
+    form = SupportTicketForm()
+
+    # 🔄 Populate staff choices
+    employees = Employee.query.all()
+    form.assigned_staff_id.choices = [(0, "--- Assign Later ---")] + [
+        (e.id, e.full_name) for e in employees
+    ]
+
+    if form.validate_on_submit():
+        try:
+            assigned_id = (
+                form.assigned_staff_id.data if form.assigned_staff_id.data != 0 else None
+            )
+
+            new_ticket = SupportTicket(
+                submitted_by_id=current_user.id,
+                subject=form.subject.data,
+                description=form.description.data,
+                priority=form.priority.data,
+                category=form.category.data,
+                status=form.status.data,
+                assigned_staff_id=assigned_id
+            )
+
+            db.session.add(new_ticket)
+            db.session.commit()
+
+            flash("✅ Support ticket created successfully.", "success")
+            return redirect(url_for("support_bp.view_tickets"))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"⚠️ Error creating ticket: {str(e)}", "danger")
+
+    return render_template("support/create.html", form=form)
+
+@app.route('/attendance', methods=['GET', 'POST'])
+@login_required
+def attendance():
+    form = AttendanceForm()
+    if form.validate_on_submit():
+        record = AttendanceRecord(
+            employee_id=form.employee.data.id,
+            date=form.date.data,
+            check_in=form.check_in.data,
+            check_out=form.check_out.data,
+            status=form.status.data
+        )
+        db.session.add(record)
+        db.session.commit()
+        flash('✅ Attendance record added.', 'success')
+        return redirect(url_for('attendance'))
+    return render_template('attendance.html', form=form)
+
 @app.route('/users')
 @login_required
 def user_list():
     if not has_permission(current_user.role, 'view_users'):
         flash("⛔ You don’t have permission to view user accounts.", "danger")
-        return redirect(url_for('hr_dashboard'))  # or whichever dashboard you want
+        return redirect(url_for('hr_dashboard'))
 
     users = User.query.all()
+    if not users:
+        flash("❌ No users found.", "danger")
+
     return render_template('users.html', users=users)
+
+@app.route('/resend_verification')
+@flask_login_required
+def resend_verification():
+    if current_user.email_confirmed:
+        flash('Your email is already verified.', 'info')
+        return redirect(url_for('dashboard'))
+
+    try:
+        token = serializer.dumps(current_user.email, salt='email-confirm')
+        confirm_url = url_for('verify_email', token=token, _external=True)
+        msg = Message('Confirm Your Email - RahaSoft',
+                      sender=app.config['MAIL_DEFAULT_SENDER'],
+                      recipients=[current_user.email])
+        msg.body = f'''Hi {current_user.full_name},
+
+Please confirm your email by clicking the link below:
+
+{confirm_url}
+
+This link will expire in 15 minutes.
+
+If you didn't request this, please ignore it.
+
+– RahaSoft Team'''
+
+        mail.send(msg)
+        flash('A new confirmation email has been sent to your inbox.', 'success')
+    except Exception as e:
+        print("Error sending confirmation email:", str(e))
+        flash('Failed to send confirmation email. Contact support or try again.', 'danger')
+
+    return redirect(url_for('login_page'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     form = LoginForm()
 
     if form.validate_on_submit():
-        login_input = form.username.data.strip().lower()  # Accepts username or email
+        login_input = form.username.data.strip().lower()
         password = form.password.data.strip()
 
-        # Try to find user by username or email, case-insensitively
         user = User.query.filter(
-            (User.username.ilike(login_input)) | (User.email.ilike(login_input))
+            (func.lower(User.username) == login_input) |
+            (func.lower(User.email) == login_input)
         ).first()
 
         if user:
             if not user.email_confirmed:
-                flash("⚠️ Please verify your email address before logging in. Check your inbox or spam.", "warning")
+                token = serializer.dumps(user.email, salt='email-confirm')
+                confirm_url = url_for('verify_email', token=token, _external=True)
+
+                msg = Message(
+                    subject='Confirm Your Email - RahaSoft',
+                    sender=app.config.get("MAIL_DEFAULT_SENDER", "noreply@rahasoft.com"),
+                    recipients=[user.email]
+                )
+                msg.body = f'''Hi {user.full_name},
+
+You're almost there! Please confirm your email to activate your RahaSoft account:
+
+{confirm_url}
+
+Note: This link expires in 15 minutes.
+
+– RahaSoft Team'''
+
+                try:
+                    mail.send(msg)
+                    flash("📧 A new verification email has been sent. Please check your inbox or spam folder.", "warning")
+                except Exception as e:
+                    print("❌ Email error:", e)
+                    flash("❌ Failed to send verification email. Please try again later.", "danger")
+
                 return redirect(url_for('login_page'))
 
             if user.verify_password(password):
-                login_user(user)
+                login_user(user, remember=True)
+                flash(f"✅ Welcome back, {user.username}", "success")
+                return redirect(url_for('dashboard'))  # Update this to your actual post-login route
 
+<<<<<<< HEAD
                 # Store additional info in session
                 session['user'] = user.username
                 session['email'] = user.email
@@ -343,42 +564,12 @@ def login_page():
                 return redirect(url_for('dashboard'))
 
         flash("❌ Invalid username/email or password.", "danger")
+=======
+        flash("❌ Invalid credentials. Please try again.", "danger")
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
 
+    # 👇 This line must always be reached if login fails or it’s a GET request
     return render_template('login.html', form=form)
-
-@app.route('/unverified')
-def unverified_notice():
-    return render_template('unverified_notice.html')
-
-# Decorator to ensure the user's email is verified
-def email_verified_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not getattr(current_user, 'email_confirmed', False):
-            flash("⚠️ Please verify your email address to access this page.", "warning")
-            return redirect(url_for('unverified_notice'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-@app.route('/login_logs')
-@login_required
-@role_required('admin', 'hr', 'superadmin')
-def login_logs():
-    logs = LoginLog.query.order_by(LoginLog.timestamp.desc()).all()
-    return render_template('login_logs.html', logs=logs)
-
-@app.route('/terms')
-def terms():
-    return render_template('terms.html')
-
-@app.route('/privacy')
-def privacy():
-    return render_template('privacy.html')
-
-@app.route('/welcome')
-def welcome():
-    username = session.get('user')  # No default, so no fake name
-    return render_template('welcome.html', username=username)
 
 
 @app.route('/logout')
@@ -586,17 +777,45 @@ def check_company_status():
         'user_role': user.role if has_company else None
     }
 # --- Product Master Data ---
-@app.route('/product_list')
+@app.route('/products')
 @login_required
 def product_list():
-    # Show all products, with filters/search
-    return render_template('product_list.html')
+    from models.product import Product
+    products = Product.query.all()
+    return render_template('product_list.html', products=products)
+
+@app.route('/products')
+@login_required
+def product_list_view():
+    products = Product.query.all()
+    return render_template('products/product_list.html', products=products)
 
 @app.route('/categories_units')
 @login_required
 def categories_units():
     # Manage categories, subcategories, and units
     return render_template('categories_units.html')
+
+@app.route('/register-company', methods=['GET', 'POST'])
+def register_company():
+    form = CompanyForm()
+    if form.validate_on_submit():
+        new_company = Company(
+            name=form.name.data,
+            address=form.address.data,
+            phone=form.phone.data
+        )
+        db.session.add(new_company)
+        db.session.commit()
+        flash('✅ Company registered successfully!', 'success')
+        return redirect(url_for('register_company'))
+
+    return render_template('register_company.html', form=form)
+
+@app.route('/companies')
+def view_companies():
+    companies = Company.query.all()
+    return render_template('companies.html', companies=companies)
 
 @app.route('/product_images')
 @login_required
@@ -635,6 +854,14 @@ def opening_stock():
 def stock_overview():
     # View current stock levels
     return render_template('stock_overview.html')
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
 
 @app.route('/stock_alerts')
 @login_required
@@ -892,6 +1119,10 @@ def purchase_po_numbering():
 @login_required
 def warehouse_dashboard():
     return render_template('warehouse_dashboard.html')
+
+@app.route('/welcome')
+def welcome():
+    return render_template('welcome.html')  # Make sure this template exists
 
 @app.route('/manage_warehouses')
 @login_required
@@ -1370,7 +1601,7 @@ def audit_logs():
 
 @app.route('/verify_email/<token>')
 def verify_email(token):
-    user = User.verify_token(token, purpose='confirm')  # uses your model's staticmethod
+    user = User.confirm_token(token)
 
     if not user:
         flash("⛔ This verification link is invalid or has expired.", "danger")
@@ -1385,6 +1616,7 @@ def verify_email(token):
 
     flash("🎉 Email verified successfully! You can now log in.", "success")
     return redirect(url_for('login_page'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -1416,13 +1648,13 @@ def register():
             phone_number=phone_number,
             role=role
         )
-        new_user.password = password  # use setter for password hash
+        new_user.password = form.password.data  # use setter for password hash
 
         db.session.add(new_user)
         db.session.commit()
 
         # ✅ Send account confirmation email
-        token = new_user.generate_token(purpose='confirm')
+        token = new_user.generate_confirmation_token()
         send_verification_email(new_user.email, token)
 
         # ✅ Send Welcome Email with credentials
@@ -1496,7 +1728,7 @@ def reset_password(token):
         user.password = generate_password_hash(new_password)
         db.session.commit()
         flash("Your password has been reset. You can now log in.", "success")
-        return redirect(url_for('login'))  # Use your login route here
+        return redirect(url_for('login_page'))  # Use your login route here
 
     return render_template('reset_password.html', form=form)
 
@@ -1594,6 +1826,10 @@ def make_admin():
         db.session.commit()
         return f"{user.username} is now a super_admin"
     return "User not found"
+@app.route('/employees')
+def view_employees():
+    employees = Employee.query.all()
+    return render_template('view_employees.html', employees=employees)
 
 @app.route('/forgot-password-confirmation')
 def forgot_password_confirmation():
@@ -1602,6 +1838,7 @@ def forgot_password_confirmation():
 # -------------------- Dashboard --------------------
 @app.route('/dashboard')
 @login_required
+<<<<<<< HEAD
 @email_verified_required
 def dashboard():
     # Import at the function level to avoid scope issues
@@ -1619,6 +1856,18 @@ def dashboard():
     
     # Always show dashboard, but pass flag for company modal
     company_id = getattr(current_user, 'company_id', None) if user and user.company_id else None
+=======
+def inventory():
+    # 🔍 Debugging login state
+    print("🟢 Is Authenticated:", current_user.is_authenticated)
+    print("🟢 Current User:", current_user.username if current_user.is_authenticated else "None")
+    print("🟢 Role:", current_user.role if current_user.is_authenticated else "N/A")
+
+    from models.product import Product
+    from flask import session
+
+    company_id = current_user.company_id  # 🏢 Multi-tenant filter
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
     category_filter = request.args.get('category')
     low_stock = request.args.get('low_stock') == 'on'
     search_query = request.args.get('search', '').strip().lower()
@@ -1629,7 +1878,11 @@ def dashboard():
     cart = session.get('cart', {})
     cart_item_count = sum(cart.values())
 
+<<<<<<< HEAD
     # ✅ HR Panel (unchanged)
+=======
+    # ✅ HR Panel
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
     if user_role == 'hr':
         from collections import Counter
 
@@ -1665,6 +1918,7 @@ def dashboard():
         fast_movers = Product.query.filter_by(company_id=company_id).order_by(Product.sold.desc()).limit(12).all()
         labels = [p.product_name for p in fast_movers] if fast_movers else []
         quantities = [p.sold for p in fast_movers] if fast_movers else []
+
         return render_template(
             "dashboard_modern.html",
             fast_movers=fast_movers,
@@ -1684,6 +1938,7 @@ def dashboard():
         total_value = sum(p.quantity * p.price for p in all_products)
         total_profit = sum((p.price - p.cost_price) * p.quantity for p in all_products)
         unsold_products = [p for p in all_products if p.sold == 0]
+
         return render_template(
             "dashboard_modern.html",
             products=top_value_products,
@@ -1718,8 +1973,8 @@ def dashboard():
         most_valuable = max(all_products, key=lambda p: p.quantity * p.price, default=None)
         total_profit = sum((p.price - p.cost_price) * p.quantity for p in all_products)
 
-        labels = [p.product_name for p in products] if products else []
-        quantities = [p.quantity for p in products] if products else []
+        labels = [p.product_name for p in products]
+        quantities = [p.quantity for p in products]
 
         category_totals = {}
         for p in all_products:
@@ -1754,7 +2009,7 @@ def dashboard():
             show_company_modal=show_company_modal
         )
 
-    # ✅ Default (Admin/Manager/SuperAdmin)
+    # ✅ Default: Admin / Manager / SuperAdmin
     query = Product.query.filter_by(company_id=company_id)
     if category_filter:
         query = query.filter_by(category=category_filter)
@@ -1774,8 +2029,8 @@ def dashboard():
     most_valuable = max(all_products, key=lambda p: p.quantity * p.price, default=None)
     total_profit = sum((p.price - p.cost_price) * p.quantity for p in all_products)
 
-    labels = [p.product_name for p in products] if products else []
-    quantities = [p.quantity for p in products] if products else []
+    labels = [p.product_name for p in products]
+    quantities = [p.quantity for p in products]
     category_totals = {}
     for p in all_products:
         category_totals[p.category] = category_totals.get(p.category, 0) + (p.quantity * p.price)
@@ -1808,6 +2063,7 @@ def dashboard():
         current_company=current_company,
         show_company_modal=show_company_modal
     )
+
 # (Removed duplicated/erroneous block that was outside any function)
 from flask import request, redirect, url_for, flash
 from flask_login import login_required, current_user
@@ -2024,9 +2280,58 @@ def hr_dashboard():
 @app.route('/payroll/new', methods=['GET', 'POST'])
 @login_required
 def new_payroll_record():
+<<<<<<< HEAD
+=======
+    from models import PayrollRecord  # ✅ Import model here
+    from forms import PayrollForm     # ✅ Ensure the form is imported
+    import os
+    from werkzeug.utils import secure_filename
+    from datetime import date
+
+    # ✅ Permission check
+>>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
     if not has_permission(current_user.role, 'manage_payroll'):
         flash("⛔ You don't have permission to add payroll records.", "danger")
         return redirect(url_for('dashboard'))
+
+    form = PayrollForm()
+
+    if form.validate_on_submit():
+        # ✅ Auto-calculate net pay
+        basic = form.basic_salary.data or 0
+        allowances = form.allowances.data or 0
+        bonus = form.bonus.data or 0
+        deductions = form.deductions.data or 0
+        net_pay = basic + allowances + bonus - deductions
+
+        # ✅ Handle payslip upload (optional)
+        payslip_file = form.payslip_file.data
+        payslip_filename = None
+        if payslip_file:
+            filename = secure_filename(payslip_file.filename)
+            payslip_filename = f"payslips/{filename}"
+            payslip_path = os.path.join('static/uploads', payslip_filename)
+            payslip_file.save(payslip_path)
+
+        # ✅ Save payroll record
+        new_record = PayrollRecord(
+            employee=form.employee.data,
+            basic_salary=basic,
+            allowances=allowances,
+            deductions=deductions,
+            bonus=bonus,
+            net_pay=net_pay,
+            payment_date=form.payment_date.data or date.today(),
+            payslip_filename=payslip_filename
+        )
+
+        db.session.add(new_record)
+        db.session.commit()
+
+        flash("✅ Payroll record added successfully.", "success")
+        return redirect(url_for('new_payroll_record'))
+
+    return render_template('payroll_form.html', form=form)
 
     if request.method == 'POST':
         try:
@@ -2059,23 +2364,102 @@ def new_payroll_record():
 def payroll_records():
     payroll_list = PayrollRecord.query.order_by(PayrollRecord.date.desc()).all()
     return render_template('payroll_list.html', payroll_list=payroll_list, user_role=session.get('role'))
+
+from flask import render_template, request, send_file
+from models import db, Payroll, Employee  # Adjust to your model names
+import csv
+import io
+
+@app.route('/payroll-history', methods=['GET', 'POST'])
+@login_required
+def payroll_history():
+    employee_id = request.args.get('employee')
+    month = request.args.get('month')
+    export = request.args.get('export')
+
+    query = Payroll.query
+
+    if employee_id:
+        query = query.filter_by(employee_id=employee_id)
+
+    if month:
+        query = query.filter(Payroll.month.ilike(f'%{month}%'))
+
+    payroll_list = query.order_by(Payroll.payment_date.desc()).all()
+
+    # Export to CSV
+    if export == 'csv':
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['Employee', 'Month', 'Amount', 'Payment Date', 'Loan Deduction', 'Remarks'])
+
+        for record in payroll_list:
+            writer.writerow([
+                record.employee.full_name if record.employee else '—',
+                record.month,
+                record.net_pay,
+                record.payment_date.strftime('%Y-%m-%d'),
+                record.deductions or 0,
+                record.remarks or ''
+            ])
+
+        output.seek(0)
+        return send_file(
+            io.BytesIO(output.getvalue().encode()),
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name='payroll_history.csv'
+        )
+
+    employees = Employee.query.all()
+    return render_template('payroll_history.html', payroll_list=payroll_list, employees=employees)
+
+
 @app.route('/stock_management', methods=['GET'])
 @login_required
 def stock_management():
     products = Product.query.all()
     return render_template('stock_management.html', products=products)
 
-@app.route('/add_product', methods=['POST'])
-@login_required
+@app.route('/add_product', methods=['GET', 'POST'])
+@login_required  # Optional if you want auth
 def add_product():
-    name = request.form['name']
-    quantity = int(request.form['quantity'])
-    price = float(request.form['price'])
-    new_product = Product(name=name, quantity=quantity, price=price)
-    db.session.add(new_product)
-    db.session.commit()
-    flash('Product added!', 'success')
-    return redirect(url_for('stock_management'))
+    if request.method == 'POST':
+        product_code = request.form['product_code']
+        name = request.form['product_name']
+        category = request.form['category']
+        quantity = int(request.form['quantity'])
+        price = float(request.form['price'])
+        cost_price = float(request.form['cost_price'])
+        description = request.form.get('description', '')
+        image_url = request.form.get('image_url', '')
+        average_rating = float(request.form.get('average_rating', 0))
+        reviews_count = int(request.form.get('reviews_count', 0))
+
+        new_product = Product(
+            product_code=product_code,
+            product_name=name,
+            category=category,
+            quantity=quantity,
+            price=price,
+            cost_price=cost_price,
+            description=description,
+            image_url=image_url,
+            average_rating=average_rating,
+            reviews_count=reviews_count,
+            company_id=current_user.company_id
+ # Optional if multi-tenant
+        )
+
+        db.session.add(new_product)
+        db.session.commit()
+        flash('Product added successfully!', 'success')
+        return redirect(url_for('product_list'))
+
+    return render_template('add_product.html')
+
+
+
 
 @app.route("/add_payroll", methods=["GET", "POST"])
 @login_required
@@ -2174,6 +2558,34 @@ def supervisor_dashboard():
         return redirect(url_for('dashboard'))
 
     return redirect(url_for('dashboard'))  # or a separate view if needed
+
+employee_bp = Blueprint('employee', __name__)  # ✅ Define Blueprint first
+
+@employee_bp.route('/employees/new', methods=['GET', 'POST'])
+def new_employee():
+    form = EmployeeForm()
+    if form.validate_on_submit():
+        employee = Employee(
+            full_name=form.full_name.data,
+            employee_id=form.employee_id.data,
+            department=form.department.data,
+            job_title=form.job_title.data,
+            gender=form.gender.data,
+            dob=form.dob.data,
+            email=form.email.data,
+            phone=form.phone.data,
+            address=form.address.data,
+            national_id=form.national_id.data,
+            joining_date=form.joining_date.data,
+            employment_status=form.employment_status.data,
+            photo=form.photo.data
+        )
+        db.session.add(employee)
+        db.session.commit()
+        flash('✅ Employee added successfully!', 'success')
+        return redirect(url_for('employee.new_employee'))
+
+    return render_template('employees/new.html', form=form)
 
 @app.route('/delete_product/<int:product_id>', methods=['POST'])
 @login_required
@@ -2462,11 +2874,16 @@ def sales_report():
         end_date=end_date,
         total_profit=total_profit
     )
+app.register_blueprint(support_bp)
+
 # -------------------- Run App --------------------
 @app.route('/')
 def landing_page():
     return render_template('welcome.html')
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
+
 
