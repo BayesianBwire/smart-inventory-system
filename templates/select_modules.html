@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="fas fa-puzzle-piece me-2"></i>{{ _('Choose Your Modules') }}
+          </h4>
+          <p class="mb-0 mt-2">{{ _('Select up to 3 modules to get started with your free plan') }}</p>
+        </div>
+        
+        <div class="card-body">
+          <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>{{ _('Free Plan Limits:') }}</strong> {{ _('You can select up to 3 modules. To access more modules, upgrade to a paid plan.') }}
+          </div>
+
+          <form method="POST" action="{{ url_for('select_modules') }}" id="moduleSelectionForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            
+            <div class="row">
+              <!-- Core Operations -->
+              <div class="col-md-6 mb-3">
+                <div class="module-card">
+                  <div class="form-check">
+                    <input class="form-check-input module-checkbox" type="checkbox" name="modules" value="inventory" id="inventory">
+                    <label class="form-check-label w-100" for="inventory">
+                      <div class="d-flex align-items-center">
+                        <div class="module-icon bg-primary text-white me-3">
+                          <i class="fas fa-boxes"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-1">{{ _('Inventory Management') }}</h6>
+                          <small class="text-muted">{{ _('Stock control, alerts, and tracking') }}</small>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="module-card">
+                  <div class="form-check">
+                    <input class="form-check-input module-checkbox" type="checkbox" name="modules" value="pos" id="pos">
+                    <label class="form-check-label w-100" for="pos">
+                      <div class="d-flex align-items-center">
+                        <div class="module-icon bg-success text-white me-3">
+                          <i class="fas fa-cash-register"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-1">{{ _('Point of Sale') }}</h6>
+                          <small class="text-muted">{{ _('Sales processing and customer management') }}</small>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="module-card">
+                  <div class="form-check">
+                    <input class="form-check-input module-checkbox" type="checkbox" name="modules" value="purchasing" id="purchasing">
+                    <label class="form-check-label w-100" for="purchasing">
+                      <div class="d-flex align-items-center">
+                        <div class="module-icon bg-warning text-white me-3">
+                          <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-1">{{ _('Purchasing') }}</h6>
+                          <small class="text-muted">{{ _('Supplier management and procurement') }}</small>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="module-card">
+                  <div class="form-check">
+                    <input class="form-check-input module-checkbox" type="checkbox" name="modules" value="finance" id="finance">
+                    <label class="form-check-label w-100" for="finance">
+                      <div class="d-flex align-items-center">
+                        <div class="module-icon bg-info text-white me-3">
+                          <i class="fas fa-calculator"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-1">{{ _('Finance & Accounting') }}</h6>
+                          <small class="text-muted">{{ _('Financial management and reporting') }}</small>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="module-card">
+                  <div class="form-check">
+                    <input class="form-check-input module-checkbox" type="checkbox" name="modules" value="hr" id="hr">
+                    <label class="form-check-label w-100" for="hr">
+                      <div class="d-flex align-items-center">
+                        <div class="module-icon bg-purple text-white me-3">
+                          <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-1">{{ _('Human Resources') }}</h6>
+                          <small class="text-muted">{{ _('Employee management and payroll') }}</small>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="module-card">
+                  <div class="form-check">
+                    <input class="form-check-input module-checkbox" type="checkbox" name="modules" value="warehouse" id="warehouse">
+                    <label class="form-check-label w-100" for="warehouse">
+                      <div class="d-flex align-items-center">
+                        <div class="module-icon bg-secondary text-white me-3">
+                          <i class="fas fa-warehouse"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-1">{{ _('Warehouse Management') }}</h6>
+                          <small class="text-muted">{{ _('Advanced warehouse operations') }}</small>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center mt-4">
+              <p class="text-muted mb-3">
+                <span id="selectedCount">0</span> {{ _('of 3 modules selected') }}
+              </p>
+              <button type="submit" class="btn btn-primary btn-lg" id="confirmSelection" disabled>
+                <i class="fas fa-check me-2"></i>{{ _('Confirm Selection') }}
+              </button>
+              <div class="mt-2">
+                <small class="text-muted">{{ _('You can change your selection later in settings') }}</small>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.module-card {
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 15px;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.module-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 8px rgba(0,123,255,0.1);
+}
+
+.module-card .form-check-input:checked ~ .form-check-label .module-card {
+  border-color: #007bff;
+  background-color: #f8f9ff;
+}
+
+.module-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.bg-purple {
+  background-color: #6f42c1 !important;
+}
+
+.form-check-input:checked ~ .form-check-label {
+  color: #007bff;
+}
+
+.module-card.selected {
+  border-color: #007bff;
+  background-color: #f8f9ff;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const checkboxes = document.querySelectorAll('.module-checkbox');
+  const selectedCount = document.getElementById('selectedCount');
+  const confirmButton = document.getElementById('confirmSelection');
+  const maxModules = 3;
+
+  function updateSelection() {
+    const checked = document.querySelectorAll('.module-checkbox:checked');
+    selectedCount.textContent = checked.length;
+    
+    // Enable/disable confirm button
+    confirmButton.disabled = checked.length === 0;
+    
+    // Update visual state
+    checkboxes.forEach(checkbox => {
+      const card = checkbox.closest('.module-card');
+      if (checkbox.checked) {
+        card.classList.add('selected');
+      } else {
+        card.classList.remove('selected');
+      }
+      
+      // Disable unchecked boxes if limit reached
+      if (checked.length >= maxModules && !checkbox.checked) {
+        checkbox.disabled = true;
+        card.style.opacity = '0.5';
+      } else {
+        checkbox.disabled = false;
+        card.style.opacity = '1';
+      }
+    });
+  }
+
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateSelection);
+  });
+
+  // Initial state
+  updateSelection();
+});
+</script>
+
+{% endblock %}

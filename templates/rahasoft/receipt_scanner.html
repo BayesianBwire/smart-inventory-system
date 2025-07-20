@@ -1,0 +1,342 @@
+{% extends "rahasoft/base.html" %}
+
+{% block page_title %}Smart Receipt Scanner{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-camera me-2"></i>Smart Receipt Scanner
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Scanner Interface -->
+                <div class="text-center mb-4">
+                    <div id="scanner-area" class="border rounded p-4 mb-3" style="min-height: 300px; background-color: #f8f9fa;">
+                        <div id="camera-view" style="display: none;">
+                            <video id="camera-stream" width="100%" height="300" autoplay></video>
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-success me-2" onclick="capturePhoto()">
+                                    <i class="fas fa-camera me-1"></i>Capture
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="stopCamera()">
+                                    <i class="fas fa-stop me-1"></i>Stop
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="upload-area">
+                            <i class="fas fa-camera fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Scan Receipt</h5>
+                            <p class="text-muted">Take a photo or upload an existing image</p>
+                            
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary" onclick="startCamera()">
+                                    <i class="fas fa-camera me-1"></i>Use Camera
+                                </button>
+                                <label class="btn btn-outline-primary">
+                                    <i class="fas fa-upload me-1"></i>Upload Image
+                                    <input type="file" accept="image/*" id="file-input" style="display: none;" onchange="handleFileUpload(event)">
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="preview-area" style="display: none;">
+                            <img id="receipt-preview" class="img-fluid rounded" style="max-height: 300px;">
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-success" onclick="processReceipt()">
+                                    <i class="fas fa-magic me-1"></i>Extract Data
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="resetScanner()">
+                                    <i class="fas fa-redo me-1"></i>Retake
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="processing-area" style="display: none;">
+                            <div class="spinner-border text-primary mb-3" role="status">
+                                <span class="visually-hidden">Processing...</span>
+                            </div>
+                            <h5>Processing Receipt...</h5>
+                            <p class="text-muted">Using AI to extract data from your receipt</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extracted Data Form -->
+                <div id="extracted-data" style="display: none;">
+                    <h6 class="text-primary mb-3">
+                        <i class="fas fa-check-circle me-2"></i>Extracted Data
+                    </h6>
+                    <form method="POST" action="{{ url_for('rahasoft_bp.save_receipt') }}">
+                        {{ csrf_token() }}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="vendor_name" class="form-label">Vendor Name</label>
+                                    <input type="text" class="form-control" id="vendor_name" name="vendor_name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="receipt_date" class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="receipt_date" name="receipt_date">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="total_amount" class="form-label">Total Amount</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">KSh</span>
+                                        <input type="number" class="form-control" id="total_amount" name="total_amount" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="tax_amount" class="form-label">Tax Amount</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">KSh</span>
+                                        <input type="number" class="form-control" id="tax_amount" name="tax_amount" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">Select Category</option>
+                                <option value="office_supplies">Office Supplies</option>
+                                <option value="inventory">Inventory</option>
+                                <option value="utilities">Utilities</option>
+                                <option value="food_beverage">Food & Beverage</option>
+                                <option value="transportation">Transportation</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Line Items -->
+                        <div class="mb-3">
+                            <label class="form-label">Items</label>
+                            <div id="line-items">
+                                <div class="row mb-2">
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" placeholder="Item name" name="item_names[]">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="number" class="form-control" placeholder="Qty" name="item_quantities[]">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" class="form-control" placeholder="Price" name="item_prices[]" step="0.01">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addLineItem()">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>
+
+                        <input type="hidden" id="receipt_image" name="receipt_image">
+                        
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary me-2" onclick="resetScanner()">Cancel</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i>Save Receipt
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Recent Receipts -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Recent Receipts</h6>
+            </div>
+            <div class="card-body">
+                {% for receipt in recent_receipts %}
+                <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                    <div class="me-3">
+                        <i class="fas fa-receipt fa-lg text-primary"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ receipt.vendor_name or 'Unknown Vendor' }}</h6>
+                        <small class="text-muted">{{ receipt.receipt_date.strftime('%Y-%m-%d') if receipt.receipt_date else 'N/A' }}</small>
+                        <div class="text-success">KSh {{ receipt.total_amount or 0 }}</div>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('rahasoft_bp.view_receipt', id=receipt.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No receipts scanned yet</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Ensure good lighting for better results
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Keep the receipt flat and unfolded
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Capture the entire receipt in frame
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Review extracted data before saving
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+let stream = null;
+
+function startCamera() {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(function(mediaStream) {
+            stream = mediaStream;
+            document.getElementById('upload-area').style.display = 'none';
+            document.getElementById('camera-view').style.display = 'block';
+            document.getElementById('camera-stream').srcObject = stream;
+        })
+        .catch(function(error) {
+            console.error('Error accessing camera:', error);
+            alert('Cannot access camera. Please use file upload instead.');
+        });
+}
+
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    }
+    document.getElementById('camera-view').style.display = 'none';
+    document.getElementById('upload-area').style.display = 'block';
+}
+
+function capturePhoto() {
+    const video = document.getElementById('camera-stream');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+    
+    const imageData = canvas.toDataURL('image/jpeg');
+    showPreview(imageData);
+    stopCamera();
+}
+
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            showPreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function showPreview(imageData) {
+    document.getElementById('upload-area').style.display = 'none';
+    document.getElementById('preview-area').style.display = 'block';
+    document.getElementById('receipt-preview').src = imageData;
+    document.getElementById('receipt-image').value = imageData;
+}
+
+function processReceipt() {
+    const imageData = document.getElementById('receipt-image').value;
+    
+    document.getElementById('preview-area').style.display = 'none';
+    document.getElementById('processing-area').style.display = 'block';
+    
+    // Simulate AI processing
+    setTimeout(() => {
+        document.getElementById('processing-area').style.display = 'none';
+        document.getElementById('extracted-data').style.display = 'block';
+        
+        // Mock extracted data (in real app, this would come from AI/OCR service)
+        document.getElementById('vendor_name').value = 'Nakumatt Supermarket';
+        document.getElementById('receipt_date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('total_amount').value = '1250.50';
+        document.getElementById('tax_amount').value = '200.08';
+        document.getElementById('category').value = 'office_supplies';
+    }, 3000);
+}
+
+function resetScanner() {
+    document.getElementById('preview-area').style.display = 'none';
+    document.getElementById('processing-area').style.display = 'none';
+    document.getElementById('extracted-data').style.display = 'none';
+    document.getElementById('upload-area').style.display = 'block';
+    document.getElementById('file-input').value = '';
+}
+
+function addLineItem() {
+    const lineItems = document.getElementById('line-items');
+    const newItem = document.createElement('div');
+    newItem.className = 'row mb-2';
+    newItem.innerHTML = `
+        <div class="col-md-4">
+            <input type="text" class="form-control" placeholder="Item name" name="item_names[]">
+        </div>
+        <div class="col-md-2">
+            <input type="number" class="form-control" placeholder="Qty" name="item_quantities[]">
+        </div>
+        <div class="col-md-3">
+            <input type="number" class="form-control" placeholder="Price" name="item_prices[]" step="0.01">
+        </div>
+        <div class="col-md-3">
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLineItem(this)">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    lineItems.appendChild(newItem);
+}
+
+function removeLineItem(button) {
+    button.closest('.row').remove();
+}
+</script>
+{% endblock %}

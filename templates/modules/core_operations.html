@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}Core Operations - RahaSoft ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-cogs"></i>
+                    Core Operations
+                </h1>
+                <p class="page-subtitle">Manage your day-to-day business operations and workflows</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operations Overview -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Daily Operations</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ daily_operations or 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Completed Tasks</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ completed_tasks or 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Issues</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_issues or 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Efficiency Rate</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ "%.1f"|format(efficiency_rate or 0) }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tachometer-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Operations Modules -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Core Operations Modules</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="card border-left-primary h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-shopping-cart"></i> Point of Sale (POS)
+                                    </h6>
+                                    <p class="card-text small">Manage sales transactions, payments, and receipts</p>
+                                    <a href="{{ url_for('pos') }}" class="btn btn-primary btn-sm">Access POS</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="card border-left-success h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-boxes"></i> Inventory Management
+                                    </h6>
+                                    <p class="card-text small">Track stock levels, movements, and adjustments</p>
+                                    <a href="{{ url_for('stock_management') }}" class="btn btn-success btn-sm">Manage Inventory</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="card border-left-info h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-truck"></i> Purchasing
+                                    </h6>
+                                    <p class="card-text small">Create purchase orders and manage suppliers</p>
+                                    <a href="{{ url_for('purchasing') }}" class="btn btn-info btn-sm">Manage Purchasing</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="card border-left-warning h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-warehouse"></i> Warehouse Management
+                                    </h6>
+                                    <p class="card-text small">Organize warehouse operations and logistics</p>
+                                    <a href="{{ url_for('warehouse') }}" class="btn btn-warning btn-sm">Manage Warehouse</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="card border-left-danger h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-clipboard-check"></i> Order Management
+                                    </h6>
+                                    <p class="card-text small">Process and fulfill customer orders</p>
+                                    <a href="{{ url_for('order_management') }}" class="btn btn-danger btn-sm">Manage Orders</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="card border-left-secondary h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-chart-line"></i> Business Intelligence
+                                    </h6>
+                                    <p class="card-text small">Advanced analytics and reporting</p>
+                                    <a href="#" class="btn btn-secondary btn-sm">View Analytics</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operations Performance -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Operations Performance</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="operationsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Key Performance Indicators</h6>
+                </div>
+                <div class="card-body">
+                    <div class="kpi-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Order Processing Time</span>
+                            <span class="text-success">{{ processing_time or 'N/A' }}</span>
+                        </div>
+                        <small class="text-muted">Average time to process orders</small>
+                    </div>
+                    <div class="kpi-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Inventory Accuracy</span>
+                            <span class="text-info">{{ "%.1f"|format(inventory_accuracy or 0) }}%</span>
+                        </div>
+                        <small class="text-muted">Stock count accuracy</small>
+                    </div>
+                    <div class="kpi-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Fulfillment Rate</span>
+                            <span class="text-warning">{{ "%.1f"|format(fulfillment_rate or 0) }}%</span>
+                        </div>
+                        <small class="text-muted">Orders fulfilled on time</small>
+                    </div>
+                    <div class="kpi-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>System Uptime</span>
+                            <span class="text-primary">{{ "%.2f"|format(system_uptime or 0) }}%</span>
+                        </div>
+                        <small class="text-muted">System availability</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Operations Activities</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="activitiesTable">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Module</th>
+                                    <th>Activity</th>
+                                    <th>User</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if recent_activities %}
+                                    {% for activity in recent_activities %}
+                                    <tr>
+                                        <td>{{ activity.timestamp.strftime('%Y-%m-%d %H:%M') if activity.timestamp else 'N/A' }}</td>
+                                        <td>
+                                            <span class="badge badge-primary">{{ activity.module }}</span>
+                                        </td>
+                                        <td>{{ activity.description }}</td>
+                                        <td>{{ activity.user_name }}</td>
+                                        <td>
+                                            <span class="badge badge-{{ 'success' if activity.status == 'completed' else 'warning' if activity.status == 'pending' else 'danger' }}">
+                                                {{ activity.status.title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-info" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No recent activities found.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#activitiesTable').DataTable({
+        "responsive": true,
+        "pageLength": 25,
+        "order": [[ 0, "desc" ]]
+    });
+});
+</script>
+{% endblock %}

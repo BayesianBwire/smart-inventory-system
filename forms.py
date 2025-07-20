@@ -8,6 +8,45 @@ from wtforms.validators import (
 )
 
 # --------------------------
+# 🏢 Company Registration Form
+# --------------------------
+
+class CompanyForm(FlaskForm):
+    name = StringField('Company Name', validators=[
+        DataRequired(), Length(min=2, max=150)
+    ], render_kw={"placeholder": "Your Company Name"})
+
+    address = TextAreaField('Company Address', validators=[
+        Optional(), Length(max=250)
+    ], render_kw={"placeholder": "Company address"})
+
+    phone = StringField('Company Phone', validators=[
+        Optional(), Length(max=50)
+    ], render_kw={"placeholder": "+254712345678"})
+
+    email = StringField('Company Email', validators=[
+        Optional(), Email(), Length(max=120)
+    ], render_kw={"placeholder": "company@example.com"})
+
+    industry = SelectField('Industry', choices=[
+        ('', 'Select Industry'),
+        ('retail', 'Retail'),
+        ('manufacturing', 'Manufacturing'),
+        ('services', 'Services'),
+        ('technology', 'Technology'),
+        ('healthcare', 'Healthcare'),
+        ('education', 'Education'),
+        ('agriculture', 'Agriculture'),
+        ('construction', 'Construction'),
+        ('finance', 'Finance'),
+        ('hospitality', 'Hospitality'),
+        ('transportation', 'Transportation'),
+        ('other', 'Other')
+    ], validators=[Optional()])
+
+    submit = SubmitField('Register Company')
+
+# --------------------------
 # 🔐 Authentication Forms
 # --------------------------
 

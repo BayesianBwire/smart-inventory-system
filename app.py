@@ -1,37 +1,32 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 from flask_wtf import CSRFProtect
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required as flask_login_required
+from flask_migrate import Migrate
+from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from models import db, User, Product, Sale, LoginLog
-from models.audit_log import AuditLog
-import random
-from functools import wraps
-import string
-from models import db, BankAccount, Transaction
-from models.product import Product
-from models.company import Company
-from models.login_log import LoginLog  # 👈 Make sure this import exists
-from models.user import User
-from models.sale import Sale
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
-import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 from functools import wraps
 from dotenv import load_dotenv
 import os
-from forms import ProductForm
-from forms import LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm, ProductForm
-from flask_login import LoginManager, login_user, logout_user, current_user, login_required as flask_login_required
-from sqlalchemy.exc import SQLAlchemyError
+import random
+import string
 import smtplib
-from flask import session, redirect, request, url_for, flash
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from flask_migrate import Migrate
-from forms import RegisterForm, ForgotPasswordForm
+
+# Local imports
+from models import db, User, Product, Sale, LoginLog, BankAccount, Transaction, PayrollRecord
+from models.audit_log import AuditLog
+from models.product import Product
+from models.company import Company
+from models.login_log import LoginLog
+from models.user import User
+from models.sale import Sale
+from forms import ProductForm, LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm, CompanyForm
 from utils.permissions import has_permission
-from flask_login import login_required, current_user
-from flask_mail import Mail, Message
+from translations.translations import TRANSLATIONS
 
 load_dotenv()
 
@@ -62,6 +57,13 @@ def load_user(user_id):
 def inject_csrf_token():
     from flask_wtf.csrf import generate_csrf
     return dict(csrf_token=generate_csrf())
+
+@app.context_processor
+def inject_translation():
+    def translate(text):
+        lang = session.get('lang', 'en')
+        return TRANSLATIONS.get(lang, {}).get(text, text)
+    return dict(_=translate)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shop.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -99,6 +101,27 @@ def set_session_permanent():
 
 # -------------------- Auth Helpers --------------------
 
+def company_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            flash("Login required", "warning")
+            return redirect(url_for('login_page'))
+        
+        # Check if user has a company
+        user = User.query.filter_by(username=session['user']).first()
+        if not user or not user.company_id:
+            # Show company registration modal/page
+            return redirect(url_for('register_company'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def email_verified_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        return f(*args, **kwargs)  # Skip email verification for now
+    return decorated_function
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -114,7 +137,7 @@ def role_required(*roles):
         def decorated_function(*args, **kwargs):
             if 'role' not in session or session['role'] not in roles:
                 flash("Access denied", "danger")
-                return redirect(url_for('inventory'))
+                return redirect(url_for('dashboard'))
             return f(*args, **kwargs)
         return decorated_function
     return wrapper
@@ -221,13 +244,63 @@ def send_welcome_email(user):
     msg = Message(subject, recipients=[recipient], body=message_body)
     mail.send(msg)
 
+def send_company_id_email(user, company):
+    """Send company unique ID to the admin via email"""
+    subject = f"🏢 Company Registration Successful - Your Unique ID: {company.unique_id}"
+    recipient = user.email
+    message_body = f"""
+    Hi {user.full_name},
+
+    🎉 Congratulations! Your company "{company.name}" has been successfully registered with RahaSoft!
+
+    📋 COMPANY DETAILS:
+    ----------------------------------------
+    Company Name: {company.name}
+    Unique Company ID: {company.unique_id}
+    Industry: {company.industry or 'Not specified'}
+    Admin: {user.full_name} ({user.email})
+    Registration Date: {company.created_at.strftime('%B %d, %Y') if company.created_at else 'Today'}
+    ----------------------------------------
+
+    🔐 IMPORTANT: Your Unique Company ID is {company.unique_id}
+    
+    This ID is permanent and identifies your company in our system. Please:
+    ✅ Save this ID in a secure location
+    ✅ Use it for any support requests
+    ✅ Share it only with authorized personnel
+    
+    🚀 You are now the administrator of your company and can:
+    • Add and manage employees
+    • Access all ERP modules
+    • Configure company settings
+    • Generate reports and analytics
+
+    🆘 Need help? Contact our support team at support@rahasoft.app
+    Include your Company ID ({company.unique_id}) in all communications.
+
+    Welcome to the RahaSoft family!
+
+    Best regards,  
+    RahaSoft Team
+    """
+
+    try:
+        msg = Message(subject, recipients=[recipient], body=message_body)
+        mail.send(msg)
+        app.logger.info(f"✅ Company ID email sent to {recipient} for company {company.unique_id}")
+    except Exception as e:
+        app.logger.error(f"❌ Failed to send company ID email to {recipient}: {e}")
+
 @app.route('/set_language/<lang_code>')
 def set_language(lang_code):
-    supported_langs = ['en', 'fr', 'es', 'de', 'sw']
+    supported_langs = ['en', 'fr', 'es', 'de', 'sw', 'ar', 'zh', 'hi', 'pt']
     if lang_code in supported_langs:
         session['lang'] = lang_code
-    # Redirect back to where user came from or inventory page as fallback
-    next_url = request.referrer or url_for('inventory')
+        flash(f"Language changed successfully", "success")
+    else:
+        flash("Language not supported", "warning")
+    # Redirect back to where user came from or dashboard page as fallback
+    next_url = request.referrer or url_for('dashboard')
     return redirect(next_url)
 # -------------------- Routes --------------------
 @app.route('/users')
@@ -267,7 +340,7 @@ def login_page():
                 session['role'] = user.role
 
                 flash(f"✅ Welcome back, {user.username}!", "success")
-                return redirect(url_for('inventory'))
+                return redirect(url_for('dashboard'))
 
         flash("❌ Invalid username/email or password.", "danger")
 
@@ -313,6 +386,205 @@ def logout():
     logout_user()
     flash("You have been logged out of RahaSoft.", "info")
     return redirect(url_for('welcome'))
+
+@app.route('/register_company', methods=['GET', 'POST'])
+@login_required
+def register_company():
+    """Company registration route - required before accessing modules"""
+    form = CompanyForm()
+    
+    # Check if user already has a company
+    user = User.query.filter_by(username=session['user']).first()
+    if user and user.company_id:
+        flash("You already have a registered company.", "info")
+        return redirect(url_for('dashboard'))
+    
+    if form.validate_on_submit():
+        # Generate unique company ID
+        unique_company_id = Company.generate_unique_id()
+        
+        # Create new company
+        company = Company(
+            name=form.name.data,
+            unique_id=unique_company_id,
+            industry=form.industry.data,
+            address=form.address.data,
+            phone=form.phone.data,
+            email=form.email.data
+        )
+        
+        try:
+            db.session.add(company)
+            db.session.flush()  # Get the company ID
+            
+            # Create free subscription for the company (3 modules free)
+            from models.subscription import Subscription
+            from datetime import datetime, timedelta
+            
+            free_subscription = Subscription(
+                company_id=company.id,
+                plan_name="Free Plan",
+                plan_type="free",
+                status="active",
+                start_date=datetime.utcnow(),
+                end_date=datetime.utcnow() + timedelta(days=365),  # 1 year free
+                price=0.00,
+                modules_limit=3,
+                active_modules="[]",  # Empty list initially
+                features={
+                    "modules_limit": 3,
+                    "max_users": 10,
+                    "max_storage_gb": 5,
+                    "support": "basic"
+                }
+            )
+            db.session.add(free_subscription)
+            
+            # Assign user to company as admin
+            user.company_id = company.id
+            user.role = 'admin'  # Make them admin of their company
+            
+            db.session.commit()
+            
+            # Update session
+            session['role'] = 'admin'
+            session['company_id'] = company.id
+            session['company_name'] = company.name
+            
+            # Send company ID notification email to admin
+            send_company_id_email(user, company)
+            
+            flash(f"Company '{company.name}' registered successfully! Your unique company ID is: {unique_company_id}. Check your email for details.", "success")
+            log_action("Company Registration", "Company", company.id)
+            
+            # Redirect to module selection page
+            return redirect(url_for('select_modules'))
+            
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            flash("Error registering company. Please try again.", "danger")
+            app.logger.error(f"Company registration error: {str(e)}")
+    
+    return render_template('register_company.html', form=form)
+
+@app.route('/select_modules', methods=['GET', 'POST'])
+@login_required
+def select_modules():
+    """Module selection page for new companies"""
+    user = User.query.filter_by(username=session['user']).first()
+    if not user or not user.company_id:
+        flash("Please register a company first.", "warning")
+        return redirect(url_for('register_company'))
+    
+    from models.subscription import Subscription
+    subscription = Subscription.query.filter_by(company_id=user.company_id).first()
+    if not subscription:
+        flash("No subscription found. Please contact support.", "error")
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        selected_modules = request.form.getlist('modules')
+        
+        if len(selected_modules) == 0:
+            flash("Please select at least one module.", "warning")
+            return render_template('select_modules.html')
+        
+        if len(selected_modules) > subscription.modules_limit:
+            flash(f"You can only select up to {subscription.modules_limit} modules with your current plan.", "warning")
+            return render_template('select_modules.html')
+        
+        # Update subscription with selected modules
+        subscription.set_active_modules(selected_modules)
+        db.session.commit()
+        
+        flash(f"Successfully activated {len(selected_modules)} modules: {', '.join(selected_modules)}", "success")
+        return redirect(url_for('dashboard'))
+    
+    return render_template('select_modules.html')
+
+@app.route('/founder')
+@login_required
+@role_required('super_admin')
+def founder_dashboard():
+    """Founder dashboard to view all companies and their details"""
+    from models.subscription import Subscription
+    
+    # Get all companies with their related data
+    companies = Company.query.all()
+    
+    # Calculate statistics
+    total_companies = len(companies)
+    total_users = User.query.count()
+    
+    # Count subscription types
+    free_plans = Subscription.query.filter_by(plan_type='free').count()
+    paid_plans = Subscription.query.filter(Subscription.plan_type != 'free').count()
+    
+    return render_template('founder_dashboard.html',
+                         companies=companies,
+                         total_companies=total_companies,
+                         total_users=total_users,
+                         free_plans=free_plans,
+                         paid_plans=paid_plans)
+
+@app.route('/founder/export')
+@login_required
+@role_required('super_admin')
+def founder_export_data():
+    """Export company data as CSV"""
+    import csv
+    from io import StringIO
+    from flask import make_response
+    
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow([
+        'Company ID', 'Company Name', 'Industry', 'Admin Name', 'Admin Email',
+        'Phone', 'Employee Count', 'Active Modules', 'Plan Type', 'Created Date'
+    ])
+    
+    # Write data
+    companies = Company.query.all()
+    for company in companies:
+        admin = next((user for user in company.users if user.role == 'admin'), None)
+        subscription = company.subscription[0] if company.subscription else None
+        active_modules = subscription.get_active_modules_list() if subscription else []
+        
+        writer.writerow([
+            company.unique_id,
+            company.name,
+            company.industry or '',
+            admin.full_name if admin else '',
+            admin.email if admin else '',
+            company.phone or '',
+            len(company.users),
+            ', '.join(active_modules),
+            subscription.plan_type if subscription else 'No Plan',
+            company.created_at.strftime('%Y-%m-%d') if company.created_at else ''
+        ])
+    
+    output.seek(0)
+    
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = 'attachment; filename=companies_export.csv'
+    
+    return response
+
+@app.route('/check_company_status')
+@login_required
+def check_company_status():
+    """API endpoint to check if user has a company"""
+    user = User.query.filter_by(username=session['user']).first()
+    has_company = bool(user and user.company_id)
+    
+    return {
+        'has_company': has_company,
+        'company_name': user.company.name if has_company else None,
+        'user_role': user.role if has_company else None
+    }
 # --- Product Master Data ---
 @app.route('/product_list')
 @login_required
@@ -1029,7 +1301,7 @@ def create_user():
     # ✅ Step 1: Check permission
     if not has_permission(current_user.role, 'create_user'):
         flash("⛔ You don't have permission to create users.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     if request.method == 'POST':
         full_name = request.form['full_name'].strip()
@@ -1081,7 +1353,7 @@ def create_user():
         db.session.commit()
 
         flash(f"✅ User '{username}' created successfully. Temporary password: {random_password}", "success")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     # ✅ Render form if GET
     return render_template('create_user.html')
@@ -1091,7 +1363,7 @@ def create_user():
 def audit_logs():
     if not has_permission(current_user.role, 'view_audit_logs'):
         flash("⛔ You are not authorized to view audit logs.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).all()
     return render_template('audit_logs.html', logs=logs)
@@ -1327,29 +1599,38 @@ def make_admin():
 def forgot_password_confirmation():
     return render_template('forgot_password_confirmation.html')
 
-# -------------------- Inventory --------------------
-@app.route('/inventory')
+# -------------------- Dashboard --------------------
+@app.route('/dashboard')
 @login_required
 @email_verified_required
-def inventory():
-    # Anyone logged in can view inventory now!
-
-    company_id = current_user.company_id  # 🏢 Multi-tenant filter
+def dashboard():
+    # Import at the function level to avoid scope issues
+    from models.user import User
+    from models.product import Product
+    
+    # Check if user has a company registered
+    user = User.query.filter_by(username=session['user']).first()
+    show_company_modal = not (user and user.company_id)
+    
+    # Get company information for display
+    current_company = None
+    if user and user.company_id:
+        current_company = Company.query.get(user.company_id)
+    
+    # Always show dashboard, but pass flag for company modal
+    company_id = getattr(current_user, 'company_id', None) if user and user.company_id else None
     category_filter = request.args.get('category')
     low_stock = request.args.get('low_stock') == 'on'
     search_query = request.args.get('search', '').strip().lower()
     page = request.args.get('page', 1, type=int)
     per_page = 12
 
-    user_role = current_user.role.strip().lower()
+    user_role = getattr(current_user, 'role', 'guest').strip().lower()
     cart = session.get('cart', {})
     cart_item_count = sum(cart.values())
 
-    from models.product import Product
-
     # ✅ HR Panel (unchanged)
     if user_role == 'hr':
-        from models.user import User
         from collections import Counter
 
         staff_query = User.query.filter_by(company_id=company_id)
@@ -1366,7 +1647,7 @@ def inventory():
         recent_joiners = User.query.filter_by(company_id=company_id).order_by(User.id.desc()).limit(5).all()
 
         return render_template(
-            "inventory_hr.html",
+            "dashboard_modern.html",
             staff_users=staff_users,
             cart_item_count=cart_item_count,
             user_role=user_role,
@@ -1374,7 +1655,9 @@ def inventory():
             total_staff=len(staff_users),
             role_counts=role_counts,
             recent_joiners=recent_joiners,
-            search_query=search_query
+            search_query=search_query,
+            current_company=current_company,
+            show_company_modal=show_company_modal
         )
 
     # ✅ Sales Panel
@@ -1383,13 +1666,15 @@ def inventory():
         labels = [p.product_name for p in fast_movers] if fast_movers else []
         quantities = [p.sold for p in fast_movers] if fast_movers else []
         return render_template(
-            "inventory_sales.html",
+            "dashboard_modern.html",
             fast_movers=fast_movers,
             labels=labels,
             quantities=quantities,
             cart_item_count=cart_item_count,
             user_role=user_role,
-            has_permission=has_permission
+            has_permission=has_permission,
+            current_company=current_company,
+            show_company_modal=show_company_modal
         )
 
     # ✅ Finance Panel
@@ -1400,14 +1685,16 @@ def inventory():
         total_profit = sum((p.price - p.cost_price) * p.quantity for p in all_products)
         unsold_products = [p for p in all_products if p.sold == 0]
         return render_template(
-            "inventory_finance.html",
+            "dashboard_modern.html",
             products=top_value_products,
             total_value=total_value,
             total_profit=total_profit,
             unsold_products=unsold_products,
             cart_item_count=cart_item_count,
             user_role=user_role,
-            has_permission=has_permission
+            has_permission=has_permission,
+            current_company=current_company,
+            show_company_modal=show_company_modal
         )
 
     # ✅ Auditor Panel
@@ -1442,7 +1729,7 @@ def inventory():
         pie_values = list(category_totals.values())
 
         return render_template(
-            "inventory_auditor.html",
+            "dashboard_modern.html",
             products=products,
             categories=categories,
             pagination=pagination,
@@ -1462,7 +1749,9 @@ def inventory():
             user_role=user_role,
             page=page,
             total_pages=pagination.pages,
-            has_permission=has_permission
+            has_permission=has_permission,
+            current_company=current_company,
+            show_company_modal=show_company_modal
         )
 
     # ✅ Default (Admin/Manager/SuperAdmin)
@@ -1495,7 +1784,7 @@ def inventory():
     pie_values = list(category_totals.values())
 
     return render_template(
-        "inventory.html",
+        "dashboard_modern.html",
         products=products,
         categories=categories,
         pagination=pagination,
@@ -1515,7 +1804,9 @@ def inventory():
         total_profit=total_profit,
         total_stock=total_stock,
         total_value=total_value,
-        low_stock_count=low_stock_count
+        low_stock_count=low_stock_count,
+        current_company=current_company,
+        show_company_modal=show_company_modal
     )
 # (Removed duplicated/erroneous block that was outside any function)
 from flask import request, redirect, url_for, flash
@@ -1548,7 +1839,7 @@ def new_product():
         db.session.rollback()
         flash(f"❌ Error adding product: {str(e)}", "danger")
 
-    return redirect(url_for('inventory'))
+    return redirect(url_for('dashboard'))
 
 @app.route('/new_sale', methods=['GET', 'POST'])
 @login_required
@@ -1595,7 +1886,7 @@ def new_sale():
 
             flash(f"✅ Sale recorded for {product.product_name}", "success")
             log_action('create', 'sale', sale.id)
-            return redirect(url_for('inventory'))
+            return redirect(url_for('dashboard'))
 
         except Exception as e:
             flash(f"❌ Failed to record sale: {str(e)}", "danger")
@@ -1608,7 +1899,7 @@ def new_sale():
 def reports():
     if not has_permission(current_user.role, 'view_reports'):
         flash("⛔ You don't have permission to access Reports.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     users = User.query.all()
     products = Product.query.all()
@@ -1645,7 +1936,7 @@ def bulk_action():
     
     if not selected_ids:
         flash("⚠️ No products selected.", "warning")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     try:
         # Delete selected products from the database
@@ -1656,7 +1947,7 @@ def bulk_action():
         db.session.rollback()
         flash(f"❌ Error deleting products: {str(e)}", "danger")
     
-    return redirect(url_for('inventory'))
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/kpi_dashboard')
@@ -1689,7 +1980,7 @@ def kpi_dashboard():
 def forecast():
     if not has_permission(current_user.role, 'view_reports'):
         flash("⛔ You don't have permission to access Forecasting.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     # Get sales grouped by product and month
     sales = Sale.query.all()
@@ -1725,7 +2016,7 @@ def forecast():
 def hr_dashboard():
     if not current_user.has_any_role('hr', 'admin', 'super_admin'):
         flash("⛔ Access denied. HR-only area.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     staff_users = User.query.all()
     return render_template('hr_dashboard.html', staff_users=staff_users)
@@ -1733,10 +2024,9 @@ def hr_dashboard():
 @app.route('/payroll/new', methods=['GET', 'POST'])
 @login_required
 def new_payroll_record():
-    from models import PayrollRecord  # ✅ Import PayrollRecord here
     if not has_permission(current_user.role, 'manage_payroll'):
         flash("⛔ You don't have permission to add payroll records.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     if request.method == 'POST':
         try:
@@ -1759,7 +2049,7 @@ def new_payroll_record():
         except Exception as e:
             flash(f"❌ Error: {e}", "danger")
 
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     users = User.query.all()
     return render_template('new_payroll.html', users=users)
@@ -1767,7 +2057,6 @@ def new_payroll_record():
 @app.route('/payroll_records')
 @login_required
 def payroll_records():
-    from models import PayrollRecord  # Ensure the model is imported
     payroll_list = PayrollRecord.query.order_by(PayrollRecord.date.desc()).all()
     return render_template('payroll_list.html', payroll_list=payroll_list, user_role=session.get('role'))
 @app.route('/stock_management', methods=['GET'])
@@ -1791,11 +2080,9 @@ def add_product():
 @app.route("/add_payroll", methods=["GET", "POST"])
 @login_required
 def add_payroll():
-    from models import PayrollRecord  # ✅ Import PayrollRecord here
-
     if not has_permission(current_user.role, 'manage_users'):
         flash("⛔ You don't have permission to manage payroll.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     users = User.query.all()
 
@@ -1826,7 +2113,7 @@ def add_payroll():
 def admin_only_area():
     if not current_user.is_super_admin():
         flash("⛔ Only Super Admin can access this area.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     return render_template('admin_area.html')
 
@@ -1836,7 +2123,7 @@ def admin_only_area():
 def sales_route():
     if not has_permission(current_user.role, 'view_sales'):
         flash("⛔ Access denied. You don’t have permission to view sales.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     fast_movers = Product.query.filter_by(company_id=current_user.company_id).order_by(Product.sold.desc()).limit(12).all()
     labels = [p.product_name for p in fast_movers]
@@ -1853,7 +2140,7 @@ def sales_route():
 def sales_route():
     if not has_permission(current_user.role, 'view_sales'):
         flash("⛔ Access denied. You don’t have permission to view sales.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     fast_movers = Product.query.order_by(Product.sold.desc()).limit(12).all()
     labels = [p.product_name for p in fast_movers]
@@ -1871,7 +2158,7 @@ def sales_route():
 def finance_dashboard():
     if current_user.role != 'finance':
         flash("Access denied.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     products = Product.query.all()
     total_value = sum(p.quantity * p.price for p in products)
@@ -1884,13 +2171,9 @@ def finance_dashboard():
 def supervisor_dashboard():
     if current_user.role != 'supervisor':
         flash("Access denied.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
-    return redirect(url_for('inventory'))  # or a separate view if needed
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    return render_template('dashboard.html')  # or your main modules page
+    return redirect(url_for('dashboard'))  # or a separate view if needed
 
 @app.route('/delete_product/<int:product_id>', methods=['POST'])
 @login_required
@@ -1898,13 +2181,13 @@ def delete_product(product_id):
     user_role = current_user.role
     if user_role == 'supervisor':
         flash("⛔ Supervisors are not allowed to delete products.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     product = Product.query.get_or_404(product_id)
     db.session.delete(product)
     db.session.commit()
     flash(f"✅ Product '{product.product_name}' has been deleted.", "success")
-    return redirect(url_for('inventory'))
+    return redirect(url_for('dashboard'))
 
 @app.route('/download_forecast_csv')
 @login_required
@@ -1963,7 +2246,7 @@ def download_inventory():
         return send_file(file_path, as_attachment=True)
     except Exception as e:
         flash(f"❌ Error downloading inventory: {str(e)}", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
 # ✅ Route: Import Adidas CSV
 @app.route('/import_adidas')
@@ -1997,7 +2280,7 @@ def import_adidas():
         flash("❌ File not found: cleaned_adidas_products.csv", "danger")
     except Exception as e:
         flash(f"❌ Import error: {str(e)}", "danger")
-    return redirect(url_for('inventory'))
+    return redirect(url_for('dashboard'))
 # -------------------- Cart & Checkout --------------------
 
 @app.route('/cart')
@@ -2023,12 +2306,12 @@ def add_to_cart(product_id):
     product = Product.query.get_or_404(product_id)
     if product.quantity < quantity:
         flash(f"Cannot add {quantity} items. Only {product.quantity} left in stock.", "danger")
-        return redirect(url_for('inventory'))
+        return redirect(url_for('dashboard'))
 
     cart[str(product_id)] = cart.get(str(product_id), 0) + quantity
     session['cart'] = cart
     flash(f"Added {quantity} x {product.product_name} to cart.", "success")
-    return redirect(url_for('inventory'))
+    return redirect(url_for('dashboard'))
 
 @app.route('/remove_from_cart/<int:product_id>')
 @login_required

@@ -1,0 +1,32 @@
+# Virtual Environment
+venv/
+env/
+.env
+
+# VS Code
+.vscode/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Database
+*.db
+instance/
+
+# Logs
+*.log
+
+# Testing
+.pytest_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak

@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Project Management - RahaSoft ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-project-diagram"></i>
+                    Project Management
+                </h1>
+                <p class="page-subtitle">Plan, track, and manage your projects and tasks</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Overview -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Active Projects</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_projects or 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Completed</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ completed_projects or 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Overdue Tasks</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ overdue_tasks or 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Team Members</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ team_members or 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Project Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-primary btn-block">
+                                <i class="fas fa-plus"></i> New Project
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-success btn-block">
+                                <i class="fas fa-clipboard-list"></i> Task Board
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-info btn-block">
+                                <i class="fas fa-calendar-alt"></i> Project Calendar
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-warning btn-block">
+                                <i class="fas fa-chart-gantt"></i> Gantt Chart
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Progress -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Project Progress</h6>
+                </div>
+                <div class="card-body">
+                    {% if projects %}
+                        {% for project in projects %}
+                        <div class="project-item mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">{{ project.name }}</h6>
+                                <span class="badge badge-{{ 'success' if project.progress >= 100 else 'primary' if project.progress >= 50 else 'warning' }}">
+                                    {{ project.progress or 0 }}%
+                                </span>
+                            </div>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-{{ 'success' if project.progress >= 100 else 'primary' if project.progress >= 50 else 'warning' }}" 
+                                     role="progressbar" aria-valuenow="{{ project.progress or 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">Due: {{ project.due_date.strftime('%Y-%m-%d') if project.due_date else 'No deadline' }}</small>
+                                <small class="text-muted">{{ project.tasks_completed or 0 }}/{{ project.total_tasks or 0 }} tasks</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-project-diagram fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No projects found. Create your first project to get started.</p>
+                            <a href="#" class="btn btn-primary">Create Project</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Upcoming Deadlines</h6>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_deadlines %}
+                        {% for deadline in upcoming_deadlines %}
+                        <div class="deadline-item mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="font-weight-bold">{{ deadline.project_name }}</span>
+                                <span class="text-{{ 'danger' if deadline.days_remaining <= 3 else 'warning' if deadline.days_remaining <= 7 else 'success' }}">
+                                    {{ deadline.days_remaining }} days
+                                </span>
+                            </div>
+                            <small class="text-muted">{{ deadline.task_name }}</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-muted">No upcoming deadlines</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Team Performance</h6>
+                </div>
+                <div class="card-body">
+                    {% if team_performance %}
+                        {% for member in team_performance %}
+                        <div class="team-member mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ member.name }}</span>
+                                <span class="text-success">{{ member.completed_tasks }} tasks</span>
+                            </div>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     aria-valuenow="{{ member.efficiency or 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">{{ member.efficiency or 0 }}% efficiency</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-muted">No team data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">All Projects</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="projectsTable">
+                            <thead>
+                                <tr>
+                                    <th>Project Name</th>
+                                    <th>Client</th>
+                                    <th>Start Date</th>
+                                    <th>Due Date</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if all_projects %}
+                                    {% for project in all_projects %}
+                                    <tr>
+                                        <td>{{ project.name }}</td>
+                                        <td>{{ project.client or 'Internal' }}</td>
+                                        <td>{{ project.start_date.strftime('%Y-%m-%d') if project.start_date else 'N/A' }}</td>
+                                        <td>{{ project.due_date.strftime('%Y-%m-%d') if project.due_date else 'No deadline' }}</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     aria-valuenow="{{ project.progress or 0 }}" aria-valuemin="0" aria-valuemax="100">
+                                                    {{ project.progress or 0 }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-{{ 'success' if project.status == 'completed' else 'primary' if project.status == 'active' else 'warning' }}">
+                                                {{ project.status.title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-info" title="View Project">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-sm btn-warning" title="Edit Project">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No projects found.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#projectsTable').DataTable({
+        "responsive": true,
+        "pageLength": 25,
+        "order": [[ 3, "asc" ]]
+    });
+});
+</script>
+{% endblock %}

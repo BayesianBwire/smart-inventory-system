@@ -1,0 +1,527 @@
+{% extends "base.html" %}
+
+{% block title %}AI Features Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-robot me-2"></i>AI Features Dashboard
+                </h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('landing_page') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('founder_bp.dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">AI Features</li>
+                    </ol>
+                </nav>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- AI Features Overview -->
+            <div class="row mb-4">
+                <!-- Document Generator -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border-primary h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-file-alt me-2"></i>AI Document Generator
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Generate professional business documents with AI assistance.</p>
+                            <div class="mb-3">
+                                <small class="text-muted">Documents created: <strong>{{ doc_stats.total_count or 0 }}</strong></small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-muted">Templates</small>
+                                        <div class="text-primary"><strong>{{ doc_stats.template_count or 0 }}</strong></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">This Month</small>
+                                        <div class="text-success"><strong>{{ doc_stats.monthly_count or 0 }}</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('ai_features_bp.document_templates') }}" class="btn btn-outline-primary btn-sm me-2">
+                                <i class="fas fa-plus me-1"></i>Create Document
+                            </a>
+                            <a href="{{ url_for('ai_features_bp.document_history') }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-history me-1"></i>History
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voice Notes -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border-info h-100">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-microphone me-2"></i>Voice to Task
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Convert voice recordings to actionable tasks automatically.</p>
+                            <div class="mb-3">
+                                <small class="text-muted">Voice notes: <strong>{{ voice_stats.total_count or 0 }}</strong></small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-muted">Pending</small>
+                                        <div class="text-warning"><strong>{{ voice_stats.pending_count or 0 }}</strong></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Completed</small>
+                                        <div class="text-success"><strong>{{ voice_stats.completed_count or 0 }}</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-info btn-sm me-2" onclick="startVoiceRecording()">
+                                <i class="fas fa-microphone me-1"></i>Record
+                            </button>
+                            <a href="{{ url_for('ai_features_bp.voice_notes') }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-list me-1"></i>View All
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Voting -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border-success h-100">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-vote-yea me-2"></i>Team Voting
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Democratic decision-making for your team.</p>
+                            <div class="mb-3">
+                                <small class="text-muted">Active polls: <strong>{{ voting_stats.active_count or 0 }}</strong></small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-muted">Total Votes</small>
+                                        <div class="text-primary"><strong>{{ voting_stats.total_votes or 0 }}</strong></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Completed</small>
+                                        <div class="text-success"><strong>{{ voting_stats.completed_count or 0 }}</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('ai_features_bp.create_poll') }}" class="btn btn-outline-success btn-sm me-2">
+                                <i class="fas fa-plus me-1"></i>Create Poll
+                            </a>
+                            <a href="{{ url_for('ai_features_bp.team_voting') }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-chart-bar me-1"></i>Results
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Debt Tracker -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border-warning h-100">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-hand-holding-usd me-2"></i>Smart Debt Follow-up
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">AI-powered debt collection and follow-up system.</p>
+                            <div class="mb-3">
+                                <small class="text-muted">Outstanding: <strong>KSh {{ debt_stats.total_outstanding or 0 }}</strong></small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-muted">Overdue</small>
+                                        <div class="text-danger"><strong>{{ debt_stats.overdue_count or 0 }}</strong></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Following Up</small>
+                                        <div class="text-warning"><strong>{{ debt_stats.followup_count or 0 }}</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('ai_features_bp.debt_tracker') }}" class="btn btn-outline-warning btn-sm me-2">
+                                <i class="fas fa-eye me-1"></i>View Debts
+                            </a>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="sendFollowUps()">
+                                <i class="fas fa-paper-plane me-1"></i>Send Follow-ups
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Milestones -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border-secondary h-100">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-flag-checkered me-2"></i>Milestone Tracker
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Track and celebrate business achievements.</p>
+                            <div class="mb-3">
+                                <small class="text-muted">Active milestones: <strong>{{ milestone_stats.active_count or 0 }}</strong></small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="progress">
+                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: {{ milestone_stats.completion_percentage or 0 }}%">
+                                        {{ milestone_stats.completion_percentage or 0 }}%
+                                    </div>
+                                </div>
+                                <small class="text-muted">Overall Progress</small>
+                            </div>
+                            <a href="{{ url_for('ai_features_bp.milestones') }}" class="btn btn-outline-secondary btn-sm me-2">
+                                <i class="fas fa-list me-1"></i>View Milestones
+                            </a>
+                            <a href="{{ url_for('ai_features_bp.create_milestone') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-plus me-1"></i>Add Milestone
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Assistant -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border-dark h-100">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-robot me-2"></i>AI Business Assistant
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Get intelligent business insights and recommendations.</p>
+                            <div class="mb-3">
+                                <small class="text-muted">Insights generated: <strong>{{ ai_stats.insights_count or 0 }}</strong></small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="text-center">
+                                    <div class="text-info"><strong>AI Score: {{ ai_stats.business_score or 'N/A' }}</strong></div>
+                                    <small class="text-muted">Business Performance</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-dark btn-sm me-2" onclick="getAIInsights()">
+                                <i class="fas fa-brain me-1"></i>Get Insights
+                            </button>
+                            <a href="{{ url_for('advanced_bp.ai_assistant') }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-comments me-1"></i>Chat
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-clock me-2"></i>Recent AI Activities
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Activity</th>
+                                            <th>Type</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for activity in recent_activities %}
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-{{ activity.icon }} me-2 text-{{ activity.color }}"></i>
+                                                {{ activity.description }}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ activity.type_color }}">{{ activity.type }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if activity.status == 'completed' else 'warning' }}">
+                                                    {{ activity.status }}
+                                                </span>
+                                            </td>
+                                            <td>{{ activity.created_at.strftime('%Y-%m-%d %H:%M') if activity.created_at else 'N/A' }}</td>
+                                            <td>
+                                                <a href="{{ activity.view_url }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No recent AI activities</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Voice Recording Modal -->
+<div class="modal fade" id="voiceRecordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Voice Recording</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="recording-status" class="mb-3">
+                    <i class="fas fa-microphone fa-3x text-danger" id="mic-icon"></i>
+                    <h5 id="recording-text" class="mt-2">Click to start recording</h5>
+                </div>
+                <div id="recording-time" class="mb-3" style="display: none;">
+                    <h3 class="text-primary">00:00</h3>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-danger" id="record-btn" onclick="toggleRecording()">
+                        <i class="fas fa-microphone me-1"></i>Start Recording
+                    </button>
+                    <button type="button" class="btn btn-success" id="stop-btn" onclick="stopRecording()" style="display: none;">
+                        <i class="fas fa-stop me-1"></i>Stop Recording
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-recording-btn" style="display: none;" onclick="saveRecording()">
+                    <i class="fas fa-save me-1"></i>Save & Process
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Insights Modal -->
+<div class="modal fade" id="aiInsightsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-brain me-2"></i>AI Business Insights
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="ai-insights-content">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Generating insights...</span>
+                    </div>
+                    <p class="mt-2">AI is analyzing your business data...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let mediaRecorder;
+let recordedChunks = [];
+let isRecording = false;
+let recordingStartTime;
+
+function startVoiceRecording() {
+    new bootstrap.Modal(document.getElementById('voiceRecordModal')).show();
+}
+
+function toggleRecording() {
+    if (!isRecording) {
+        startRecording();
+    } else {
+        stopRecording();
+    }
+}
+
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            mediaRecorder = new MediaRecorder(stream);
+            recordedChunks = [];
+            
+            mediaRecorder.ondataavailable = function(event) {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+            
+            mediaRecorder.onstop = function() {
+                stream.getTracks().forEach(track => track.stop());
+            };
+            
+            mediaRecorder.start();
+            isRecording = true;
+            recordingStartTime = Date.now();
+            
+            // Update UI
+            document.getElementById('record-btn').style.display = 'none';
+            document.getElementById('stop-btn').style.display = 'inline-block';
+            document.getElementById('recording-time').style.display = 'block';
+            document.getElementById('recording-text').textContent = 'Recording...';
+            document.getElementById('mic-icon').className = 'fas fa-microphone fa-3x text-danger pulse';
+            
+            // Start timer
+            updateRecordingTime();
+        })
+        .catch(error => {
+            console.error('Error accessing microphone:', error);
+            alert('Cannot access microphone. Please check permissions.');
+        });
+}
+
+function stopRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        
+        // Update UI
+        document.getElementById('record-btn').style.display = 'inline-block';
+        document.getElementById('stop-btn').style.display = 'none';
+        document.getElementById('save-recording-btn').style.display = 'inline-block';
+        document.getElementById('recording-text').textContent = 'Recording completed';
+        document.getElementById('mic-icon').className = 'fas fa-microphone fa-3x text-success';
+    }
+}
+
+function updateRecordingTime() {
+    if (isRecording) {
+        const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        document.getElementById('recording-time').querySelector('h3').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        setTimeout(updateRecordingTime, 1000);
+    }
+}
+
+function saveRecording() {
+    if (recordedChunks.length > 0) {
+        const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+        const formData = new FormData();
+        formData.append('audio', blob, 'voice_note.webm');
+        
+        fetch('{{ url_for("ai_features_bp.process_voice_note") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('voiceRecordModal')).hide();
+                location.reload();
+            } else {
+                alert('Failed to save recording: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to save recording');
+        });
+    }
+}
+
+function sendFollowUps() {
+    if (confirm('Send AI-generated follow-up messages to overdue customers?')) {
+        fetch('{{ url_for("ai_features_bp.send_debt_followups") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function getAIInsights() {
+    new bootstrap.Modal(document.getElementById('aiInsightsModal')).show();
+    
+    fetch('{{ url_for("advanced_bp.generate_ai_insights") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('ai-insights-content').innerHTML = data.insights_html;
+        } else {
+            document.getElementById('ai-insights-content').innerHTML = 
+                '<div class="alert alert-danger">Failed to generate insights: ' + data.message + '</div>';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('ai-insights-content').innerHTML = 
+            '<div class="alert alert-danger">Error generating insights</div>';
+    });
+}
+
+// Auto-refresh dashboard every 5 minutes
+setInterval(() => {
+    location.reload();
+}, 300000);
+</script>
+
+<style>
+.pulse {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+</style>
+{% endblock %}

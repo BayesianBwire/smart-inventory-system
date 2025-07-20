@@ -1,0 +1,218 @@
+{% extends "rahasoft/base.html" %}
+
+{% block page_title %}RahaSoft Dashboard{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <!-- Offline Sync Status -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-sync-alt me-2"></i>Offline Sync
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge bg-success">Online</span>
+                    <small class="text-muted">Last sync: 2 mins ago</small>
+                </div>
+                <p class="card-text">Automatically sync data when connection is restored.</p>
+                <a href="{{ url_for('rahasoft_bp.offline_sync') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-cog me-1"></i>Manage Sync
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Receipt Scanner -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-camera me-2"></i>Smart Receipts
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Scan and digitize receipts with AI recognition.</p>
+                <div class="mb-3">
+                    <small class="text-muted">Scanned this month: <strong>45</strong></small>
+                </div>
+                <a href="{{ url_for('rahasoft_bp.receipt_scanner') }}" class="btn btn-outline-info btn-sm">
+                    <i class="fas fa-plus me-1"></i>Scan Receipt
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- M-Pesa Integration -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-mobile-alt me-2"></i>M-Pesa STK
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Direct M-Pesa payments with STK push.</p>
+                <div class="mb-3">
+                    <small class="text-muted">Transactions today: <strong>12</strong></small>
+                </div>
+                <a href="{{ url_for('rahasoft_bp.mpesa_payments') }}" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-money-bill-wave me-1"></i>View Payments
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Calendar -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar me-2"></i>Business Calendar
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Kenyan holidays and business events calendar.</p>
+                <div class="mb-3">
+                    <small class="text-muted">Next holiday: <strong>Jamhuri Day</strong></small>
+                </div>
+                <a href="{{ url_for('rahasoft_bp.business_calendar') }}" class="btn btn-outline-warning btn-sm">
+                    <i class="fas fa-eye me-1"></i>View Calendar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Rating -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card border-secondary">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-star me-2"></i>Vendor Ratings
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Rate and track vendor performance.</p>
+                <div class="mb-3">
+                    <small class="text-muted">Active vendors: <strong>8</strong></small>
+                </div>
+                <a href="{{ url_for('rahasoft_bp.vendor_rating') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-list me-1"></i>Manage Vendors
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Health Score -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-heartbeat me-2"></i>Health Score
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h3 class="text-danger">85<small>/100</small></h3>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-danger" style="width: 85%"></div>
+                    </div>
+                </div>
+                <a href="{{ url_for('rahasoft_bp.health_score') }}" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-chart-line me-1"></i>View Details
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Features Row -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h4 class="text-secondary mb-3">
+            <i class="fas fa-plus-circle me-2"></i>More Features
+        </h4>
+    </div>
+
+    <!-- SMS/WhatsApp Notifications -->
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-sms fa-2x text-primary mb-3"></i>
+                <h6 class="card-title">SMS/WhatsApp</h6>
+                <p class="card-text small">Send notifications to customers</p>
+                <a href="{{ url_for('rahasoft_bp.notifications') }}" class="btn btn-sm btn-outline-primary">Configure</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Training Center -->
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-graduation-cap fa-2x text-info mb-3"></i>
+                <h6 class="card-title">Training Center</h6>
+                <p class="card-text small">Localized business training</p>
+                <a href="{{ url_for('rahasoft_bp.training') }}" class="btn btn-sm btn-outline-info">Start Learning</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Community Groups -->
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-2x text-success mb-3"></i>
+                <h6 class="card-title">Community</h6>
+                <p class="card-text small">Connect with other businesses</p>
+                <a href="{{ url_for('rahasoft_bp.community') }}" class="btn btn-sm btn-outline-success">Join</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Local Backup -->
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-hdd fa-2x text-warning mb-3"></i>
+                <h6 class="card-title">Local Backup</h6>
+                <p class="card-text small">Secure local data backup</p>
+                <a href="{{ url_for('advanced_bp.backup') }}" class="btn btn-sm btn-outline-warning">Backup Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title text-primary">
+                    <i class="fas fa-chart-bar me-2"></i>Quick Stats
+                </h5>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h4 class="text-success">{{ offline_sync_count or 0 }}</h4>
+                        <small class="text-muted">Offline Records</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="text-info">{{ receipt_count or 0 }}</h4>
+                        <small class="text-muted">Receipts Scanned</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="text-primary">{{ vendor_count or 0 }}</h4>
+                        <small class="text-muted">Vendors Rated</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="text-warning">{{ community_members or 0 }}</h4>
+                        <small class="text-muted">Community Members</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

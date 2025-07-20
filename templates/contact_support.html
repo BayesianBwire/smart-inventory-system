@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Support - RahaSoft | Smart Business Management</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- AOS Animation CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --secondary-color: #1e40af;
+      --accent-color: #fbbf24;
+      --dark-color: #1f2937;
+      --light-color: #f8fafc;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --success-color: #10b981;
+      --error-color: #ef4444;
+      --warning-color: #f59e0b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      color: var(--dark-color);
+      background: var(--gradient-primary);
+      min-height: 100vh;
+      padding: 2rem 0;
+    }
+
+    /* Background Pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.03)" points="0,1000 1000,1000 1000,0 0,800"/></svg>');
+      background-size: cover;
+      z-index: -1;
+    }
+
+    /* Support Container */
+    .support-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .support-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .support-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-primary);
+    }
+
+    /* Header */
+    .support-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .support-logo {
+      font-size: 3rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .support-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--dark-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .support-subtitle {
+      font-size: 1.125rem;
+      color: #6b7280;
+      margin-bottom: 2rem;
+    }
+
+    /* Contact Info */
+    .contact-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .contact-item {
+      background: rgba(59, 130, 246, 0.1);
+      padding: 1.5rem;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .contact-item i {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .contact-item h4 {
+      color: var(--dark-color);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .contact-item p {
+      color: #6b7280;
+      margin: 0;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: var(--dark-color);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+      cursor: pointer;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    /* Buttons */
+    .btn-support {
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: 12px;
+      padding: 0.875rem 2rem;
+      font-weight: 600;
+      color: white;
+      font-size: 1rem;
+      width: 100%;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+    }
+
+    .btn-support:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      color: white;
+    }
+
+    .btn-payment {
+      background: var(--gradient-secondary);
+      border: none;
+      border-radius: 12px;
+      padding: 0.875rem 2rem;
+      font-weight: 600;
+      color: white;
+      font-size: 1rem;
+      width: 100%;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+    }
+
+    .btn-payment:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      color: white;
+    }
+
+    /* Alert Styles */
+    .alert {
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border: none;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+      border-left: 4px solid var(--success-color);
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error-color);
+      border-left: 4px solid var(--error-color);
+    }
+
+    /* Payment Modal */
+    .modal-content {
+      border-radius: 20px;
+      border: none;
+      box-shadow: var(--shadow-xl);
+    }
+
+    .modal-header {
+      background: var(--gradient-secondary);
+      color: white;
+      border-radius: 20px 20px 0 0;
+      border-bottom: none;
+    }
+
+    .modal-title {
+      font-weight: 700;
+    }
+
+    .payment-option {
+      background: rgba(59, 130, 246, 0.1);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 1rem;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .payment-option:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+
+    .payment-option i {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .payment-info {
+      background: rgba(251, 191, 36, 0.1);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin: 1.5rem 0;
+      border-left: 4px solid var(--warning-color);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .support-card {
+        padding: 2rem 1.5rem;
+      }
+      
+      .support-title {
+        font-size: 2rem;
+      }
+      
+      .contact-info {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animation */
+    .fade-in {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="support-container">
+    <!-- Header Card -->
+    <div class="support-card fade-in" data-aos="fade-up">
+      <div class="support-header">
+        <div class="support-logo">
+          <i class="fas fa-headset"></i>
+        </div>
+        <h1 class="support-title">Contact Support</h1>
+        <p class="support-subtitle">Get help from our expert support team. We're here to assist you 24/7.</p>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="contact-info">
+        <div class="contact-item" data-aos="fade-up" data-aos-delay="100">
+          <i class="fas fa-envelope"></i>
+          <h4>Email Support</h4>
+          <p>rahasoft.app@gmail.com</p>
+        </div>
+        <div class="contact-item" data-aos="fade-up" data-aos-delay="200">
+          <i class="fas fa-phone"></i>
+          <h4>Phone Support</h4>
+          <p>+254 701 036 269</p>
+        </div>
+        <div class="contact-item" data-aos="fade-up" data-aos-delay="300">
+          <i class="fas fa-clock"></i>
+          <h4>Response Time</h4>
+          <p>Within 24 hours</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support Form Card -->
+    <div class="support-card fade-in" data-aos="fade-up" data-aos-delay="400">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST">
+        {{ form.hidden_tag() }}
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              {{ form.name.label(class="form-label") }}
+              {{ form.name(class="form-control") }}
+              {% if form.name.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.name.errors %}
+                    <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              {{ form.email.label(class="form-label") }}
+              {{ form.email(class="form-control") }}
+              {% if form.email.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.email.errors %}
+                    <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              {{ form.phone.label(class="form-label") }}
+              {{ form.phone(class="form-control") }}
+              {% if form.phone.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.phone.errors %}
+                    <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              {{ form.priority.label(class="form-label") }}
+              {{ form.priority(class="form-select") }}
+              {% if form.priority.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.priority.errors %}
+                    <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              {{ form.category.label(class="form-label") }}
+              {{ form.category(class="form-select") }}
+              {% if form.category.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.category.errors %}
+                    <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              {{ form.subject.label(class="form-label") }}
+              {{ form.subject(class="form-control") }}
+              {% if form.subject.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.subject.errors %}
+                    <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          {{ form.message.label(class="form-label") }}
+          {{ form.message(class="form-control") }}
+          {% if form.message.errors %}
+            <div class="text-danger mt-1">
+              {% for error in form.message.errors %}
+                <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        {{ form.submit(class="btn btn-support") }}
+        
+        <button type="button" class="btn btn-payment" data-bs-toggle="modal" data-bs-target="#paymentModal">
+          <i class="fas fa-credit-card me-2"></i>Make Payment - KES 100
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="paymentModalLabel">
+            <i class="fas fa-credit-card me-2"></i>Payment - KES 100
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="payment-info">
+            <h6><i class="fas fa-info-circle me-2"></i>Payment Information</h6>
+            <p><strong>Amount:</strong> KES 100</p>
+            <p><strong>Description:</strong> RahaSoft ERP Support Service</p>
+            <p><strong>Reference:</strong> RS-SUPPORT-<span id="reference-id"></span></p>
+          </div>
+
+          <h6 class="mb-3">Choose Payment Method:</h6>
+          
+          <!-- M-Pesa Payment -->
+          <div class="payment-option" onclick="initiateMpesaPayment()">
+            <div class="text-center">
+              <i class="fas fa-mobile-alt text-success"></i>
+              <h5 class="mt-2 mb-1">M-Pesa</h5>
+              <p class="text-muted mb-0">Pay with M-Pesa mobile money</p>
+              <small class="text-success">
+                <i class="fas fa-shield-alt me-1"></i>Secure & Instant
+              </small>
+            </div>
+          </div>
+
+          <!-- Card Payment -->
+          <div class="payment-option" onclick="initiateCardPayment()">
+            <div class="text-center">
+              <i class="fas fa-credit-card text-primary"></i>
+              <h5 class="mt-2 mb-1">Credit/Debit Card</h5>
+              <p class="text-muted mb-0">Pay with Visa, Mastercard, or American Express</p>
+              <small class="text-primary">
+                <i class="fas fa-lock me-1"></i>SSL Protected
+              </small>
+            </div>
+          </div>
+
+          <!-- Bank Transfer -->
+          <div class="payment-option" onclick="showBankDetails()">
+            <div class="text-center">
+              <i class="fas fa-university text-warning"></i>
+              <h5 class="mt-2 mb-1">Bank Transfer</h5>
+              <p class="text-muted mb-0">Direct bank transfer</p>
+              <small class="text-warning">
+                <i class="fas fa-clock me-1"></i>1-2 Business Days
+              </small>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- AOS Animation JS -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  
+  <!-- Moment.js for timestamps -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+  <script>
+    // Initialize AOS
+    AOS.init({
+      duration: 800,
+      once: true
+    });
+
+    // Auto-show payment popup after 3 seconds
+    setTimeout(function() {
+      const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+      paymentModal.show();
+    }, 3000);
+
+    // M-Pesa Payment
+    function initiateMpesaPayment() {
+      alert('🟢 M-Pesa Payment\n\nTo complete your KES 100 payment:\n\n1. Dial *174*60# on your phone\n2. Enter Till Number: 9963584\n3. Enter Amount: 100\n4. Enter PIN to confirm\n\nOr send to: +254 701 036 269\n\nPayment will be confirmed instantly!');
+      
+      // Close modal after showing instructions
+      const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+      modal.hide();
+    }
+
+    // Card Payment
+    function initiateCardPayment() {
+      alert('💳 Card Payment\n\nRedirecting to secure payment gateway...\n\nYou will be able to pay with:\n• Visa\n• Mastercard\n• American Express\n\nAmount: KES 100');
+      
+      // In real implementation, redirect to payment gateway
+      window.open('https://checkout.flutterwave.com/', '_blank');
+    }
+
+    // Bank Transfer
+    function showBankDetails() {
+      alert('🏦 Bank Transfer Details\n\nBank: Equity Bank\nAccount Name: RahaSoft Technologies\nAccount Number: 1234567890\nAmount: KES 100\n\nReference: RS-SUPPORT-' + moment().format('YYYYMMDDHHmmss') + '\n\nPlease include the reference in your transfer.');
+    }
+
+    // Form validation enhancements
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('form');
+      const submitBtn = document.querySelector('.btn-support');
+      
+      form.addEventListener('submit', function() {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+        submitBtn.disabled = true;
+      });
+
+      // Auto-fill phone number format
+      const phoneInput = document.querySelector('input[name="phone"]');
+      phoneInput.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        if (value.startsWith('0')) {
+          value = '254' + value.substring(1);
+        }
+        if (value.startsWith('254')) {
+          this.value = '+' + value;
+        }
+      });
+
+      // Generate reference ID
+      const now = new Date();
+      const refId = now.getFullYear().toString() + 
+                   (now.getMonth() + 1).toString().padStart(2, '0') + 
+                   now.getDate().toString().padStart(2, '0') + 
+                   now.getHours().toString().padStart(2, '0') + 
+                   now.getMinutes().toString().padStart(2, '0') + 
+                   now.getSeconds().toString().padStart(2, '0');
+      document.getElementById('reference-id').textContent = refId;
+    });
+  </script>
+</body>
+</html>

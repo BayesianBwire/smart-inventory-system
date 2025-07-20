@@ -6,111 +6,236 @@
   <title>RahaSoft</title>
 
   <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 
   <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Flag Icon CSS for language flags -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icon.min.css" rel="stylesheet" />
 
   <style>
+    :root {
+      --primary-color: #3b82f6;
+      --secondary-color: #1e40af;
+      --accent-color: #fbbf24;
+      --dark-color: #1f2937;
+      --light-color: #f8fafc;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      
+      /* Light theme variables */
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --navbar-bg: rgba(255, 255, 255, 0.95);
+    }
+
+    [data-theme="dark"] {
+      /* Dark theme variables */
+      --bg-primary: #1f2937;
+      --bg-secondary: #111827;
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --navbar-bg: rgba(31, 41, 55, 0.95);
+      --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    }
+
     body {
-      background-color: #f1f1f1;
+      background: linear-gradient(to bottom, var(--bg-secondary), var(--bg-primary));
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
     }
 
-    header {
-      background: white;
-      box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 0.075);
-      padding: 1rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      position: sticky;
-      top: 0;
-      z-index: 1030;
+    /* Modern Navigation */
+    .navbar {
+      background: var(--navbar-bg);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      transition: all 0.3s ease;
     }
 
-    header .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    header .brand div {
-      width: 60px;
-      height: 20px;
-      background: radial-gradient(ellipse at center, #36585C 0%, transparent 70%);
-      border-radius: 50%;
-      transform: rotate(-5deg);
-    }
-
-    header .brand h4 {
-      margin: 0;
-      color: #36585C !important;
+    .navbar-brand {
+      font-family: 'Playfair Display', serif;
       font-weight: 700;
+      font-size: 1.8rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+      margin-right: auto;
     }
 
-    header .user-info {
+    .navbar-brand i {
+      margin-right: 0.5rem;
+      -webkit-text-fill-color: #3b82f6;
+    }
+
+    .user-info {
       display: flex;
       align-items: center;
       gap: 1rem;
+    }
+
+    .welcome-text {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .user-name {
       font-size: 0.9rem;
-      color: #6c757d;
+      font-weight: 600;
+      color: var(--text-primary);
     }
 
-    header .user-info strong {
-      color: #36585C;
+    .user-role {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      background: var(--border-color);
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
     }
 
-    footer {
-      background: white;
-      box-shadow: 0 -0.125rem 0.25rem rgb(0 0 0 / 0.075);
-      padding: 0.75rem 1.5rem;
+    /* Theme Toggle Button */
+    .theme-toggle {
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Language Selector */
+    #language-selector .btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: 20px;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+
+    #language-selector .btn:hover {
+      background: var(--gradient-primary);
+      color: white;
+      border-color: transparent;
+    }
+
+    .dropdown-menu {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(20px);
+    }
+
+    .dropdown-item {
+      color: var(--text-primary);
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      margin: 0.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .dropdown-item:hover {
+      background: var(--gradient-primary);
+      color: white;
+    }
+
+    .btn-logout {
+      background: var(--gradient-secondary);
+      border: none;
+      border-radius: 25px;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+    }
+
+    .btn-logout:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      margin-top: 0;
+    }
+
+    /* Modern Footer */
+    .footer {
+      background: var(--dark-color);
+      color: white;
+      padding: 3rem 0 1rem;
+      margin-top: auto;
+    }
+
+    .footer-links {
       display: flex;
       justify-content: center;
-      align-items: center;
-      position: relative;
-      font-size: 0.85rem;
-      color: #6c757d;
-      margin-top: auto;
+      gap: 2rem;
+      margin-bottom: 2rem;
       flex-wrap: wrap;
     }
 
-    /* Container for footer content */
-    footer .footer-content {
-      width: 100%;
-      max-width: 1140px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      font-weight: 500;
     }
 
-    /* Center copyright */
-    footer .copyright {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
+    .footer-links a:hover {
+      color: white;
     }
 
-    /* Language selector aligned right */
+    .footer-copyright {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
     #language-selector {
-      position: absolute;
-      right: 1.5rem;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 1050;
+      position: relative;
     }
 
     #language-selector .dropdown-menu {
@@ -124,10 +249,58 @@
       gap: 0.5rem;
     }
 
+    /* Main Content */
+    main {
+      flex: 1;
+      margin-top: 0;
+    }
+
+    /* Modern Footer */
+    .footer {
+      background: var(--dark-color);
+      color: white;
+      padding: 3rem 0 1rem;
+      margin-top: auto;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      font-weight: 500;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .footer-copyright {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.875rem;
+    }
+
     #lang-btn {
       white-space: nowrap;
       font-size: 0.85rem;
       padding: 0.25rem 0.75rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+    }
+
+    #lang-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
     }
 
     #toast-container {
@@ -136,67 +309,125 @@
       right: 1rem;
       z-index: 9999;
     }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .navbar-brand {
+        font-size: 1.5rem;
+      }
+      
+      .user-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .footer-links {
+        gap: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <div class="brand">
-      <div></div>
-      <h4>RahaSoft</h4>
+  <!-- Modern Header -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+        <i class="fas fa-chart-line"></i>
+        RahaSoft
+      </a>
+      
+      <div class="user-info">
+        <div class="d-flex flex-column align-items-end">
+          <span class="welcome-text">{{ _('Welcome back') }},</span>
+          <span class="user-name">{{ session['user'] }}</span>
+          {% if session['role'] %}
+          <span class="user-role">{{ session['role'].replace('_', ' ').title() }}</span>
+          {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="theme-toggle" title="{{ _('Toggle theme') }}">
+            <i class="fas fa-moon" id="theme-icon"></i>
+          </button>
+          
+          <!-- Language Selector -->
+          <div id="language-selector">
+            <button id="lang-btn" class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+              <span id="current-lang-flag" class="flag-icon flag-icon-us me-1"></span>
+              <span id="current-lang-name">EN</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="lang-btn">
+              <li><a class="dropdown-item lang-select" href="{{ url_for('set_language', lang_code='en') }}">
+                <span>English</span>
+                <span class="flag-icon flag-icon-us"></span>
+              </a></li>
+              <li><a class="dropdown-item lang-select" href="{{ url_for('set_language', lang_code='fr') }}">
+                <span>Français</span>
+                <span class="flag-icon flag-icon-fr"></span>
+              </a></li>
+              <li><a class="dropdown-item lang-select" href="{{ url_for('set_language', lang_code='es') }}">
+                <span>Español</span>
+                <span class="flag-icon flag-icon-es"></span>
+              </a></li>
+              <li><a class="dropdown-item lang-select" href="{{ url_for('set_language', lang_code='de') }}">
+                <span>Deutsch</span>
+                <span class="flag-icon flag-icon-de"></span>
+              </a></li>
+              <li><a class="dropdown-item lang-select" href="{{ url_for('set_language', lang_code='sw') }}">
+                <span>Kiswahili</span>
+                <span class="flag-icon flag-icon-ke"></span>
+              </a></li>
+              <li><a class="dropdown-item lang-select" href="{{ url_for('set_language', lang_code='ar') }}">
+                <span>العربية</span>
+                <span class="flag-icon flag-icon-sa"></span>
+              </a></li>
+              <li><a class="dropdown-item lang-select" href="{{ url_for('set_language', lang_code='zh') }}">
+                <span>中文</span>
+                <span class="flag-icon flag-icon-cn"></span>
+              </a></li>
+              <li><a class="dropdown-item lang-select" href="{{ url_for('set_language', lang_code='hi') }}">
+                <span>हिंदी</span>
+                <span class="flag-icon flag-icon-in"></span>
+              </a></li>
+              <li><a class="dropdown-item lang-select" href="{{ url_for('set_language', lang_code='pt') }}">
+                <span>Português</span>
+                <span class="flag-icon flag-icon-br"></span>
+              </a></li>
+            </ul>
+          </div>
+          
+          <a href="{{ url_for('logout') }}" class="btn-logout">
+            <i class="fas fa-sign-out-alt me-1"></i> {{ _('Logout') }}
+          </a>
+        </div>
+      </div>
     </div>
-    <div class="user-info">
-      <span>
-        Logged in as <strong>{{ session['user'] }}</strong>
-        {% if session['role'] %} ({{ session['role'].replace('_', ' ').title() }}){% endif %}
-      </span>
-      <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">🚪 Logout</a>
-    </div>
-  </header>
+  </nav>
 
   <!-- Main Content -->
-  <main class="container-fluid py-3">
+  <main>
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Footer -->
-  <footer>
-    <div class="footer-content">
-      <div class="copyright">
-        RahaSoft System © 2025 — All Rights Reserved.
+  <!-- Modern Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-links">
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="#">Features</a>
+        <a href="#">Support</a>
+        <a href="#">Documentation</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
       </div>
-      <div id="language-selector">
-        <button id="lang-btn" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
-          <span id="current-lang-flag" class="flag-icon flag-icon-us me-1"></span>
-          <span id="current-lang-name">English</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="lang-btn">
-          <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='en') }}">
-            <span>English</span>
-            <span class="flag-icon flag-icon-us ms-2"></span>
-          </a></li>
-          <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='fr') }}">
-            <span>Français</span>
-            <span class="flag-icon flag-icon-fr ms-2"></span>
-          </a></li>
-          <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='es') }}">
-            <span>Español</span>
-            <span class="flag-icon flag-icon-es ms-2"></span>
-          </a></li>
-          <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='de') }}">
-            <span>Deutsch</span>
-            <span class="flag-icon flag-icon-de ms-2"></span>
-          </a></li>
-          <li><a class="dropdown-item lang-select d-flex justify-content-between align-items-center" href="{{ url_for('set_language', lang_code='sw') }}">
-            <span>Kiswahili</span>
-            <span class="flag-icon flag-icon-ke ms-2"></span>
-          </a></li>
-        </ul>
+      <div class="footer-copyright">
+        <p>&copy; 2025 RahaSoft. All rights reserved. Built with ❤️ for African businesses.</p>
       </div>
     </div>
   </footer>
-
   <!-- Toast Messages -->
   <div id="toast-container">
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -214,7 +445,7 @@
   </div>
 
   <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Toast initialization -->
   <script>
@@ -222,24 +453,67 @@
     toastElList.forEach(toastEl => new bootstrap.Toast(toastEl).show());
   </script>
 
-  <!-- Language Selector update script -->
+  <!-- Language Selector and Theme Toggle script -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Language selector functionality
       const currentLangCode = "{{ session.get('lang', 'en') }}";
       const flagElement = document.getElementById('current-lang-flag');
       const nameElement = document.getElementById('current-lang-name');
 
       const langData = {
-        'en': {name: 'English', flag: 'us'},
-        'fr': {name: 'Français', flag: 'fr'},
-        'es': {name: 'Español', flag: 'es'},
-        'de': {name: 'Deutsch', flag: 'de'},
-        'sw': {name: 'Kiswahili', flag: 'ke'}
+        'en': {name: 'EN', flag: 'us'},
+        'fr': {name: 'FR', flag: 'fr'},
+        'es': {name: 'ES', flag: 'es'},
+        'de': {name: 'DE', flag: 'de'},
+        'sw': {name: 'SW', flag: 'ke'},
+        'ar': {name: 'AR', flag: 'sa'},
+        'zh': {name: 'ZH', flag: 'cn'},
+        'hi': {name: 'HI', flag: 'in'},
+        'pt': {name: 'PT', flag: 'br'}
       };
 
       if(langData[currentLangCode]){
         flagElement.className = 'flag-icon flag-icon-' + langData[currentLangCode].flag + ' me-1';
         nameElement.textContent = langData[currentLangCode].name;
+      }
+
+      // Theme toggle functionality
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = document.getElementById('theme-icon');
+      const htmlElement = document.documentElement;
+
+      // Get saved theme or default to light
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      
+      // Apply saved theme
+      htmlElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+
+      // Theme toggle event listener
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+        
+        // Add animation effect
+        themeToggle.style.transform = 'rotate(360deg)';
+        setTimeout(() => {
+          themeToggle.style.transform = 'scale(1)';
+        }, 300);
+      });
+
+      function updateThemeIcon(theme) {
+        if (theme === 'dark') {
+          themeIcon.className = 'fas fa-sun';
+          themeToggle.title = 'Switch to light mode';
+        } else {
+          themeIcon.className = 'fas fa-moon';
+          themeToggle.title = 'Switch to dark mode';
+        }
       }
     });
   </script>

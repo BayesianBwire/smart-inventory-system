@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}RahaSoft Features{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-rocket me-2"></i>
+                    {% block page_title %}RahaSoft Features{% endblock %}
+                </h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('landing_page') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('founder_bp.dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">RahaSoft</li>
+                    </ol>
+                </nav>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block page_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Common RahaSoft scripts
+    $(document).ready(function() {
+        // Initialize tooltips
+        $('[data-bs-toggle="tooltip"]').tooltip();
+        
+        // Initialize popovers
+        $('[data-bs-toggle="popover"]').popover();
+        
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    });
+</script>
+{% endblock %}

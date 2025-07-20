@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  section.module-section {
+    padding: 1.5rem 1rem;
+    border-radius: 0.3rem;
+    margin-bottom: 1.5rem;
+  }
+  .core-operations { background-color: #e9f5f5; }
+  .sales-marketing { background-color: #fff8e1; }
+  .finance-accounting { background-color: #e8f0fe; }
+  .human-resources { background-color: #fdecea; }
+  .projects-collaboration { background-color: #f3f0ff; }
+  .analytics-reports { background-color: #e6f4ea; }
+  .it-security { background-color: #fef6e4; }
+  .utilities { background-color: #f5f5f5; }
+  .dropdown-toggle {
+    cursor: pointer;
+    user-select: none;
+  }
+</style>
+
+<div class="container py-4">
+  <h3 class="mb-4 fw-bold" style="color: #36585C;">Welcome to RahaSoft Suite</h3>
+
+  {% set sections = [
+    ('Core Operations', 'core-operations'),
+    ('Sales & Marketing', 'sales-marketing'),
+    ('Finance & Accounting', 'finance-accounting'),
+    ('Human Resources', 'human-resources'),
+    ('Projects & Collaboration', 'projects-collaboration'),
+    ('Analytics & Reports', 'analytics-reports'),
+    ('IT & Security', 'it-security'),
+    ('Utilities', 'utilities')
+  ] %}
+
+  {% for section_title, section_class in sections %}
+    <section class="module-section {{ section_class }}">
+      <h5 class="mb-3 text-secondary fw-semibold dropdown-toggle" data-bs-toggle="collapse" href="#collapse-{{ loop.index }}" role="button" aria-expanded="false" aria-controls="collapse-{{ loop.index }}">
+        {{ section_title }}
+      </h5>
+      <div class="collapse" id="collapse-{{ loop.index }}">
+        <div class="row row-cols-2 row-cols-md-5 g-4">
+          {% if section_class == 'core-operations' %}
+            {% include 'modules/core_operations.html' %}
+          {% elif section_class == 'sales-marketing' %}
+            {% include 'modules/sales_marketing.html' %}
+          {% elif section_class == 'finance-accounting' %}
+            {% include 'modules/finance_accounting.html' %}
+          {% elif section_class == 'human-resources' %}
+            {% include 'modules/human_resources.html' %}
+          {% elif section_class == 'projects-collaboration' %}
+            {% include 'modules/projects_collaboration.html' %}
+          {% elif section_class == 'analytics-reports' %}
+            {% include 'modules/analytics_reports.html' %}
+          {% elif section_class == 'it-security' %}
+            {% include 'modules/it_security.html' %}
+          {% elif section_class == 'utilities' %}
+            {% include 'modules/utilities.html' %}
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  {% endfor %}
+</div>
+
+{% endblock %}

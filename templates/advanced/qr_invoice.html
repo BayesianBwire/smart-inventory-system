@@ -1,0 +1,448 @@
+{% extends "advanced/base.html" %}
+
+{% block page_title %}QR Code Invoicing{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-qrcode me-2"></i>Generate QR Invoice
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('advanced_bp.create_qr_invoice') }}">
+                    {{ csrf_token() }}
+                    
+                    <!-- Customer Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary border-bottom pb-2">Customer Information</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="customer_name" class="form-label">Customer Name *</label>
+                                <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="customer_phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="customer_phone" name="customer_phone" placeholder="+254...">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="customer_email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="customer_email" name="customer_email">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="due_date" class="form-label">Due Date</label>
+                                <input type="date" class="form-control" id="due_date" name="due_date">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Items -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary border-bottom pb-2">Invoice Items</h6>
+                        </div>
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="invoice-items">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Description</th>
+                                            <th width="100">Quantity</th>
+                                            <th width="120">Unit Price (KSh)</th>
+                                            <th width="120">Total (KSh)</th>
+                                            <th width="50">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <input type="text" class="form-control" name="item_descriptions[]" placeholder="Item description" required>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control quantity" name="item_quantities[]" value="1" min="1" required>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control unit-price" name="item_prices[]" step="0.01" min="0" required>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control total-price" name="item_totals[]" step="0.01" readonly>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addInvoiceItem()">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="table-info">
+                                            <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                                            <td><strong id="subtotal">KSh 0.00</strong></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end">VAT (16%):</td>
+                                            <td id="vat-amount">KSh 0.00</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr class="table-success">
+                                            <td colspan="3" class="text-end"><strong>Total Amount:</strong></td>
+                                            <td><strong id="total-amount">KSh 0.00</strong></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Options -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary border-bottom pb-2">Payment Options</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="payment_methods[]" value="mpesa" id="mpesa" checked>
+                                <label class="form-check-label" for="mpesa">
+                                    <i class="fas fa-mobile-alt text-success me-2"></i>M-Pesa
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="payment_methods[]" value="bank" id="bank">
+                                <label class="form-check-label" for="bank">
+                                    <i class="fas fa-university text-primary me-2"></i>Bank Transfer
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="payment_methods[]" value="cash" id="cash">
+                                <label class="form-check-label" for="cash">
+                                    <i class="fas fa-money-bill text-warning me-2"></i>Cash
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="payment_methods[]" value="card" id="card">
+                                <label class="form-check-label" for="card">
+                                    <i class="fas fa-credit-card text-info me-2"></i>Card Payment
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Options -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Additional notes or terms..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">QR Code Options</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="include_payment_link" id="include_payment_link" checked>
+                                    <label class="form-check-label" for="include_payment_link">
+                                        Include payment link in QR code
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="send_sms" id="send_sms">
+                                    <label class="form-check-label" for="send_sms">
+                                        Send SMS notification to customer
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="subtotal_value" name="subtotal">
+                    <input type="hidden" id="vat_value" name="vat">
+                    <input type="hidden" id="total_value" name="total">
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary me-2" onclick="previewInvoice()">
+                            <i class="fas fa-eye me-1"></i>Preview
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-qrcode me-1"></i>Generate QR Invoice
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Recent QR Invoices -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Recent QR Invoices</h6>
+            </div>
+            <div class="card-body">
+                {% for invoice in recent_invoices %}
+                <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                    <div class="me-3">
+                        <i class="fas fa-qrcode fa-lg text-primary"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ invoice.customer_name }}</h6>
+                        <small class="text-muted">{{ invoice.created_at.strftime('%Y-%m-%d') if invoice.created_at else 'N/A' }}</small>
+                        <div class="text-success">KSh {{ invoice.total_amount or 0 }}</div>
+                        <span class="badge bg-{{ 'success' if invoice.payment_status == 'paid' else 'warning' }}">
+                            {{ invoice.payment_status or 'pending' }}
+                        </span>
+                    </div>
+                    <div>
+                        <div class="btn-group-vertical">
+                            <a href="{{ url_for('advanced_bp.view_qr_invoice', id=invoice.id) }}" class="btn btn-sm btn-outline-primary" title="View Invoice">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('advanced_bp.download_qr_invoice', id=invoice.id) }}" class="btn btn-sm btn-outline-success" title="Download PDF">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No QR invoices created yet</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- QR Features Info -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>QR Invoice Features
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Instant payment via QR code scan
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Multiple payment method support
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Automatic payment verification
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Real-time payment notifications
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Professional PDF invoices
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        SMS/Email notifications
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Invoice Preview Modal -->
+<div class="modal fade" id="invoicePreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Invoice Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="invoice-preview-content">
+                <!-- Preview content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="$('#invoicePreviewModal').modal('hide');">Continue Editing</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function addInvoiceItem() {
+    const tbody = document.querySelector('#invoice-items tbody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td>
+            <input type="text" class="form-control" name="item_descriptions[]" placeholder="Item description" required>
+        </td>
+        <td>
+            <input type="number" class="form-control quantity" name="item_quantities[]" value="1" min="1" required>
+        </td>
+        <td>
+            <input type="number" class="form-control unit-price" name="item_prices[]" step="0.01" min="0" required>
+        </td>
+        <td>
+            <input type="number" class="form-control total-price" name="item_totals[]" step="0.01" readonly>
+        </td>
+        <td>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeInvoiceItem(this)">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(newRow);
+    attachCalculationEvents(newRow);
+}
+
+function removeInvoiceItem(button) {
+    button.closest('tr').remove();
+    calculateTotals();
+}
+
+function attachCalculationEvents(row) {
+    const quantity = row.querySelector('.quantity');
+    const unitPrice = row.querySelector('.unit-price');
+    const totalPrice = row.querySelector('.total-price');
+    
+    [quantity, unitPrice].forEach(input => {
+        input.addEventListener('input', function() {
+            const qty = parseFloat(quantity.value) || 0;
+            const price = parseFloat(unitPrice.value) || 0;
+            totalPrice.value = (qty * price).toFixed(2);
+            calculateTotals();
+        });
+    });
+}
+
+function calculateTotals() {
+    let subtotal = 0;
+    document.querySelectorAll('.total-price').forEach(input => {
+        subtotal += parseFloat(input.value) || 0;
+    });
+    
+    const vat = subtotal * 0.16;
+    const total = subtotal + vat;
+    
+    document.getElementById('subtotal').textContent = `KSh ${subtotal.toFixed(2)}`;
+    document.getElementById('vat-amount').textContent = `KSh ${vat.toFixed(2)}`;
+    document.getElementById('total-amount').textContent = `KSh ${total.toFixed(2)}`;
+    
+    document.getElementById('subtotal_value').value = subtotal.toFixed(2);
+    document.getElementById('vat_value').value = vat.toFixed(2);
+    document.getElementById('total_value').value = total.toFixed(2);
+}
+
+function previewInvoice() {
+    // Create preview content
+    const customerName = document.getElementById('customer_name').value;
+    const customerEmail = document.getElementById('customer_email').value;
+    const customerPhone = document.getElementById('customer_phone').value;
+    const dueDate = document.getElementById('due_date').value;
+    const notes = document.getElementById('notes').value;
+    
+    let previewContent = `
+        <div class="invoice-preview">
+            <div class="row mb-3">
+                <div class="col-6">
+                    <h5>Invoice To:</h5>
+                    <strong>${customerName}</strong><br>
+                    ${customerEmail ? customerEmail + '<br>' : ''}
+                    ${customerPhone ? customerPhone + '<br>' : ''}
+                </div>
+                <div class="col-6 text-end">
+                    <h5>Invoice Details:</h5>
+                    Invoice #: INV-${Date.now()}<br>
+                    Date: ${new Date().toLocaleDateString()}<br>
+                    ${dueDate ? 'Due: ' + new Date(dueDate).toLocaleDateString() : ''}
+                </div>
+            </div>
+            
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Description</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    // Add items
+    const descriptions = document.querySelectorAll('input[name="item_descriptions[]"]');
+    const quantities = document.querySelectorAll('input[name="item_quantities[]"]');
+    const prices = document.querySelectorAll('input[name="item_prices[]"]');
+    const totals = document.querySelectorAll('input[name="item_totals[]"]');
+    
+    for (let i = 0; i < descriptions.length; i++) {
+        if (descriptions[i].value) {
+            previewContent += `
+                <tr>
+                    <td>${descriptions[i].value}</td>
+                    <td>${quantities[i].value}</td>
+                    <td>KSh ${prices[i].value}</td>
+                    <td>KSh ${totals[i].value}</td>
+                </tr>
+            `;
+        }
+    }
+    
+    previewContent += `
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end">Subtotal:</td>
+                        <td>${document.getElementById('subtotal').textContent}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-end">VAT (16%):</td>
+                        <td>${document.getElementById('vat-amount').textContent}</td>
+                    </tr>
+                    <tr class="table-success">
+                        <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                        <td><strong>${document.getElementById('total-amount').textContent}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            ${notes ? '<div class="mt-3"><strong>Notes:</strong><br>' + notes + '</div>' : ''}
+            
+            <div class="text-center mt-4">
+                <div class="border p-3 d-inline-block">
+                    <i class="fas fa-qrcode fa-5x text-primary"></i><br>
+                    <small class="text-muted">QR Code will be generated here</small>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('invoice-preview-content').innerHTML = previewContent;
+    new bootstrap.Modal(document.getElementById('invoicePreviewModal')).show();
+}
+
+// Initialize calculation events on page load
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('#invoice-items tbody tr').forEach(row => {
+        attachCalculationEvents(row);
+    });
+    calculateTotals();
+});
+</script>
+{% endblock %}

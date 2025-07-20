@@ -4,78 +4,385 @@
   <meta charset="UTF-8">
   <title>Privacy Policy - RahaSoft</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #ffffff;
-      margin: 20px;
-      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px 0;
       color: #333;
-      font-size: 0.9rem;
-      line-height: 1.5;
+      line-height: 1.6;
+    }
+
+    .privacy-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .header-section {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e9ecef;
     }
 
     h1 {
-      color: #36585C;
-      font-size: 1.4rem;
-      margin-bottom: 15px;
+      color: #2d3748;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .last-updated {
+      color: #6c757d;
+      font-size: 0.9rem;
+      font-weight: 500;
     }
 
     h2 {
-      color: #333;
+      color: #2d3748;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-top: 35px;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    h3 {
+      color: #4a5568;
       font-size: 1.1rem;
+      font-weight: 600;
       margin-top: 25px;
+      margin-bottom: 10px;
     }
 
     p {
-      margin: 6px 0;
+      margin: 12px 0;
+      color: #4a5568;
+      font-size: 1rem;
     }
 
-    ul {
-      padding-left: 20px;
-      margin: 5px 0;
+    ul, ol {
+      padding-left: 25px;
+      margin: 15px 0;
+    }
+
+    li {
+      margin: 8px 0;
+      color: #4a5568;
+    }
+
+    .highlight-box {
+      background: linear-gradient(135deg, #f7fafc, #edf2f7);
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+
+    .data-table {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 1px solid #e9ecef;
+    }
+
+    .contact-info {
+      background: linear-gradient(135deg, #e6fffa, #b2f5ea);
+      padding: 20px;
+      border-radius: 12px;
+      margin: 30px 0;
+      border: 1px solid #81e6d9;
+    }
+
+    .rights-section {
+      background: linear-gradient(135deg, #fef5e7, #fed7aa);
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      border: 1px solid #f6ad55;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50px;
+      padding: 12px 20px;
+      font-weight: 600;
+      color: #667eea;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-btn:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
     }
 
     footer {
-      margin-top: 40px;
-      font-size: 0.8rem;
-      color: #777;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 2px solid #e9ecef;
       text-align: center;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .company-logo {
+      color: #667eea;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .security-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin: 0 5px;
+    }
+
+    @media (max-width: 768px) {
+      .privacy-container {
+        margin: 0 15px;
+        padding: 25px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .back-btn {
+        position: static;
+        display: block;
+        text-align: center;
+        margin-bottom: 20px;
+        width: fit-content;
+      }
     }
   </style>
 </head>
 <body>
+  
+  <a href="/" class="back-btn">← Back to Home</a>
+  
+  <div class="privacy-container">
+    <div class="header-section">
+      <h1>Privacy Policy</h1>
+      <p class="last-updated">Last updated: December 2024</p>
+    </div>
 
-  <h1>Privacy Policy</h1>
+    <div class="highlight-box">
+      <p><strong>Your Privacy Matters</strong> - RahaSoft is committed to protecting your personal information and being transparent about how we collect, use, and safeguard your data. This policy explains our privacy practices in detail.</p>
+    </div>
 
-  <p>RahaSoft is committed to protecting your personal information. This policy explains how we collect, use, and safeguard your data.</p>
+    <h2>1. Information We Collect</h2>
+    
+    <h3>1.1 Account Information</h3>
+    <div class="data-table">
+      <strong>Personal Data:</strong>
+      <ul>
+        <li>Full name and contact information</li>
+        <li>Email address and phone number</li>
+        <li>Job title and role within your organization</li>
+        <li>Password (encrypted and hashed)</li>
+        <li>Profile picture (optional)</li>
+      </ul>
+    </div>
 
-  <h2>1. Information Collected</h2>
-  <ul>
-    <li>Full Name, Email, Phone Number, Role, and Password</li>
-    <li>Login timestamps and usage activity</li>
-  </ul>
+    <h3>1.2 Business Data</h3>
+    <p>As an ERP platform, RahaSoft processes business-related information you input, including:</p>
+    <ul>
+      <li>Employee records and HR information</li>
+      <li>Inventory and product data</li>
+      <li>Financial transactions and accounting records</li>
+      <li>Customer and supplier information</li>
+      <li>Business analytics and reports</li>
+      <li>Document attachments and files</li>
+    </ul>
 
-  <h2>2. How We Use Data</h2>
-  <ul>
-    <li>To manage your account</li>
-    <li>To improve system functionality</li>
-    <li>To contact you regarding important updates</li>
-  </ul>
+    <h3>1.3 Usage Data</h3>
+    <p>We automatically collect certain information when you use our service:</p>
+    <ul>
+      <li>Login timestamps and session duration</li>
+      <li>Feature usage and navigation patterns</li>
+      <li>Device information and browser type</li>
+      <li>IP address and location data (city/country level)</li>
+      <li>Performance metrics and error logs</li>
+    </ul>
 
-  <h2>3. Data Security</h2>
-  <p>We implement secure protocols to keep your information protected from unauthorized access.</p>
+    <h2>2. How We Use Your Information</h2>
+    
+    <h3>2.1 Service Provision</h3>
+    <ul>
+      <li>Create and manage your user account</li>
+      <li>Process and store your business data</li>
+      <li>Generate reports and analytics</li>
+      <li>Facilitate team collaboration and communication</li>
+      <li>Backup and synchronize your data across devices</li>
+    </ul>
 
-  <h2>4. Data Sharing</h2>
-  <p>Your data will never be sold. We only share data if required by law or with your permission.</p>
+    <h3>2.2 Communication</h3>
+    <ul>
+      <li>Send system notifications and alerts</li>
+      <li>Provide customer support and technical assistance</li>
+      <li>Share important service updates and security notices</li>
+      <li>Send billing and payment confirmations</li>
+    </ul>
 
-  <h2>5. Your Rights</h2>
-  <p>You can request to access or delete your data by contacting our support team.</p>
+    <h3>2.3 Service Improvement</h3>
+    <ul>
+      <li>Analyze usage patterns to enhance functionality</li>
+      <li>Identify and fix technical issues</li>
+      <li>Develop new features based on user needs</li>
+      <li>Conduct security monitoring and threat detection</li>
+    </ul>
 
-  <footer>
-    Last updated: June 2025<br>
-    © 2025 RahaSoft. All Rights Reserved.
-  </footer>
+    <h2>3. Data Security & Protection</h2>
+    
+    <div class="rights-section">
+      <h3>🔒 Security Measures</h3>
+      <p>We implement comprehensive security measures to protect your data:</p>
+      
+      <div style="margin: 15px 0;">
+        <span class="security-badge">🔐 End-to-End Encryption</span>
+        <span class="security-badge">🛡️ Secure Authentication</span>
+        <span class="security-badge">🔄 Regular Backups</span>
+        <span class="security-badge">📊 Access Monitoring</span>
+      </div>
+      
+      <ul>
+        <li><strong>Data Encryption:</strong> All data is encrypted in transit (TLS 1.3) and at rest (AES-256)</li>
+        <li><strong>Access Controls:</strong> Role-based permissions and multi-factor authentication</li>
+        <li><strong>Infrastructure Security:</strong> Secure cloud hosting with regular security audits</li>
+        <li><strong>Incident Response:</strong> 24/7 monitoring and rapid response to security threats</li>
+        <li><strong>Data Backup:</strong> Multiple backup locations with disaster recovery procedures</li>
+      </ul>
+    </div>
 
+    <h2>4. Data Sharing and Disclosure</h2>
+    
+    <h3>4.1 We DO NOT Sell Your Data</h3>
+    <p>RahaSoft never sells, rents, or trades your personal information to third parties for commercial purposes.</p>
+
+    <h3>4.2 Limited Sharing Scenarios</h3>
+    <p>We may share your information only in these specific circumstances:</p>
+    <ul>
+      <li><strong>Service Providers:</strong> Trusted third-party services that help us operate our platform (hosting, email, analytics) under strict confidentiality agreements</li>
+      <li><strong>Legal Compliance:</strong> When required by law, court order, or government request</li>
+      <li><strong>Business Transfer:</strong> In the event of a merger, acquisition, or sale of assets (with advance notice)</li>
+      <li><strong>Your Consent:</strong> With your explicit permission for specific purposes</li>
+    </ul>
+
+    <h2>5. Data Retention</h2>
+    <p>We retain your data for as long as your account is active or as needed to provide services. Specifically:</p>
+    <ul>
+      <li><strong>Account Data:</strong> Retained while your account is active</li>
+      <li><strong>Business Data:</strong> Retained according to your data retention settings</li>
+      <li><strong>Usage Logs:</strong> Typically retained for 12 months</li>
+      <li><strong>Deleted Data:</strong> Permanently removed within 30 days of deletion request</li>
+    </ul>
+
+    <h2>6. Your Rights and Controls</h2>
+    
+    <div class="rights-section">
+      <h3>🎯 Your Data Rights</h3>
+      <p>You have the following rights regarding your personal data:</p>
+      
+      <ul>
+        <li><strong>Access:</strong> Request a copy of all personal data we hold about you</li>
+        <li><strong>Rectification:</strong> Correct any inaccurate or incomplete information</li>
+        <li><strong>Erasure:</strong> Request deletion of your personal data ("right to be forgotten")</li>
+        <li><strong>Portability:</strong> Export your data in a standard, machine-readable format</li>
+        <li><strong>Restriction:</strong> Limit how we process your data in certain circumstances</li>
+        <li><strong>Objection:</strong> Object to processing based on legitimate interests</li>
+        <li><strong>Withdraw Consent:</strong> Revoke consent for data processing activities</li>
+      </ul>
+      
+      <p><strong>How to Exercise Your Rights:</strong> Contact us at rahasoft.app@gmail.com with your request. We'll respond within 30 days.</p>
+    </div>
+
+    <h2>7. Cookies and Tracking</h2>
+    <p>RahaSoft uses cookies and similar technologies to:</p>
+    <ul>
+      <li>Maintain your login session and preferences</li>
+      <li>Analyze platform usage and performance</li>
+      <li>Improve user experience and functionality</li>
+      <li>Detect and prevent fraudulent activities</li>
+    </ul>
+    <p>You can control cookie settings through your browser preferences.</p>
+
+    <h2>8. International Data Transfers</h2>
+    <p>Your data may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place, including:</p>
+    <ul>
+      <li>Adequacy decisions by data protection authorities</li>
+      <li>Standard contractual clauses approved by regulators</li>
+      <li>Certification schemes and codes of conduct</li>
+    </ul>
+
+    <h2>9. Children's Privacy</h2>
+    <p>RahaSoft is not intended for use by individuals under the age of 16. We do not knowingly collect personal information from children under 16. If we become aware of such data collection, we will delete it immediately.</p>
+
+    <h2>10. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. We will:</p>
+    <ul>
+      <li>Notify you via email of significant changes</li>
+      <li>Post updates on our website with the revision date</li>
+      <li>Give you the opportunity to review changes before they take effect</li>
+    </ul>
+
+    <h2>11. Data Protection Officer</h2>
+    <p>For questions about data protection, privacy concerns, or to exercise your rights, you can contact our Data Protection Officer:</p>
+
+    <div class="contact-info">
+      <h3>📞 Privacy Contact Information</h3>
+      <p><strong>Email:</strong> rahasoft.app@gmail.com</p>
+      <p><strong>Subject Line:</strong> "Privacy Inquiry - [Your Request]"</p>
+      <p><strong>Phone:</strong> +254 701 036 269</p>
+      <p><strong>Response Time:</strong> Within 30 days of receipt</p>
+      <p><strong>Office Hours:</strong> Monday - Friday, 8:00 AM - 6:00 PM EAT</p>
+    </div>
+
+    <h2>12. Regulatory Compliance</h2>
+    <p>RahaSoft complies with applicable data protection laws, including:</p>
+    <ul>
+      <li>Kenya Data Protection Act (DPA) 2019</li>
+      <li>General Data Protection Regulation (GDPR) for EU users</li>
+      <li>California Consumer Privacy Act (CCPA) for California residents</li>
+      <li>Other applicable regional privacy laws</li>
+    </ul>
+
+    <footer>
+      <div class="company-logo">RahaSoft ERP Platform</div>
+      <p>© 2024 RahaSoft. All Rights Reserved.</p>
+      <p>Your Privacy • Our Priority • Secure by Design</p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

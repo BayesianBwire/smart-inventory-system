@@ -1,0 +1,276 @@
+{% extends "founder/base.html" %}
+
+{% block title %}Founder Dashboard - RahaSoft{% endblock %}
+{% block page_title %}Founder Dashboard{% endblock %}
+
+{% block content %}
+<!-- Key Metrics Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Companies -->
+    <div class="metric-card bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Companies</p>
+                <p class="text-3xl font-bold text-gray-900" id="total-companies">{{ total_companies }}</p>
+            </div>
+            <div class="bg-blue-100 rounded-full p-3">
+                <i class="fas fa-building text-blue-600 text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <div class="flex items-center text-sm">
+                <span class="text-green-600 font-medium">+{{ growth_rate }}%</span>
+                <span class="text-gray-600 ml-2">from last month</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Companies -->
+    <div class="metric-card bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Active Companies</p>
+                <p class="text-3xl font-bold text-green-600" id="active-companies">{{ active_companies }}</p>
+            </div>
+            <div class="bg-green-100 rounded-full p-3">
+                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <div class="flex items-center text-sm">
+                <span class="text-gray-600">{{ ((active_companies / total_companies) * 100) | round(1) }}% of total</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Feedback -->
+    <div class="metric-card bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Pending Feedback</p>
+                <p class="text-3xl font-bold text-orange-600" id="pending-feedback">{{ pending_feedback }}</p>
+            </div>
+            <div class="bg-orange-100 rounded-full p-3">
+                <i class="fas fa-comments text-orange-600 text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{{ url_for('founder.feedback') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                View all feedback →
+            </a>
+        </div>
+    </div>
+
+    <!-- Critical Alerts -->
+    <div class="metric-card bg-white rounded-lg shadow p-6 {% if critical_alerts %}alert-critical{% endif %}">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Critical Alerts</p>
+                <p class="text-3xl font-bold text-red-600">{{ critical_alerts | length }}</p>
+            </div>
+            <div class="bg-red-100 rounded-full p-3">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            {% if critical_alerts %}
+                <span class="text-sm text-red-600 font-medium">Requires immediate attention!</span>
+            {% else %}
+                <span class="text-sm text-gray-600">All systems normal</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Charts and Analytics Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Revenue Chart -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Revenue Trend (30 Days)</h3>
+            <div class="text-sm text-gray-600">
+                Total: KES {{ "{:,.2f}".format(payment_data | sum(attribute='total') if payment_data else 0) }}
+            </div>
+        </div>
+        <canvas id="revenueChart" height="200"></canvas>
+    </div>
+
+    <!-- Company Status Distribution -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Company Status Distribution</h3>
+        <canvas id="statusChart" height="200"></canvas>
+        
+        <!-- Legend -->
+        <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+            <div class="flex items-center">
+                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                <span>Active: {{ active_companies }}</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                <span>Suspended: {{ suspended_companies }}</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                <span>Blacklisted: {{ blacklisted_companies }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity and Alerts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Companies -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Recent Companies</h3>
+                <a href="{{ url_for('founder.companies') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                    View all →
+                </a>
+            </div>
+        </div>
+        <div class="p-6">
+            {% if recent_companies %}
+                <div class="space-y-4">
+                    {% for company in recent_companies %}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-building text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">{{ company.name }}</p>
+                                    <p class="text-sm text-gray-600">{{ company.industry or 'Not specified' }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                           {% if company.status == 'active' %}bg-green-100 text-green-800
+                                           {% elif company.status == 'suspended' %}bg-yellow-100 text-yellow-800
+                                           {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ company.status.title() }}
+                                </span>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ company.created_at.strftime('%b %d') }}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-8">No companies yet</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Critical Alerts Detail -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">System Alerts</h3>
+        </div>
+        <div class="p-6">
+            {% if critical_alerts %}
+                <div class="space-y-4">
+                    {% for alert in critical_alerts %}
+                        <div class="border-l-4 border-red-400 bg-red-50 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-red-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-red-800">
+                                        {{ alert.title }}
+                                    </p>
+                                    <p class="text-sm text-red-700 mt-1">
+                                        {{ alert.description }}
+                                    </p>
+                                    <p class="text-xs text-red-600 mt-2">
+                                        {{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-shield-alt text-green-500 text-4xl mb-4"></i>
+                    <p class="text-gray-500">All systems operating normally</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Revenue Chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+const revenueData = {{ payment_data | tojson if payment_data else '[]' }};
+
+new Chart(revenueCtx, {
+    type: 'line',
+    data: {
+        labels: revenueData.map(d => new Date(d.date).toLocaleDateString()),
+        datasets: [{
+            label: 'Daily Revenue (KES)',
+            data: revenueData.map(d => d.total),
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return 'KES ' + value.toLocaleString();
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Status Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Active', 'Suspended', 'Blacklisted'],
+        datasets: [{
+            data: [{{ active_companies }}, {{ suspended_companies }}, {{ blacklisted_companies }}],
+            backgroundColor: [
+                'rgb(34, 197, 94)',
+                'rgb(234, 179, 8)',
+                'rgb(239, 68, 68)'
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

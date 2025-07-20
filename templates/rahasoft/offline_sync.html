@@ -1,0 +1,246 @@
+{% extends "rahasoft/base.html" %}
+
+{% block page_title %}Offline Data Sync{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-sync-alt me-2"></i>Offline Data Synchronization
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-wifi fa-2x text-success" id="connection-status"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Connection Status</h6>
+                                <span class="badge bg-success" id="status-badge">Online</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-clock fa-2x text-info"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Last Sync</h6>
+                                <small class="text-muted">{{ last_sync or 'Never' }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sync Controls -->
+                <div class="mb-4">
+                    <h6>Sync Options</h6>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary" onclick="manualSync()">
+                            <i class="fas fa-sync me-1"></i>Sync Now
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="toggleAutoSync()">
+                            <i class="fas fa-cog me-1"></i>Auto Sync: <span id="auto-sync-status">On</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pending Changes -->
+                <div class="table-responsive">
+                    <h6>Pending Changes <span class="badge bg-warning">{{ pending_changes|length or 0 }}</span></h6>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for change in pending_changes %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-primary">{{ change.operation_type }}</span>
+                                </td>
+                                <td>{{ change.table_name }} - {{ change.record_id }}</td>
+                                <td>{{ change.created_at.strftime('%Y-%m-%d %H:%M') if change.created_at else 'N/A' }}</td>
+                                <td>
+                                    {% if change.sync_status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif change.sync_status == 'synced' %}
+                                        <span class="badge bg-success">Synced</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Failed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No pending changes</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Sync Statistics -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Sync Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Records Synced Today</span>
+                        <strong>{{ sync_stats.today_count or 0 }}</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Total Records</span>
+                        <strong>{{ sync_stats.total_count or 0 }}</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Failed Syncs</span>
+                        <strong class="text-danger">{{ sync_stats.failed_count or 0 }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sync Settings -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Settings</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ csrf_token() }}
+                    <div class="mb-3">
+                        <label class="form-label">Sync Interval (minutes)</label>
+                        <select name="sync_interval" class="form-select">
+                            <option value="5" {% if sync_settings.interval == 5 %}selected{% endif %}>5 minutes</option>
+                            <option value="15" {% if sync_settings.interval == 15 %}selected{% endif %}>15 minutes</option>
+                            <option value="30" {% if sync_settings.interval == 30 %}selected{% endif %}>30 minutes</option>
+                            <option value="60" {% if sync_settings.interval == 60 %}selected{% endif %}>1 hour</option>
+                        </select>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="auto_sync" id="auto_sync" 
+                               {% if sync_settings.auto_sync %}checked{% endif %}>
+                        <label class="form-check-label" for="auto_sync">
+                            Enable Auto Sync
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="wifi_only" id="wifi_only"
+                               {% if sync_settings.wifi_only %}checked{% endif %}>
+                        <label class="form-check-label" for="wifi_only">
+                            Sync only on WiFi
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="syncModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Syncing Data</h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Synchronizing your data with the server...</p>
+                <div class="progress">
+                    <div class="progress-bar" id="sync-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function manualSync() {
+    $('#syncModal').modal('show');
+    
+    fetch('{{ url_for("rahasoft_bp.sync_data") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            setTimeout(() => {
+                $('#syncModal').modal('hide');
+                location.reload();
+            }, 2000);
+        } else {
+            alert('Sync failed: ' + data.message);
+            $('#syncModal').modal('hide');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Sync failed. Please try again.');
+        $('#syncModal').modal('hide');
+    });
+}
+
+function toggleAutoSync() {
+    const currentStatus = document.getElementById('auto-sync-status').textContent;
+    const newStatus = currentStatus === 'On' ? 'Off' : 'On';
+    
+    fetch('{{ url_for("rahasoft_bp.toggle_auto_sync") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ auto_sync: newStatus === 'On' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('auto-sync-status').textContent = newStatus;
+        }
+    });
+}
+
+// Check connection status periodically
+setInterval(() => {
+    if (navigator.onLine) {
+        document.getElementById('connection-status').className = 'fas fa-wifi fa-2x text-success';
+        document.getElementById('status-badge').className = 'badge bg-success';
+        document.getElementById('status-badge').textContent = 'Online';
+    } else {
+        document.getElementById('connection-status').className = 'fas fa-wifi-slash fa-2x text-danger';
+        document.getElementById('status-badge').className = 'badge bg-danger';
+        document.getElementById('status-badge').textContent = 'Offline';
+    }
+}, 5000);
+</script>
+{% endblock %}

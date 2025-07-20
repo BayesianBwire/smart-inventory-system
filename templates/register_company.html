@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-gradient text-white text-center py-4">
+          <i class="fas fa-building fa-3x mb-3"></i>
+          <h2 class="mb-0">{{ _('Register Your Company') }}</h2>
+          <p class="mb-0 opacity-75">{{ _('Set up your business profile to get started') }}</p>
+        </div>
+        
+        <div class="card-body p-5">
+          <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            {{ _('To access the ERP modules, you need to register your company first. You will become the admin of your company.') }}
+          </div>
+
+          <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <div class="row">
+              <div class="col-12 mb-4">
+                <label for="name" class="form-label fw-semibold">
+                  <i class="fas fa-building me-2 text-primary"></i>{{ _('Company Name') }} *
+                </label>
+                {{ form.name(class="form-control form-control-lg") }}
+                {% if form.name.errors %}
+                  <div class="text-danger small mt-1">
+                    {% for error in form.name.errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="col-12 mb-4">
+                <label for="industry" class="form-label fw-semibold">
+                  <i class="fas fa-industry me-2 text-primary"></i>{{ _('Industry') }}
+                </label>
+                {{ form.industry(class="form-select form-select-lg") }}
+                {% if form.industry.errors %}
+                  <div class="text-danger small mt-1">
+                    {% for error in form.industry.errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="col-12 mb-4">
+                <label for="address" class="form-label fw-semibold">
+                  <i class="fas fa-map-marker-alt me-2 text-primary"></i>{{ _('Company Address') }}
+                </label>
+                {{ form.address(class="form-control", rows="3") }}
+                {% if form.address.errors %}
+                  <div class="text-danger small mt-1">
+                    {% for error in form.address.errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6 mb-4">
+                <label for="phone" class="form-label fw-semibold">
+                  <i class="fas fa-phone me-2 text-primary"></i>{{ _('Phone Number') }}
+                </label>
+                {{ form.phone(class="form-control") }}
+                {% if form.phone.errors %}
+                  <div class="text-danger small mt-1">
+                    {% for error in form.phone.errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6 mb-4">
+                <label for="email" class="form-label fw-semibold">
+                  <i class="fas fa-envelope me-2 text-primary"></i>{{ _('Company Email') }}
+                </label>
+                {{ form.email(class="form-control") }}
+                {% if form.email.errors %}
+                  <div class="text-danger small mt-1">
+                    {% for error in form.email.errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+              {{ form.submit(class="btn btn-primary btn-lg") }}
+              <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                {{ _('Back to Dashboard') }}
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.bg-gradient {
+  background: var(--gradient-primary);
+}
+
+.card {
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  border: none;
+  padding: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.alert-info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .card-body {
+    padding: 2rem !important;
+  }
+}
+</style>
+{% endblock %}
