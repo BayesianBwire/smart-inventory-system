@@ -1,0 +1,579 @@
+{% extends "base.html" %}
+
+{% block title %}Chart of Accounts - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .main-container {
+        display: flex;
+        min-height: 100vh;
+    }
+    
+    .sidebar {
+        width: 250px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 0;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+    
+    .sidebar h5 {
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 0 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        padding-bottom: 15px;
+    }
+    
+    .sidebar-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .sidebar-nav li {
+        margin-bottom: 5px;
+    }
+    
+    .sidebar-nav a {
+        display: block;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+        border-left-color: #38ef7d;
+    }
+    
+    .sidebar-nav i {
+        margin-right: 10px;
+        width: 20px;
+    }
+    
+    .content-area {
+        margin-left: 250px;
+        flex: 1;
+        padding: 30px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+    
+    .account-type-section {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+    
+    .account-type-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 25px;
+        border-bottom: none;
+    }
+    
+    .account-type-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .account-type-balance {
+        font-size: 1.5rem;
+        font-weight: bold;
+        opacity: 0.9;
+    }
+    
+    .account-list {
+        padding: 0;
+    }
+    
+    .account-item {
+        border-bottom: 1px solid #edf2f7;
+        padding: 20px 25px;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+    
+    .account-item:last-child {
+        border-bottom: none;
+    }
+    
+    .account-item:hover {
+        background-color: #f7fafc;
+    }
+    
+    .account-info {
+        flex: 1;
+    }
+    
+    .account-code {
+        font-weight: bold;
+        color: #667eea;
+        font-size: 0.9rem;
+    }
+    
+    .account-name {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 5px;
+    }
+    
+    .account-description {
+        color: #718096;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+    
+    .account-meta {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .account-status {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    
+    .status-active {
+        background-color: #c6f6d5;
+        color: #22543d;
+    }
+    
+    .status-inactive {
+        background-color: #fed7d7;
+        color: #742a2a;
+    }
+    
+    .account-balance {
+        text-align: right;
+        min-width: 120px;
+    }
+    
+    .balance-amount {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #2d3748;
+    }
+    
+    .balance-label {
+        color: #718096;
+        font-size: 0.8rem;
+    }
+    
+    .account-actions {
+        display: flex;
+        gap: 8px;
+        margin-left: 15px;
+    }
+    
+    .action-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-edit {
+        background-color: #667eea;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background-color: #5a67d8;
+        color: white;
+    }
+    
+    .btn-deactivate {
+        background-color: #e53e3e;
+        color: white;
+    }
+    
+    .btn-activate {
+        background-color: #38a169;
+        color: white;
+    }
+    
+    .stats-row {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+        border-right: 1px solid #edf2f7;
+    }
+    
+    .stat-item:last-child {
+        border-right: none;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+    
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #cbd5e0;
+        margin-bottom: 20px;
+    }
+    
+    .type-assets .account-type-header {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    }
+    
+    .type-liabilities .account-type-header {
+        background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+    }
+    
+    .type-equity .account-type-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .type-revenue .account-type-header {
+        background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    }
+    
+    .type-expenses .account-type-header {
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h5>💰 Finance & Accounting</h5>
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('finance.dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="{{ url_for('finance.invoices') }}"><i class="fas fa-file-invoice-dollar"></i>Invoices</a></li>
+            <li><a href="{{ url_for('finance.expenses') }}"><i class="fas fa-receipt"></i>Expenses</a></li>
+            <li><a href="{{ url_for('finance.payments') }}"><i class="fas fa-credit-card"></i>Payments</a></li>
+            <li><a href="{{ url_for('finance.accounts') }}" class="active"><i class="fas fa-chart-pie"></i>Chart of Accounts</a></li>
+            <li><a href="{{ url_for('finance.expense_categories') }}"><i class="fas fa-tags"></i>Expense Categories</a></li>
+            <li><a href="{{ url_for('finance.reports') }}"><i class="fas fa-chart-bar"></i>Financial Reports</a></li>
+            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-arrow-left"></i>Back to Main</a></li>
+        </ul>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">📊 Chart of Accounts</h1>
+                <p class="text-muted mb-0">Manage your accounting structure and track account balances</p>
+            </div>
+            <div>
+                <a href="{{ url_for('finance.new_account') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>New Account
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics Row -->
+        <div class="stats-row">
+            <div class="row">
+                <div class="col-md-2 stat-item">
+                    <div class="stat-value text-success">{{ account_counts.get('assets', 0) }}</div>
+                    <div class="stat-label">Assets</div>
+                </div>
+                <div class="col-md-2 stat-item">
+                    <div class="stat-value text-warning">{{ account_counts.get('liabilities', 0) }}</div>
+                    <div class="stat-label">Liabilities</div>
+                </div>
+                <div class="col-md-2 stat-item">
+                    <div class="stat-value text-primary">{{ account_counts.get('equity', 0) }}</div>
+                    <div class="stat-label">Equity</div>
+                </div>
+                <div class="col-md-2 stat-item">
+                    <div class="stat-value text-info">{{ account_counts.get('revenue', 0) }}</div>
+                    <div class="stat-label">Revenue</div>
+                </div>
+                <div class="col-md-2 stat-item">
+                    <div class="stat-value text-danger">{{ account_counts.get('expenses', 0) }}</div>
+                    <div class="stat-label">Expenses</div>
+                </div>
+                <div class="col-md-2 stat-item">
+                    <div class="stat-value text-dark">{{ total_accounts }}</div>
+                    <div class="stat-label">Total Accounts</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <form method="GET" class="row align-items-end">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Search Accounts</label>
+                    <input type="text" name="search" value="{{ search_term }}" 
+                           class="form-control" placeholder="Account name, code, description...">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Account Type</label>
+                    <select name="account_type" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="assets" {% if account_type == 'assets' %}selected{% endif %}>Assets</option>
+                        <option value="liabilities" {% if account_type == 'liabilities' %}selected{% endif %}>Liabilities</option>
+                        <option value="equity" {% if account_type == 'equity' %}selected{% endif %}>Equity</option>
+                        <option value="revenue" {% if account_type == 'revenue' %}selected{% endif %}>Revenue</option>
+                        <option value="expenses" {% if account_type == 'expenses' %}selected{% endif %}>Expenses</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                    <a href="{{ url_for('finance.accounts') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Account Types -->
+        {% if accounts_by_type %}
+            {% for account_type, type_accounts in accounts_by_type.items() %}
+            <div class="account-type-section type-{{ account_type }}">
+                <div class="account-type-header">
+                    <div class="account-type-title">
+                        <span>
+                            {% if account_type == 'assets' %}🏦 Assets
+                            {% elif account_type == 'liabilities' %}📋 Liabilities
+                            {% elif account_type == 'equity' %}💎 Equity
+                            {% elif account_type == 'revenue' %}💰 Revenue
+                            {% elif account_type == 'expenses' %}💸 Expenses
+                            {% endif %}
+                        </span>
+                        <span class="account-type-balance">
+                            ${{ "%.2f"|format(type_balances.get(account_type, 0)) }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="account-list">
+                    {% for account in type_accounts %}
+                    <div class="account-item">
+                        <div class="account-info">
+                            <div class="account-code">{{ account.account_code }}</div>
+                            <div class="account-name">{{ account.account_name }}</div>
+                            {% if account.description %}
+                                <div class="account-description">{{ account.description }}</div>
+                            {% endif %}
+                            <div class="account-meta">
+                                <span class="account-status status-{{ account.is_active|lower }}">
+                                    {% if account.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                                {% if account.parent_account %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-level-up-alt"></i>
+                                        Parent: {{ account.parent_account.account_name }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="account-balance">
+                            <div class="balance-amount">${{ "%.2f"|format(account.current_balance) }}</div>
+                            <div class="balance-label">Current Balance</div>
+                        </div>
+                        
+                        <div class="account-actions">
+                            <a href="{{ url_for('finance.account_detail', id=account.id) }}" 
+                               class="action-btn btn-edit">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="{{ url_for('finance.edit_account', id=account.id) }}" 
+                               class="action-btn btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            {% if account.is_active %}
+                                <button type="button" class="action-btn btn-deactivate" 
+                                        onclick="toggleAccountStatus({{ account.id }}, false)">
+                                    <i class="fas fa-eye-slash"></i> Deactivate
+                                </button>
+                            {% else %}
+                                <button type="button" class="action-btn btn-activate" 
+                                        onclick="toggleAccountStatus({{ account.id }}, true)">
+                                    <i class="fas fa-eye"></i> Activate
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-chart-pie"></i>
+                <h5 class="text-muted mb-3">No Chart of Accounts Set Up</h5>
+                <p class="text-muted mb-4">
+                    Create your first accounts to start organizing your financial data.<br>
+                    We recommend starting with basic asset, liability, and equity accounts.
+                </p>
+                <a href="{{ url_for('finance.setup_default_accounts') }}" class="btn btn-success me-3">
+                    <i class="fas fa-magic me-2"></i>Setup Default Accounts
+                </a>
+                <a href="{{ url_for('finance.new_account') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Account Manually
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Account Status Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Account Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="statusModalText">Are you sure you want to change this account's status?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Note:</strong> Deactivating an account will prevent new transactions but preserve historical data.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmStatusChange()">Confirm Change</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentAccountId = null;
+let newStatus = null;
+
+function toggleAccountStatus(accountId, activate) {
+    currentAccountId = accountId;
+    newStatus = activate;
+    
+    const actionText = activate ? 'activate' : 'deactivate';
+    document.getElementById('statusModalText').textContent = 
+        `Are you sure you want to ${actionText} this account?`;
+    
+    new bootstrap.Modal(document.getElementById('statusModal')).show();
+}
+
+function confirmStatusChange() {
+    if (!currentAccountId || newStatus === null) return;
+    
+    const formData = new FormData();
+    formData.append('is_active', newStatus);
+    
+    fetch(`/finance/accounts/${currentAccountId}/status`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
+            location.reload();
+        } else {
+            alert('Error changing account status');
+        }
+    })
+    .catch(error => {
+        alert('Network error');
+    });
+}
+
+// Auto-submit form when filters change
+document.querySelectorAll('select[name="account_type"], select[name="status"]').forEach(select => {
+    select.addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+
+// Expand/collapse account sections
+document.querySelectorAll('.account-type-header').forEach(header => {
+    header.style.cursor = 'pointer';
+    header.addEventListener('click', function() {
+        const accountList = this.nextElementSibling;
+        const isVisible = accountList.style.display !== 'none';
+        
+        accountList.style.display = isVisible ? 'none' : 'block';
+        
+        // Add animation class
+        if (!isVisible) {
+            accountList.style.maxHeight = '0';
+            accountList.style.overflow = 'hidden';
+            accountList.style.transition = 'max-height 0.3s ease';
+            setTimeout(() => {
+                accountList.style.maxHeight = accountList.scrollHeight + 'px';
+            }, 10);
+        }
+    });
+});
+</script>
+{% endblock %}

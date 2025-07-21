@@ -1,0 +1,480 @@
+{% extends "base.html" %}
+
+{% block title %}Invoices - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .invoice-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+    
+    .invoice-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .filter-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+        border: none;
+        margin-bottom: 30px;
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: none;
+        margin-bottom: 30px;
+    }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        border-radius: 25px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-draft {
+        background-color: #e9ecef;
+        color: #6c757d;
+    }
+    
+    .status-sent {
+        background-color: #cff4fc;
+        color: #055160;
+    }
+    
+    .status-paid {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .status-overdue {
+        background-color: #f8d7da;
+        color: #842029;
+    }
+    
+    .status-cancelled {
+        background-color: #f1f3f4;
+        color: #5f6368;
+    }
+    
+    .invoice-amount {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #2d3748;
+    }
+    
+    .invoice-number {
+        font-weight: bold;
+        color: #667eea;
+        text-decoration: none;
+    }
+    
+    .invoice-number:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+    
+    .customer-name {
+        color: #4a5568;
+        font-weight: 500;
+    }
+    
+    .invoice-date {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+    
+    .due-date {
+        font-size: 0.9rem;
+    }
+    
+    .due-date.overdue {
+        color: #e53e3e;
+        font-weight: bold;
+    }
+    
+    .due-date.due-soon {
+        color: #d69e2e;
+        font-weight: bold;
+    }
+    
+    .action-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin-right: 5px;
+    }
+    
+    .btn-view {
+        background-color: #667eea;
+        color: white;
+    }
+    
+    .btn-view:hover {
+        background-color: #5a67d8;
+        color: white;
+    }
+    
+    .btn-edit {
+        background-color: #38b2ac;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background-color: #319795;
+        color: white;
+    }
+    
+    .btn-send {
+        background-color: #48bb78;
+        color: white;
+    }
+    
+    .btn-send:hover {
+        background-color: #38a169;
+        color: white;
+    }
+    
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .search-input {
+        border-radius: 25px;
+        border: 2px solid #e2e8f0;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .table thead th {
+        background-color: #f8f9fa;
+        border: none;
+        font-weight: 600;
+        color: #2d3748;
+        padding: 20px 15px;
+    }
+    
+    .table tbody td {
+        border: none;
+        padding: 20px 15px;
+        vertical-align: middle;
+    }
+    
+    .table tbody tr {
+        border-bottom: 1px solid #edf2f7;
+        transition: background-color 0.3s ease;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .pagination-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-top: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">📋 Invoices</h1>
+                    <p class="text-muted mb-0">Manage customer invoices and billing</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('finance.new_invoice') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>New Invoice
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="stats-card">
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div class="border-end">
+                        <h4 class="text-primary mb-1">{{ total_invoices }}</h4>
+                        <p class="text-muted mb-0">Total Invoices</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border-end">
+                        <h4 class="text-success mb-1">${{ "%.2f"|format(total_amount) }}</h4>
+                        <p class="text-muted mb-0">Total Amount</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h4 class="text-info mb-1">${{ "%.2f"|format(total_paid) }}</h4>
+                    <p class="text-muted mb-0">Total Paid</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+        <form method="GET" class="row align-items-end">
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Search</label>
+                <input type="text" name="search" value="{{ search_term }}" 
+                       class="form-control search-input" 
+                       placeholder="Invoice number, customer name...">
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label fw-bold">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="draft" {% if status == 'draft' %}selected{% endif %}>Draft</option>
+                    <option value="sent" {% if status == 'sent' %}selected{% endif %}>Sent</option>
+                    <option value="paid" {% if status == 'paid' %}selected{% endif %}>Paid</option>
+                    <option value="overdue" {% if status == 'overdue' %}selected{% endif %}>Overdue</option>
+                    <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label fw-bold">From Date</label>
+                <input type="date" name="date_from" value="{{ date_from }}" class="form-control">
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label fw-bold">To Date</label>
+                <input type="date" name="date_to" value="{{ date_to }}" class="form-control">
+            </div>
+            <div class="col-md-3 mb-3">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+                <a href="{{ url_for('finance.invoices') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Invoices Table -->
+    <div class="table-container">
+        {% if invoices.items %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Due Date</th>
+                            <th>Amount</th>
+                            <th>Paid</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices.items %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('finance.invoice_detail', id=invoice.id) }}" 
+                                   class="invoice-number">
+                                    {{ invoice.invoice_number }}
+                                </a>
+                            </td>
+                            <td>
+                                <div class="customer-name">{{ invoice.billing_name }}</div>
+                                {% if invoice.billing_email %}
+                                    <small class="text-muted">{{ invoice.billing_email }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="invoice-date">
+                                    {{ invoice.invoice_date.strftime('%Y-%m-%d') }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="due-date {% if invoice.is_overdue %}overdue{% elif (invoice.due_date - date.today()).days <= 3 and invoice.status != 'paid' %}due-soon{% endif %}">
+                                    {{ invoice.due_date.strftime('%Y-%m-%d') }}
+                                    {% if invoice.is_overdue and invoice.status != 'paid' %}
+                                        <br><small>({{ invoice.days_overdue }} days overdue)</small>
+                                    {% elif (invoice.due_date - date.today()).days <= 3 and invoice.status != 'paid' %}
+                                        <br><small>(Due in {{ (invoice.due_date - date.today()).days }} days)</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="invoice-amount">${{ "%.2f"|format(invoice.total_amount) }}</div>
+                            </td>
+                            <td>
+                                <div class="text-success fw-bold">${{ "%.2f"|format(invoice.paid_amount) }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold {% if invoice.balance_due > 0 %}text-warning{% else %}text-success{% endif %}">
+                                    ${{ "%.2f"|format(invoice.balance_due) }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ invoice.status }}">
+                                    {{ invoice.status.title() }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('finance.invoice_detail', id=invoice.id) }}" 
+                                       class="action-btn btn-view" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if invoice.status == 'draft' %}
+                                        <a href="{{ url_for('finance.edit_invoice', id=invoice.id) }}" 
+                                           class="action-btn btn-edit" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="POST" action="{{ url_for('finance.send_invoice', id=invoice.id) }}" 
+                                              style="display: inline-block;">
+                                            <button type="submit" class="action-btn btn-send" title="Send">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    {% if invoice.balance_due > 0 and invoice.status in ['sent', 'overdue'] %}
+                                        <a href="{{ url_for('finance.new_payment', invoice_id=invoice.id) }}" 
+                                           class="action-btn btn-success" title="Record Payment">
+                                            <i class="fas fa-credit-card"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No invoices found</h5>
+                <p class="text-muted">Create your first invoice to get started with billing.</p>
+                <a href="{{ url_for('finance.new_invoice') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Invoice
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if invoices.pages > 1 %}
+    <div class="pagination-container">
+        <nav aria-label="Invoice pagination">
+            <ul class="pagination justify-content-center mb-0">
+                {% if invoices.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('finance.invoices', page=invoices.prev_num, status=status, search=search_term, date_from=date_from, date_to=date_to) }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in invoices.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != invoices.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('finance.invoices', page=page_num, status=status, search=search_term, date_from=date_from, date_to=date_to) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if invoices.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('finance.invoices', page=invoices.next_num, status=status, search=search_term, date_from=date_from, date_to=date_to) }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                Showing {{ invoices.per_page * (invoices.page - 1) + 1 }} to 
+                {{ invoices.per_page * (invoices.page - 1) + invoices.items|length }} of 
+                {{ invoices.total }} invoices
+            </small>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit form when status filter changes
+    document.querySelector('select[name="status"]').addEventListener('change', function() {
+        this.form.submit();
+    });
+    
+    // Confirm before sending invoice
+    document.querySelectorAll('form[action*="send_invoice"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            if (!confirm('Are you sure you want to send this invoice? This action cannot be undone.')) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    // Add tooltip for action buttons
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

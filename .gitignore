@@ -2,9 +2,14 @@
 venv/
 env/
 .env
+.venv
+ENV/
+env.bak/
+venv.bak/
 
 # VS Code
 .vscode/
+.idea/
 
 # Python cache
 __pycache__/
@@ -13,20 +18,54 @@ __pycache__/
 *.pyd
 .Python
 *.so
+*.py[cod]
+*$py.class
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Database
 *.db
+*.sqlite
+*.sqlite3
 instance/
 
 # Logs
 *.log
+logs/
 
 # Testing
 .pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+test_*.py
+*_test.py
 
 # OS files
 .DS_Store
 Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 
 # Backup files
 *.bak
+*.tmp
+*.temp
+
+# Enterprise development files
+test_enterprise.db
+redis-dump.rdb
+verify_enterprise_readiness.py
+
+# Flask
+.webassets-cache
+
+# Jupyter Notebook
+.ipynb_checkpoints

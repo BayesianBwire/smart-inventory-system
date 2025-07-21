@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Setup Two-Factor Authentication - RahaSoft ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-xl-6 col-lg-8 col-md-10">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <div class="text-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-shield-alt"></i> Setup Two-Factor Authentication
+                        </h4>
+                        <p class="mb-0">Secure your account with an additional layer of protection</p>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Setup Steps -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <div class="step-item active">
+                                    <div class="step-number">1</div>
+                                    <div class="step-text">Install App</div>
+                                </div>
+                                <div class="step-item active">
+                                    <div class="step-number">2</div>
+                                    <div class="step-text">Scan QR Code</div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-number">3</div>
+                                    <div class="step-text">Verify</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Install Authenticator App -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-mobile-alt"></i> Step 1: Install an Authenticator App</h6>
+                        <p class="mb-2">Download and install one of these authenticator apps on your mobile device:</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fab fa-google"></i> Google Authenticator</li>
+                                    <li><i class="fas fa-shield-alt"></i> Authy</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fab fa-microsoft"></i> Microsoft Authenticator</li>
+                                    <li><i class="fas fa-lock"></i> 1Password</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: QR Code -->
+                    <div class="text-center mb-4">
+                        <h6><i class="fas fa-qrcode"></i> Step 2: Scan QR Code</h6>
+                        <p class="text-muted">Open your authenticator app and scan this QR code:</p>
+                        
+                        <div class="qr-code-container mb-3">
+                            <img src="data:image/png;base64,{{ qr_code }}" alt="2FA QR Code" class="img-fluid border rounded" style="max-width: 200px;">
+                        </div>
+
+                        <!-- Manual Entry Option -->
+                        <div class="collapse" id="manualEntry">
+                            <div class="alert alert-secondary">
+                                <h6>Manual Entry</h6>
+                                <p>If you can't scan the QR code, enter this key manually:</p>
+                                <code class="user-select-all">{{ manual_key }}</code>
+                                <br><small class="text-muted">Account: {{ current_user.email }}</small>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#manualEntry">
+                            <i class="fas fa-keyboard"></i> Can't scan? Enter manually
+                        </button>
+                    </div>
+
+                    <!-- Step 3: Verification Form -->
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="form-group">
+                            <h6><i class="fas fa-check-circle"></i> Step 3: Verify Setup</h6>
+                            <p class="text-muted">Enter the 6-digit code from your authenticator app:</p>
+                            
+                            {{ form.token.label(class="form-label") }}
+                            {{ form.token(class="form-control form-control-lg text-center", placeholder="000000", maxlength="6", style="letter-spacing: 0.5em; font-family: monospace;") }}
+                            
+                            {% if form.token.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.token.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-check"></i> Enable Two-Factor Authentication
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Security Notice -->
+                    <div class="alert alert-warning mt-4">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Important Security Notice</h6>
+                        <ul class="mb-0">
+                            <li>Keep your authenticator app and backup codes in a safe place</li>
+                            <li>You'll need your authenticator app to log in to your account</li>
+                            <li>Backup codes will be provided after successful setup</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card-footer text-center">
+                    <a href="{{ url_for('security.security_dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Security Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.step-item {
+    text-align: center;
+    flex: 1;
+    position: relative;
+}
+
+.step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    right: -50%;
+    width: 100%;
+    height: 2px;
+    background-color: #e3e6f0;
+    z-index: -1;
+}
+
+.step-item.active:not(:last-child)::after {
+    background-color: #4e73df;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #e3e6f0;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 5px auto;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.step-item.active .step-number {
+    background-color: #4e73df;
+    color: white;
+}
+
+.step-text {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.step-item.active .step-text {
+    color: #4e73df;
+}
+
+.qr-code-container {
+    padding: 20px;
+    background-color: #f8f9fc;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.user-select-all {
+    user-select: all;
+    -webkit-user-select: all;
+    -moz-user-select: all;
+    -ms-user-select: all;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // Auto-focus on token input
+    $('#token').focus();
+    
+    // Format token input (add spaces for readability)
+    $('#token').on('input', function() {
+        let value = $(this).val().replace(/\s/g, '');
+        if (value.length === 6) {
+            // Auto-submit when 6 digits are entered
+            setTimeout(function() {
+                $('form').submit();
+            }, 500);
+        }
+    });
+    
+    // Copy manual key to clipboard
+    $('.user-select-all').on('click', function() {
+        const text = $(this).text();
+        navigator.clipboard.writeText(text).then(function() {
+            // Show temporary feedback
+            const original = $('.user-select-all').parent().find('small').text();
+            $('.user-select-all').parent().find('small').text('Copied to clipboard!').addClass('text-success');
+            setTimeout(function() {
+                $('.user-select-all').parent().find('small').text(original).removeClass('text-success');
+            }, 2000);
+        });
+    });
+});
+</script>
+{% endblock %}

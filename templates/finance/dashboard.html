@@ -1,0 +1,533 @@
+{% extends "base.html" %}
+
+{% block title %}Finance Dashboard - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 15px;
+        color: white;
+        transition: transform 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+    
+    .metric-card.revenue {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    
+    .metric-card.expenses {
+        background: linear-gradient(135deg, #fd746c 0%, #ff9068 100%);
+    }
+    
+    .metric-card.outstanding {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .metric-card.overdue {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .quick-actions {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 20px;
+    }
+    
+    .action-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        padding: 15px 25px;
+        text-decoration: none;
+        display: inline-block;
+        margin: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .recent-transactions {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .transaction-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eef2f7;
+        transition: background-color 0.3s ease;
+    }
+    
+    .transaction-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .transaction-item:last-child {
+        border-bottom: none;
+    }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+    
+    .status-paid {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-overdue {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .status-draft {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">💰 Finance Dashboard</h1>
+                    <p class="text-muted mb-0">Manage your financial operations and track performance</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('finance.new_invoice') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-file-invoice"></i> New Invoice
+                    </a>
+                    <a href="{{ url_for('finance.new_expense') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-receipt"></i> Record Expense
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card revenue h-100">
+                <div class="card-body text-center">
+                    <div class="metric-value">${{ "%.2f"|format(total_revenue) }}</div>
+                    <div class="metric-label">Total Revenue</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card expenses h-100">
+                <div class="card-body text-center">
+                    <div class="metric-value">${{ "%.2f"|format(total_expenses) }}</div>
+                    <div class="metric-label">Total Expenses</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card outstanding h-100">
+                <div class="card-body text-center">
+                    <div class="metric-value">${{ "%.2f"|format(outstanding_invoices) }}</div>
+                    <div class="metric-label">Outstanding Invoices</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card overdue h-100">
+                <div class="card-body text-center">
+                    <div class="metric-value">{{ overdue_invoices }}</div>
+                    <div class="metric-label">Overdue Invoices</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="chart-container">
+                <h5 class="mb-3">
+                    <i class="fas fa-chart-line text-primary me-2"></i>
+                    Revenue Trend (Last 12 Months)
+                </h5>
+                <canvas id="revenueChart" height="100"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="chart-container">
+                <h5 class="mb-3">
+                    <i class="fas fa-chart-pie text-primary me-2"></i>
+                    Expense Categories
+                </h5>
+                <canvas id="expenseChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions and Quick Payment -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="quick-actions">
+                <h5 class="mb-3">
+                    <i class="fas fa-bolt text-primary me-2"></i>
+                    Quick Actions
+                </h5>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('finance.invoices') }}" class="action-btn w-100 text-center">
+                            <i class="fas fa-file-invoice-dollar d-block mb-2"></i>
+                            View Invoices
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('finance.expenses') }}" class="action-btn w-100 text-center">
+                            <i class="fas fa-receipt d-block mb-2"></i>
+                            View Expenses
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('finance.payments') }}" class="action-btn w-100 text-center">
+                            <i class="fas fa-credit-card d-block mb-2"></i>
+                            View Payments
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('finance.reports') }}" class="action-btn w-100 text-center">
+                            <i class="fas fa-chart-bar d-block mb-2"></i>
+                            Financial Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="quick-actions">
+                <h5 class="mb-3">
+                    <i class="fas fa-zap text-primary me-2"></i>
+                    Quick Payment
+                </h5>
+                <form id="quickPaymentForm">
+                    {{ quick_payment_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ quick_payment_form.invoice_id.label(class="form-label") }}
+                        {{ quick_payment_form.invoice_id(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ quick_payment_form.amount.label(class="form-label") }}
+                        {{ quick_payment_form.amount(class="form-control", step="0.01") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ quick_payment_form.payment_method.label(class="form-label") }}
+                        {{ quick_payment_form.payment_method(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ quick_payment_form.payment_date.label(class="form-label") }}
+                        {{ quick_payment_form.payment_date(class="form-control") }}
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-check me-2"></i>Record Payment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="recent-transactions">
+                <div class="p-3 border-bottom">
+                    <h6 class="mb-0">
+                        <i class="fas fa-file-invoice text-primary me-2"></i>
+                        Recent Invoices
+                    </h6>
+                </div>
+                {% for invoice in recent_invoices %}
+                <div class="transaction-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold">{{ invoice.invoice_number }}</div>
+                            <small class="text-muted">{{ invoice.billing_name }}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">${{ "%.2f"|format(invoice.total_amount) }}</div>
+                            <span class="status-badge status-{{ invoice.status }}">{{ invoice.status.title() }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="p-3 text-center">
+                    <a href="{{ url_for('finance.invoices') }}" class="btn btn-sm btn-outline-primary">
+                        View All Invoices
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="recent-transactions">
+                <div class="p-3 border-bottom">
+                    <h6 class="mb-0">
+                        <i class="fas fa-receipt text-primary me-2"></i>
+                        Recent Expenses
+                    </h6>
+                </div>
+                {% for expense in recent_expenses %}
+                <div class="transaction-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold">{{ expense.description[:30] }}...</div>
+                            <small class="text-muted">{{ expense.expense_date.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">${{ "%.2f"|format(expense.amount) }}</div>
+                            <span class="status-badge status-{{ expense.status }}">{{ expense.status.title() }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="p-3 text-center">
+                    <a href="{{ url_for('finance.expenses') }}" class="btn btn-sm btn-outline-primary">
+                        View All Expenses
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="recent-transactions">
+                <div class="p-3 border-bottom">
+                    <h6 class="mb-0">
+                        <i class="fas fa-credit-card text-primary me-2"></i>
+                        Recent Payments
+                    </h6>
+                </div>
+                {% for payment in recent_payments %}
+                <div class="transaction-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold">{{ payment.payment_number }}</div>
+                            <small class="text-muted">{{ payment.payment_method.replace('_', ' ').title() }}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">${{ "%.2f"|format(payment.amount) }}</div>
+                            <small class="text-muted">{{ payment.payment_date.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="p-3 text-center">
+                    <a href="{{ url_for('finance.payments') }}" class="btn btn-sm btn-outline-primary">
+                        View All Payments
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load dashboard metrics and render charts
+    fetch('{{ url_for("finance.api_dashboard_metrics") }}')
+        .then(response => response.json())
+        .then(data => {
+            renderRevenueChart(data.monthly_revenue);
+            renderExpenseChart(data.expense_categories);
+        })
+        .catch(error => console.error('Error loading dashboard metrics:', error));
+    
+    // Quick Payment Form Handler
+    document.getElementById('quickPaymentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        submitBtn.disabled = true;
+        
+        fetch('{{ url_for("finance.quick_payment") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                this.reset();
+                // Refresh the page to update metrics
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showAlert('error', 'Error recording payment. Please check all fields.');
+            }
+        })
+        .catch(error => {
+            showAlert('error', 'Network error. Please try again.');
+        })
+        .finally(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+});
+
+function renderRevenueChart(monthlyData) {
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthlyData.map(item => {
+                const date = new Date(item.month + '-01');
+                return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            }),
+            datasets: [{
+                label: 'Revenue',
+                data: monthlyData.map(item => item.revenue),
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#667eea',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            elements: {
+                point: {
+                    hoverRadius: 8
+                }
+            }
+        }
+    });
+}
+
+function renderExpenseChart(categoryData) {
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+    
+    const colors = [
+        '#fd746c', '#ff9068', '#f093fb', '#f5576c',
+        '#4facfe', '#00f2fe', '#43e97b', '#38f9d7'
+    ];
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: categoryData.map(item => item.category),
+            datasets: [{
+                data: categoryData.map(item => item.amount),
+                backgroundColor: colors.slice(0, categoryData.length),
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+}
+
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

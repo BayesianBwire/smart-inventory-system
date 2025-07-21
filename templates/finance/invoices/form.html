@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+    
+    .form-body {
+        padding: 40px;
+    }
+    
+    .section-title {
+        color: #2d3748;
+        font-weight: 600;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 8px;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-control.is-invalid {
+        border-color: #e53e3e;
+    }
+    
+    .invalid-feedback {
+        color: #e53e3e;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 15px 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+        background: #718096;
+        border: none;
+        border-radius: 10px;
+        padding: 15px 30px;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #4a5568;
+        color: white;
+    }
+    
+    .billing-section {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 25px 0;
+    }
+    
+    .invoice-details {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border-radius: 15px;
+        padding: 25px;
+        color: white;
+        margin: 25px 0;
+    }
+    
+    .amount-section {
+        background: #fff5f5;
+        border: 2px solid #feb2b2;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 25px 0;
+    }
+    
+    .help-text {
+        font-size: 0.875rem;
+        color: #718096;
+        margin-top: 5px;
+    }
+    
+    .currency-input {
+        position: relative;
+    }
+    
+    .currency-symbol {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #718096;
+        font-weight: bold;
+    }
+    
+    .currency-input input {
+        padding-left: 35px;
+    }
+    
+    .required {
+        color: #e53e3e;
+    }
+    
+    .card-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .text-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">{{ title }}</h1>
+                    <p class="text-muted mb-0">Create and manage customer invoices</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('finance.invoices') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Invoices
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="form-container">
+                <div class="form-header">
+                    <h3 class="mb-0">
+                        <i class="fas fa-file-invoice-dollar me-3"></i>
+                        {{ title }}
+                    </h3>
+                    <p class="mb-0 opacity-75">Complete the form below to create a professional invoice</p>
+                </div>
+                
+                <div class="form-body">
+                    <form method="POST" id="invoiceForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Customer Selection -->
+                        <div class="section-title">
+                            <i class="fas fa-user me-2"></i>Customer Information
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.customer_id.label(class="form-label") }}
+                                    {{ form.customer_id(class="form-select") }}
+                                    {% if form.customer_id.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.customer_id.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.opportunity_id.label(class="form-label") }}
+                                    {{ form.opportunity_id(class="form-select") }}
+                                    <div class="help-text">Link this invoice to a specific opportunity</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Invoice Details -->
+                        <div class="invoice-details">
+                            <div class="section-title text-white border-bottom-0">
+                                <i class="fas fa-file-alt me-2"></i>Invoice Details
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.invoice_number.label(class="form-label text-white") }}
+                                        {{ form.invoice_number(class="form-control", placeholder="Auto-generated if left blank") }}
+                                        <div class="help-text text-white-50">Leave blank for auto-generation</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.invoice_date.label(class="form-label text-white") }}
+                                        <span class="required">*</span>
+                                        {{ form.invoice_date(class="form-control" + (" is-invalid" if form.invoice_date.errors else "")) }}
+                                        {% if form.invoice_date.errors %}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.invoice_date.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.due_date.label(class="form-label text-white") }}
+                                        <span class="required">*</span>
+                                        {{ form.due_date(class="form-control" + (" is-invalid" if form.due_date.errors else "")) }}
+                                        {% if form.due_date.errors %}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.due_date.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.payment_terms.label(class="form-label text-white") }}
+                                        {{ form.payment_terms(class="form-select") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.currency.label(class="form-label text-white") }}
+                                        {{ form.currency(class="form-select") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Billing Information -->
+                        <div class="billing-section">
+                            <div class="section-title">
+                                <i class="fas fa-address-card me-2"></i>Billing Information
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.billing_name.label(class="form-label") }}
+                                        <span class="required">*</span>
+                                        {{ form.billing_name(class="form-control" + (" is-invalid" if form.billing_name.errors else ""), placeholder="Company or Individual Name") }}
+                                        {% if form.billing_name.errors %}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.billing_name.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.billing_email.label(class="form-label") }}
+                                        {{ form.billing_email(class="form-control", placeholder="customer@example.com") }}
+                                        {% if form.billing_email.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.billing_email.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        {{ form.billing_address.label(class="form-label") }}
+                                        {{ form.billing_address(class="form-control", rows="3", placeholder="Street address") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.billing_city.label(class="form-label") }}
+                                        {{ form.billing_city(class="form-control", placeholder="City") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.billing_state.label(class="form-label") }}
+                                        {{ form.billing_state(class="form-control", placeholder="State/Province") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.billing_country.label(class="form-label") }}
+                                        {{ form.billing_country(class="form-control", placeholder="Country") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.billing_postal_code.label(class="form-label") }}
+                                        {{ form.billing_postal_code(class="form-control", placeholder="Postal Code") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Amounts Section -->
+                        <div class="amount-section">
+                            <div class="section-title">
+                                <i class="fas fa-calculator me-2"></i>Amount Details
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.tax_amount.label(class="form-label") }}
+                                        <div class="currency-input">
+                                            <span class="currency-symbol">$</span>
+                                            {{ form.tax_amount(class="form-control", step="0.01", placeholder="0.00") }}
+                                        </div>
+                                        <div class="help-text">Tax amount to be added</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.discount_amount.label(class="form-label") }}
+                                        <div class="currency-input">
+                                            <span class="currency-symbol">$</span>
+                                            {{ form.discount_amount(class="form-control", step="0.01", placeholder="0.00") }}
+                                        </div>
+                                        <div class="help-text">Discount amount to be deducted</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.reference_number.label(class="form-label") }}
+                                        {{ form.reference_number(class="form-control", placeholder="PO-12345") }}
+                                        <div class="help-text">Purchase order or reference number</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes Section -->
+                        <div class="section-title">
+                            <i class="fas fa-sticky-note me-2"></i>Additional Information
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.notes.label(class="form-label") }}
+                                    {{ form.notes(class="form-control", rows="4", placeholder="Payment instructions, terms, or notes for the customer...") }}
+                                    <div class="help-text">These notes will be visible to the customer</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.internal_notes.label(class="form-label") }}
+                                    {{ form.internal_notes(class="form-control", rows="4", placeholder="Internal notes for your team...") }}
+                                    <div class="help-text">These notes are for internal use only</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                            <a href="{{ url_for('finance.invoices') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    {% if invoice %}Update Invoice{% else %}Create Invoice{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-calculate due date based on payment terms
+    const invoiceDateField = document.getElementById('invoice_date');
+    const dueDateField = document.getElementById('due_date');
+    const paymentTermsField = document.getElementById('payment_terms');
+    
+    function calculateDueDate() {
+        const invoiceDate = new Date(invoiceDateField.value);
+        const paymentTerms = paymentTermsField.value;
+        
+        if (invoiceDate && paymentTerms) {
+            let daysToAdd = 0;
+            
+            switch(paymentTerms) {
+                case 'due_on_receipt':
+                    daysToAdd = 0;
+                    break;
+                case 'net_15':
+                    daysToAdd = 15;
+                    break;
+                case 'net_30':
+                    daysToAdd = 30;
+                    break;
+                case 'net_45':
+                    daysToAdd = 45;
+                    break;
+                case 'net_60':
+                    daysToAdd = 60;
+                    break;
+            }
+            
+            const dueDate = new Date(invoiceDate);
+            dueDate.setDate(dueDate.getDate() + daysToAdd);
+            
+            dueDateField.value = dueDate.toISOString().split('T')[0];
+        }
+    }
+    
+    // Auto-populate billing info when customer is selected
+    const customerField = document.getElementById('customer_id');
+    if (customerField) {
+        customerField.addEventListener('change', function() {
+            if (this.value) {
+                // You could make an AJAX call here to fetch customer details
+                // and populate billing fields automatically
+                console.log('Customer selected:', this.value);
+            }
+        });
+    }
+    
+    // Set up event listeners
+    if (invoiceDateField && dueDateField && paymentTermsField) {
+        invoiceDateField.addEventListener('change', calculateDueDate);
+        paymentTermsField.addEventListener('change', calculateDueDate);
+    }
+    
+    // Form validation
+    document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+        let isValid = true;
+        const requiredFields = this.querySelectorAll('[required]');
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            showAlert('error', 'Please fill in all required fields.');
+        }
+    });
+    
+    // Currency symbol update
+    const currencyField = document.getElementById('currency');
+    if (currencyField) {
+        currencyField.addEventListener('change', function() {
+            const symbols = {
+                'USD': '$',
+                'EUR': '€',
+                'KES': 'KSh'
+            };
+            
+            const currencySymbols = document.querySelectorAll('.currency-symbol');
+            currencySymbols.forEach(symbol => {
+                symbol.textContent = symbols[this.value] || '$';
+            });
+        });
+    }
+});
+
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

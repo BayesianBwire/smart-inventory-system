@@ -37,17 +37,27 @@ from models.user import User
 from models.sale import Sale
 from models.contact import Contact  # Add Contact model import
 from models.crm import Lead, Customer, Opportunity, CRMActivity, CRMTask, CRMNote  # Add CRM model imports
+# Import Finance models
+from models.finance import (ChartOfAccounts, Invoice, InvoiceItem, Payment, Expense, 
+                           ExpenseCategory, JournalEntry, BudgetPeriod, BudgetItem)
+from models.finance_extended import (BankTransaction, TaxRate, 
+                                   FinancialReport, RecurringTransaction, CashFlowCategory)
+# Import enterprise features
+from models.security import TwoFactorAuth, LoginAttempt, SecuritySettings
+from models.api_framework import APIKey, APIUsageLog, Webhook, DataImportJob, IntegrationConfig
 # Import forms from the correct locations
 from forms import ProductForm, LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm
 from forms.company_form import CompanyForm
 from forms.employee_form import EmployeeForm
 from utils.permissions import has_permission
+from utils.cache_manager import redis_manager
 
 # Route imports
 from routes.employee_routes import employee_bp
 from routes.payroll_routes import payroll_bp
 from routes.support import support_bp
 from routes.user_routes import user_bp
+from routes.finance import finance_bp  # Add finance blueprint
 
 # Import advanced feature blueprints
 try:
@@ -92,9 +102,33 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.permanent_session_lifetime = timedelta(minutes=30)
 
+# -------------------- Enterprise Configuration --------------------
+# Redis Configuration for Caching
+app.config['REDIS_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+
+# API Configuration
+app.config['API_RATE_LIMIT'] = int(os.getenv('API_RATE_LIMIT', 1000))
+app.config['API_RATE_LIMIT_PERIOD'] = int(os.getenv('API_RATE_LIMIT_PERIOD', 3600))
+
+# Security Configuration
+app.config['PASSWORD_MIN_LENGTH'] = int(os.getenv('PASSWORD_MIN_LENGTH', 8))
+app.config['PASSWORD_REQUIRE_UPPER'] = os.getenv('PASSWORD_REQUIRE_UPPER', 'true').lower() == 'true'
+app.config['PASSWORD_REQUIRE_LOWER'] = os.getenv('PASSWORD_REQUIRE_LOWER', 'true').lower() == 'true'
+app.config['PASSWORD_REQUIRE_DIGITS'] = os.getenv('PASSWORD_REQUIRE_DIGITS', 'true').lower() == 'true'
+app.config['PASSWORD_REQUIRE_SPECIAL'] = os.getenv('PASSWORD_REQUIRE_SPECIAL', 'true').lower() == 'true'
+
+# 2FA Configuration
+app.config['TOTP_ISSUER_NAME'] = os.getenv('TOTP_ISSUER_NAME', 'RahaSoft ERP')
+app.config['BACKUP_CODES_COUNT'] = int(os.getenv('BACKUP_CODES_COUNT', 10))
+
+# Company Configuration
+app.config['COMPANY_NAME'] = os.getenv('COMPANY_NAME', 'RahaSoft ERP')
+
 # -------------------- Initialize Extensions --------------------
 db.init_app(app)
 mail.init_app(app)
+# Initialize Redis for caching
+redis_manager.init_app(app)
 
 migrate = Migrate(app, db)
 csrf = CSRFProtect(app)
@@ -113,6 +147,8 @@ app.register_blueprint(employee_bp, url_prefix='/employees')
 app.register_blueprint(payroll_bp, url_prefix='/payroll')
 app.register_blueprint(support_bp, url_prefix='/support')
 app.register_blueprint(user_bp, url_prefix='/users')
+app.register_blueprint(finance_bp)  # Register finance blueprint
+print("✅ Finance module blueprint registered")
 
 # Register inventory blueprint
 try:
@@ -602,6 +638,37 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('errors/500.html'), 500
+
+# -------------------- Register Enterprise Blueprints --------------------
+# Import and register blueprints after app configuration
+try:
+    from routes.security_routes import security_bp
+    from routes.api_routes import api_bp
+    
+    app.register_blueprint(security_bp)
+    app.register_blueprint(api_bp)
+    
+    print("✅ Enterprise blueprints registered successfully")
+except ImportError as e:
+    print(f"⚠️ Warning: Could not register enterprise blueprints: {e}")
+except Exception as e:
+    print(f"❌ Error registering enterprise blueprints: {e}")
+
+# Register existing blueprints
+try:
+    from routes.finance_routes import finance_bp
+    from routes.crm_routes import crm_bp
+    
+    # Check if already registered to avoid duplicate registration
+    if not any(bp.name == 'finance' for bp in app.blueprints.values()):
+        app.register_blueprint(finance_bp)
+    
+    if not any(bp.name == 'crm' for bp in app.blueprints.values()):
+        app.register_blueprint(crm_bp)
+        
+    print("✅ Existing module blueprints verified")
+except Exception as e:
+    print(f"⚠️ Warning: Issue with existing blueprints: {e}")
 
 @app.errorhandler(403)
 def forbidden_error(error):

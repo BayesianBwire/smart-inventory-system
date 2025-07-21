@@ -129,6 +129,74 @@
     </h4>
     <div id="finance-accounting-content" class="row">
       <div class="col-md-4 mb-3">
+        <a href="{{ url_for('finance.dashboard') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-tachometer-alt fa-2x mb-2" style="color: #27ae60;"></i>
+              <h6 class="card-title">Finance Dashboard</h6>
+              <p class="card-text small">Overview of financial metrics, revenue, expenses, and cash flow</p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 mb-3">
+        <a href="{{ url_for('finance.invoices') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-file-invoice-dollar fa-2x mb-2" style="color: #27ae60;"></i>
+              <h6 class="card-title">Invoicing</h6>
+              <p class="card-text small">Create, send, and manage customer invoices and billing</p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 mb-3">
+        <a href="{{ url_for('finance.expenses') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-receipt fa-2x mb-2" style="color: #27ae60;"></i>
+              <h6 class="card-title">Expense Management</h6>
+              <p class="card-text small">Track and manage business expenses and vendor payments</p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 mb-3">
+        <a href="{{ url_for('finance.payments') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-credit-card fa-2x mb-2" style="color: #27ae60;"></i>
+              <h6 class="card-title">Payment Processing</h6>
+              <p class="card-text small">Record and track customer payments and transactions</p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 mb-3">
+        <a href="{{ url_for('finance.accounts') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-chart-pie fa-2x mb-2" style="color: #27ae60;"></i>
+              <h6 class="card-title">Chart of Accounts</h6>
+              <p class="card-text small">Manage accounting structure and financial categories</p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 mb-3">
+        <a href="{{ url_for('finance.reports') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-chart-bar fa-2x mb-2" style="color: #27ae60;"></i>
+              <h6 class="card-title">Financial Reports</h6>
+              <p class="card-text small">Generate P&L, balance sheet, and cash flow reports</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+      <div class="col-md-4 mb-3">
         <a href="#" class="text-decoration-none">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">

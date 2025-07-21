@@ -1,0 +1,539 @@
+{% extends "base.html" %}
+
+{% block title %}Expenses - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .main-container {
+        display: flex;
+        min-height: 100vh;
+    }
+    
+    .sidebar {
+        width: 250px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 0;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+    
+    .sidebar h5 {
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 0 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        padding-bottom: 15px;
+    }
+    
+    .sidebar-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .sidebar-nav li {
+        margin-bottom: 5px;
+    }
+    
+    .sidebar-nav a {
+        display: block;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+        border-left-color: #38ef7d;
+    }
+    
+    .sidebar-nav i {
+        margin-right: 10px;
+        width: 20px;
+    }
+    
+    .content-area {
+        margin-left: 250px;
+        flex: 1;
+        padding: 30px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+    
+    .expense-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+    
+    .expense-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stats-row {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+        border-right: 1px solid #edf2f7;
+    }
+    
+    .stat-item:last-child {
+        border-right: none;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        border-radius: 25px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-approved {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .status-rejected {
+        background-color: #f8d7da;
+        color: #842029;
+    }
+    
+    .status-paid {
+        background-color: #cff4fc;
+        color: #055160;
+    }
+    
+    .expense-amount {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #2d3748;
+    }
+    
+    .expense-number {
+        font-weight: bold;
+        color: #667eea;
+    }
+    
+    .vendor-name {
+        color: #4a5568;
+        font-weight: 500;
+    }
+    
+    .expense-date {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+    
+    .action-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin-right: 5px;
+    }
+    
+    .btn-view {
+        background-color: #667eea;
+        color: white;
+    }
+    
+    .btn-approve {
+        background-color: #48bb78;
+        color: white;
+    }
+    
+    .btn-reject {
+        background-color: #f56565;
+        color: white;
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h5>💰 Finance & Accounting</h5>
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('finance.dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="{{ url_for('finance.invoices') }}"><i class="fas fa-file-invoice-dollar"></i>Invoices</a></li>
+            <li><a href="{{ url_for('finance.expenses') }}" class="active"><i class="fas fa-receipt"></i>Expenses</a></li>
+            <li><a href="{{ url_for('finance.payments') }}"><i class="fas fa-credit-card"></i>Payments</a></li>
+            <li><a href="{{ url_for('finance.accounts') }}"><i class="fas fa-chart-pie"></i>Chart of Accounts</a></li>
+            <li><a href="{{ url_for('finance.expense_categories') }}"><i class="fas fa-tags"></i>Expense Categories</a></li>
+            <li><a href="{{ url_for('finance.reports') }}"><i class="fas fa-chart-bar"></i>Financial Reports</a></li>
+            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-arrow-left"></i>Back to Main</a></li>
+        </ul>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">📋 Expense Management</h1>
+                <p class="text-muted mb-0">Track and manage business expenses</p>
+            </div>
+            <div>
+                <a href="{{ url_for('finance.new_expense') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>New Expense
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics Row -->
+        <div class="stats-row">
+            <div class="row">
+                <div class="col-md-3 stat-item">
+                    <div class="stat-value text-primary">{{ expenses.total }}</div>
+                    <div class="stat-label">Total Expenses</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-value text-warning">
+                        {{ expenses.items | selectattr('status', 'equalto', 'pending') | list | length }}
+                    </div>
+                    <div class="stat-label">Pending Approval</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-value text-success">
+                        {{ expenses.items | selectattr('status', 'equalto', 'approved') | list | length }}
+                    </div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-value text-info">
+                        ${{ "%.2f"|format(expenses.items | sum(attribute='amount') | float) }}
+                    </div>
+                    <div class="stat-label">Total Amount</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <form method="GET" class="row align-items-end">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Search</label>
+                    <input type="text" name="search" value="{{ search_term }}" 
+                           class="form-control" placeholder="Description, vendor...">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="approved" {% if status == 'approved' %}selected{% endif %}>Approved</option>
+                        <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
+                        <option value="paid" {% if status == 'paid' %}selected{% endif %}>Paid</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category_id == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Date From</label>
+                    <input type="date" name="date_from" value="{{ request.args.get('date_from', '') }}" class="form-control">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                    <a href="{{ url_for('finance.expenses') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Expenses Table -->
+        <div class="table-container">
+            {% if expenses.items %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead style="background-color: #f8f9fa;">
+                            <tr>
+                                <th>Expense #</th>
+                                <th>Description</th>
+                                <th>Vendor</th>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in expenses.items %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('finance.expense_detail', id=expense.id) }}" 
+                                       class="expense-number text-decoration-none">
+                                        {{ expense.expense_number }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">{{ expense.description[:50] }}{% if expense.description|length > 50 %}...{% endif %}</div>
+                                    {% if expense.tags %}
+                                        <small class="text-muted">Tags: {{ expense.tags }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="vendor-name">{{ expense.vendor_name or 'N/A' }}</div>
+                                    {% if expense.vendor_contact %}
+                                        <small class="text-muted">{{ expense.vendor_contact }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="expense-date">{{ expense.expense_date.strftime('%Y-%m-%d') }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark">
+                                        {{ expense.category.name if expense.category else 'Uncategorized' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="expense-amount">${{ "%.2f"|format(expense.amount) }}</div>
+                                    <small class="text-muted">{{ expense.currency }}</small>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ expense.status }}">
+                                        {{ expense.status.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('finance.expense_detail', id=expense.id) }}" 
+                                           class="action-btn btn-view" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if expense.status == 'pending' and current_user.role in ['admin', 'founder'] %}
+                                            <button type="button" class="action-btn btn-approve" 
+                                                    onclick="approveExpense({{ expense.id }})" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="action-btn btn-reject" 
+                                                    onclick="rejectExpense({{ expense.id }})" title="Reject">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No expenses found</h5>
+                    <p class="text-muted">Record your first expense to start tracking business costs.</p>
+                    <a href="{{ url_for('finance.new_expense') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Record Expense
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if expenses.pages > 1 %}
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Expense pagination">
+                <ul class="pagination">
+                    {% if expenses.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('finance.expenses', page=expenses.prev_num, status=status, search=search_term, category=category_id) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in expenses.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != expenses.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('finance.expenses', page=page_num, status=status, search=search_term, category=category_id) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if expenses.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('finance.expenses', page=expenses.next_num, status=status, search=search_term, category=category_id) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Approval Modal -->
+<div class="modal fade" id="approvalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Expense Approval</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="approvalForm">
+                    <div class="mb-3">
+                        <label class="form-label">Approval Notes</label>
+                        <textarea name="approval_notes" class="form-control" rows="3" 
+                                  placeholder="Add notes about this approval..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="submitApproval()">Approve Expense</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentExpenseId = null;
+
+function approveExpense(expenseId) {
+    currentExpenseId = expenseId;
+    document.getElementById('approvalForm').reset();
+    new bootstrap.Modal(document.getElementById('approvalModal')).show();
+}
+
+function rejectExpense(expenseId) {
+    if (confirm('Are you sure you want to reject this expense?')) {
+        const formData = new FormData();
+        formData.append('approval_notes', 'Rejected');
+        
+        fetch(`/finance/expenses/${expenseId}/reject`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error rejecting expense');
+            }
+        })
+        .catch(error => {
+            alert('Network error');
+        });
+    }
+}
+
+function submitApproval() {
+    if (!currentExpenseId) return;
+    
+    const formData = new FormData(document.getElementById('approvalForm'));
+    
+    fetch(`/finance/expenses/${currentExpenseId}/approve`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('approvalModal')).hide();
+            location.reload();
+        } else {
+            alert('Error approving expense');
+        }
+    })
+    .catch(error => {
+        alert('Network error');
+    });
+}
+
+// Auto-submit form when filters change
+document.querySelectorAll('select[name="status"], select[name="category"]').forEach(select => {
+    select.addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+</script>
+{% endblock %}

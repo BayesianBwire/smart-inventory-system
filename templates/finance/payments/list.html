@@ -1,0 +1,634 @@
+{% extends "base.html" %}
+
+{% block title %}Payments - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .main-container {
+        display: flex;
+        min-height: 100vh;
+    }
+    
+    .sidebar {
+        width: 250px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 0;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+    
+    .sidebar h5 {
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 0 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        padding-bottom: 15px;
+    }
+    
+    .sidebar-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .sidebar-nav li {
+        margin-bottom: 5px;
+    }
+    
+    .sidebar-nav a {
+        display: block;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+        border-left-color: #38ef7d;
+    }
+    
+    .sidebar-nav i {
+        margin-right: 10px;
+        width: 20px;
+    }
+    
+    .content-area {
+        margin-left: 250px;
+        flex: 1;
+        padding: 30px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+    
+    .payment-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+    
+    .payment-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .stats-row {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+        border-right: 1px solid #edf2f7;
+    }
+    
+    .stat-item:last-child {
+        border-right: none;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+    
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .payment-type-badge {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        border-radius: 25px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .type-received {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .type-sent {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        border-radius: 25px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .status-completed {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-failed {
+        background-color: #f8d7da;
+        color: #842029;
+    }
+    
+    .status-processing {
+        background-color: #cff4fc;
+        color: #055160;
+    }
+    
+    .payment-amount {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #2d3748;
+    }
+    
+    .payment-amount.received {
+        color: #38a169;
+    }
+    
+    .payment-amount.sent {
+        color: #e53e3e;
+    }
+    
+    .payment-number {
+        font-weight: bold;
+        color: #667eea;
+    }
+    
+    .payment-method {
+        color: #4a5568;
+        font-weight: 500;
+    }
+    
+    .payment-date {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+    
+    .invoice-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .invoice-link:hover {
+        text-decoration: underline;
+    }
+    
+    .action-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin-right: 5px;
+    }
+    
+    .btn-view {
+        background-color: #667eea;
+        color: white;
+    }
+    
+    .btn-receipt {
+        background-color: #48bb78;
+        color: white;
+    }
+    
+    .btn-refund {
+        background-color: #f56565;
+        color: white;
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .quick-actions {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+    
+    .quick-actions h6 {
+        margin-bottom: 20px;
+        color: white;
+    }
+    
+    .quick-action-btn {
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        border-radius: 10px;
+        padding: 10px 20px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .quick-action-btn:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h5>💰 Finance & Accounting</h5>
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('finance.dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="{{ url_for('finance.invoices') }}"><i class="fas fa-file-invoice-dollar"></i>Invoices</a></li>
+            <li><a href="{{ url_for('finance.expenses') }}"><i class="fas fa-receipt"></i>Expenses</a></li>
+            <li><a href="{{ url_for('finance.payments') }}" class="active"><i class="fas fa-credit-card"></i>Payments</a></li>
+            <li><a href="{{ url_for('finance.accounts') }}"><i class="fas fa-chart-pie"></i>Chart of Accounts</a></li>
+            <li><a href="{{ url_for('finance.expense_categories') }}"><i class="fas fa-tags"></i>Expense Categories</a></li>
+            <li><a href="{{ url_for('finance.reports') }}"><i class="fas fa-chart-bar"></i>Financial Reports</a></li>
+            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-arrow-left"></i>Back to Main</a></li>
+        </ul>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">💳 Payment Management</h1>
+                <p class="text-muted mb-0">Track payments received and sent</p>
+            </div>
+            <div>
+                <a href="{{ url_for('finance.new_payment') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Record Payment
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h6>⚡ Quick Actions</h6>
+            <a href="{{ url_for('finance.new_payment') }}" class="quick-action-btn">
+                <i class="fas fa-plus me-2"></i>Record Payment
+            </a>
+            <a href="{{ url_for('finance.payment_batch') }}" class="quick-action-btn">
+                <i class="fas fa-layer-group me-2"></i>Batch Payments
+            </a>
+            <a href="{{ url_for('finance.payment_reconciliation') }}" class="quick-action-btn">
+                <i class="fas fa-balance-scale me-2"></i>Reconcile Payments
+            </a>
+            <a href="{{ url_for('finance.payment_reports') }}" class="quick-action-btn">
+                <i class="fas fa-chart-line me-2"></i>Payment Reports
+            </a>
+        </div>
+
+        <!-- Statistics Row -->
+        <div class="stats-row">
+            <div class="row">
+                <div class="col-md-3 stat-item">
+                    <div class="stat-value text-primary">{{ payments.total }}</div>
+                    <div class="stat-label">Total Payments</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-value text-success">
+                        ${{ "%.2f"|format(total_received) }}
+                    </div>
+                    <div class="stat-label">Total Received</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-value text-warning">
+                        ${{ "%.2f"|format(total_sent) }}
+                    </div>
+                    <div class="stat-label">Total Sent</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-value text-info">
+                        {{ payments.items | selectattr('status', 'equalto', 'pending') | list | length }}
+                    </div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <form method="GET" class="row align-items-end">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Search</label>
+                    <input type="text" name="search" value="{{ search_term }}" 
+                           class="form-control" placeholder="Payment number, description...">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Type</label>
+                    <select name="payment_type" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="received" {% if payment_type == 'received' %}selected{% endif %}>Received</option>
+                        <option value="sent" {% if payment_type == 'sent' %}selected{% endif %}>Sent</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="processing" {% if status == 'processing' %}selected{% endif %}>Processing</option>
+                        <option value="failed" {% if status == 'failed' %}selected{% endif %}>Failed</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Method</label>
+                    <select name="payment_method" class="form-select">
+                        <option value="">All Methods</option>
+                        <option value="cash" {% if payment_method == 'cash' %}selected{% endif %}>Cash</option>
+                        <option value="credit_card" {% if payment_method == 'credit_card' %}selected{% endif %}>Credit Card</option>
+                        <option value="bank_transfer" {% if payment_method == 'bank_transfer' %}selected{% endif %}>Bank Transfer</option>
+                        <option value="check" {% if payment_method == 'check' %}selected{% endif %}>Check</option>
+                        <option value="online" {% if payment_method == 'online' %}selected{% endif %}>Online Payment</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                    <a href="{{ url_for('finance.payments') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Payments Table -->
+        <div class="table-container">
+            {% if payments.items %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-header">
+                            <tr>
+                                <th>Payment #</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Invoice</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments.items %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('finance.payment_detail', id=payment.id) }}" 
+                                       class="payment-number text-decoration-none">
+                                        {{ payment.payment_number }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="payment-type-badge type-{{ payment.payment_type }}">
+                                        {{ payment.payment_type.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">{{ payment.description[:40] }}{% if payment.description|length > 40 %}...{% endif %}</div>
+                                    {% if payment.reference_number %}
+                                        <small class="text-muted">Ref: {{ payment.reference_number }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if payment.invoice %}
+                                        <a href="{{ url_for('finance.invoice_detail', id=payment.invoice.id) }}" 
+                                           class="invoice-link">
+                                            {{ payment.invoice.invoice_number }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="payment-amount {{ payment.payment_type }}">
+                                        {% if payment.payment_type == 'received' %}+{% else %}-{% endif %}${{ "%.2f"|format(payment.amount) }}
+                                    </div>
+                                    <small class="text-muted">{{ payment.currency }}</small>
+                                </td>
+                                <td>
+                                    <span class="payment-method">{{ payment.payment_method.replace('_', ' ').title() }}</span>
+                                </td>
+                                <td>
+                                    <div class="payment-date">{{ payment.payment_date.strftime('%Y-%m-%d') }}</div>
+                                    <small class="text-muted">{{ payment.payment_date.strftime('%I:%M %p') }}</small>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ payment.status }}">
+                                        {{ payment.status.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('finance.payment_detail', id=payment.id) }}" 
+                                           class="action-btn btn-view" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if payment.status == 'completed' %}
+                                            <a href="{{ url_for('finance.payment_receipt', id=payment.id) }}" 
+                                               class="action-btn btn-receipt" title="Download Receipt">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        {% endif %}
+                                        {% if payment.payment_type == 'received' and payment.status == 'completed' %}
+                                            <button type="button" class="action-btn btn-refund" 
+                                                    onclick="initiateRefund({{ payment.id }})" title="Initiate Refund">
+                                                <i class="fas fa-undo"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No payments found</h5>
+                    <p class="text-muted">Record your first payment to start tracking transactions.</p>
+                    <a href="{{ url_for('finance.new_payment') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Record Payment
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if payments.pages > 1 %}
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Payment pagination">
+                <ul class="pagination">
+                    {% if payments.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('finance.payments', page=payments.prev_num, payment_type=payment_type, status=status, search=search_term, payment_method=payment_method) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in payments.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != payments.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('finance.payments', page=page_num, payment_type=payment_type, status=status, search=search_term, payment_method=payment_method) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if payments.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('finance.payments', page=payments.next_num, payment_type=payment_type, status=status, search=search_term, payment_method=payment_method) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Refund Modal -->
+<div class="modal fade" id="refundModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Initiate Refund</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="refundForm">
+                    <div class="mb-3">
+                        <label class="form-label">Refund Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" name="refund_amount" class="form-control" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Refund Reason</label>
+                        <select name="refund_reason" class="form-select" required>
+                            <option value="">Select reason...</option>
+                            <option value="customer_request">Customer Request</option>
+                            <option value="duplicate_payment">Duplicate Payment</option>
+                            <option value="service_issue">Service Issue</option>
+                            <option value="billing_error">Billing Error</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea name="refund_notes" class="form-control" rows="3" 
+                                  placeholder="Additional notes about this refund..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="submitRefund()">Process Refund</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentPaymentId = null;
+
+function initiateRefund(paymentId) {
+    currentPaymentId = paymentId;
+    document.getElementById('refundForm').reset();
+    new bootstrap.Modal(document.getElementById('refundModal')).show();
+}
+
+function submitRefund() {
+    if (!currentPaymentId) return;
+    
+    const formData = new FormData(document.getElementById('refundForm'));
+    
+    fetch(`/finance/payments/${currentPaymentId}/refund`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('refundModal')).hide();
+            location.reload();
+        } else {
+            alert('Error processing refund');
+        }
+    })
+    .catch(error => {
+        alert('Network error');
+    });
+}
+
+// Auto-submit form when filters change
+document.querySelectorAll('select[name="payment_type"], select[name="status"], select[name="payment_method"]').forEach(select => {
+    select.addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+</script>
+{% endblock %}

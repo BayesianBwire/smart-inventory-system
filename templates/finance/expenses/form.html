@@ -1,0 +1,688 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if expense %}Edit Expense{% else %}New Expense{% endif %} - RahaSoft ERP
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .main-container {
+        display: flex;
+        min-height: 100vh;
+    }
+    
+    .sidebar {
+        width: 250px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 0;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+    
+    .sidebar h5 {
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 0 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        padding-bottom: 15px;
+    }
+    
+    .sidebar-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .sidebar-nav li {
+        margin-bottom: 5px;
+    }
+    
+    .sidebar-nav a {
+        display: block;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+        border-left-color: #38ef7d;
+    }
+    
+    .sidebar-nav i {
+        margin-right: 10px;
+        width: 20px;
+    }
+    
+    .content-area {
+        margin-left: 250px;
+        flex: 1;
+        padding: 30px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+    
+    .expense-form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: none;
+        padding: 30px;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .section-title {
+        color: #2d3748;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-title i {
+        margin-right: 10px;
+        color: #667eea;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 8px;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .required-field {
+        color: #e53e3e;
+    }
+    
+    .field-help {
+        color: #718096;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+    
+    .file-upload-area {
+        border: 2px dashed #cbd5e0;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        background-color: #f7fafc;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .file-upload-area:hover {
+        border-color: #667eea;
+        background-color: #edf2f7;
+    }
+    
+    .file-upload-area.dragover {
+        border-color: #667eea;
+        background-color: #e6fffa;
+    }
+    
+    .expense-preview {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 20px;
+    }
+    
+    .preview-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .preview-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .preview-label {
+        opacity: 0.8;
+    }
+    
+    .preview-value {
+        font-weight: 600;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
+    }
+    
+    .btn-outline-secondary {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
+    }
+    
+    .expense-number {
+        background: #667eea;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 25px;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    
+    .receipt-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .receipt-item {
+        background: #f7fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .receipt-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .receipt-icon {
+        color: #667eea;
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .receipt-name {
+        font-weight: 500;
+        color: #2d3748;
+    }
+    
+    .receipt-size {
+        color: #718096;
+        font-size: 0.875rem;
+    }
+    
+    .remove-receipt {
+        color: #e53e3e;
+        border: none;
+        background: none;
+        padding: 5px;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h5>💰 Finance & Accounting</h5>
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('finance.dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="{{ url_for('finance.invoices') }}"><i class="fas fa-file-invoice-dollar"></i>Invoices</a></li>
+            <li><a href="{{ url_for('finance.expenses') }}" class="active"><i class="fas fa-receipt"></i>Expenses</a></li>
+            <li><a href="{{ url_for('finance.payments') }}"><i class="fas fa-credit-card"></i>Payments</a></li>
+            <li><a href="{{ url_for('finance.accounts') }}"><i class="fas fa-chart-pie"></i>Chart of Accounts</a></li>
+            <li><a href="{{ url_for('finance.expense_categories') }}"><i class="fas fa-tags"></i>Expense Categories</a></li>
+            <li><a href="{{ url_for('finance.reports') }}"><i class="fas fa-chart-bar"></i>Financial Reports</a></li>
+            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-arrow-left"></i>Back to Main</a></li>
+        </ul>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">
+                    {% if expense %}
+                        ✏️ Edit Expense
+                    {% else %}
+                        ➕ New Expense
+                    {% endif %}
+                </h1>
+                <p class="text-muted mb-0">
+                    {% if expense %}
+                        Update expense details and receipts
+                    {% else %}
+                        Record a new business expense with receipts
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <a href="{{ url_for('finance.expenses') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Expenses
+                </a>
+            </div>
+        </div>
+
+        <!-- Expense Number (for editing) -->
+        {% if expense %}
+        <div class="expense-number">
+            Expense #{{ expense.expense_number }}
+        </div>
+        {% endif %}
+
+        <!-- Form -->
+        <div class="expense-form-card">
+            <form method="POST" enctype="multipart/form-data" id="expenseForm">
+                {{ form.hidden_tag() }}
+                
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Basic Information
+                    </h4>
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            <span class="required-field">*</span>
+                            {{ form.description(class="form-control") }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors[0] }}</div>
+                            {% endif %}
+                            <div class="field-help">Provide a clear description of the expense</div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            {{ form.amount.label(class="form-label") }}
+                            <span class="required-field">*</span>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.amount(class="form-control", step="0.01") }}
+                            </div>
+                            {% if form.amount.errors %}
+                                <div class="text-danger small">{{ form.amount.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            {{ form.expense_date.label(class="form-label") }}
+                            <span class="required-field">*</span>
+                            {{ form.expense_date(class="form-control") }}
+                            {% if form.expense_date.errors %}
+                                <div class="text-danger small">{{ form.expense_date.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            {{ form.category_id.label(class="form-label") }}
+                            <span class="required-field">*</span>
+                            {{ form.category_id(class="form-select") }}
+                            {% if form.category_id.errors %}
+                                <div class="text-danger small">{{ form.category_id.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            {{ form.payment_method.label(class="form-label") }}
+                            {{ form.payment_method(class="form-select") }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger small">{{ form.payment_method.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vendor Information -->
+                <div class="form-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-store"></i>
+                        Vendor Information
+                    </h4>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.vendor_name.label(class="form-label") }}
+                            {{ form.vendor_name(class="form-control") }}
+                            {% if form.vendor_name.errors %}
+                                <div class="text-danger small">{{ form.vendor_name.errors[0] }}</div>
+                            {% endif %}
+                            <div class="field-help">Name of the vendor or supplier</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form.vendor_contact.label(class="form-label") }}
+                            {{ form.vendor_contact(class="form-control") }}
+                            {% if form.vendor_contact.errors %}
+                                <div class="text-danger small">{{ form.vendor_contact.errors[0] }}</div>
+                            {% endif %}
+                            <div class="field-help">Email or phone number</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Details -->
+                <div class="form-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-clipboard-list"></i>
+                        Additional Details
+                    </h4>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.reference_number.label(class="form-label") }}
+                            {{ form.reference_number(class="form-control") }}
+                            {% if form.reference_number.errors %}
+                                <div class="text-danger small">{{ form.reference_number.errors[0] }}</div>
+                            {% endif %}
+                            <div class="field-help">Invoice number, receipt number, etc.</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form.tags.label(class="form-label") }}
+                            {{ form.tags(class="form-control") }}
+                            {% if form.tags.errors %}
+                                <div class="text-danger small">{{ form.tags.errors[0] }}</div>
+                            {% endif %}
+                            <div class="field-help">Comma-separated tags for categorization</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="4") }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger small">{{ form.notes.errors[0] }}</div>
+                        {% endif %}
+                        <div class="field-help">Additional notes or comments about this expense</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                {{ form.is_billable(class="form-check-input") }}
+                                {{ form.is_billable.label(class="form-check-label") }}
+                            </div>
+                            <div class="field-help">Can this expense be billed to a client?</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                {{ form.is_reimbursable(class="form-check-input") }}
+                                {{ form.is_reimbursable.label(class="form-check-label") }}
+                            </div>
+                            <div class="field-help">Should this expense be reimbursed?</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Receipts -->
+                <div class="form-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-paperclip"></i>
+                        Receipts & Attachments
+                    </h4>
+                    
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-3"></i>
+                        <p class="mb-2">Drag and drop receipt files here, or click to browse</p>
+                        <p class="text-muted small">Supported formats: PDF, JPG, PNG, GIF (max 5MB each)</p>
+                        <input type="file" id="receiptFiles" name="receipts" multiple 
+                               accept=".pdf,.jpg,.jpeg,.png,.gif" style="display: none;">
+                    </div>
+                    
+                    <div id="receiptList" class="mt-3">
+                        <!-- Existing receipts will be displayed here -->
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        {% if expense and expense.status == 'draft' %}
+                            <button type="submit" name="action" value="save_draft" class="btn btn-outline-secondary">
+                                <i class="fas fa-save me-2"></i>Save as Draft
+                            </button>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <a href="{{ url_for('finance.expenses') }}" class="btn btn-outline-secondary me-3">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" name="action" value="submit" class="btn btn-primary">
+                            <i class="fas fa-check me-2"></i>
+                            {% if expense %}Update Expense{% else %}Submit Expense{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Expense Preview -->
+        <div class="expense-preview">
+            <h5 class="mb-3">📋 Expense Preview</h5>
+            <div class="preview-item">
+                <span class="preview-label">Description:</span>
+                <span class="preview-value" id="previewDescription">-</span>
+            </div>
+            <div class="preview-item">
+                <span class="preview-label">Amount:</span>
+                <span class="preview-value" id="previewAmount">$0.00</span>
+            </div>
+            <div class="preview-item">
+                <span class="preview-label">Date:</span>
+                <span class="preview-value" id="previewDate">-</span>
+            </div>
+            <div class="preview-item">
+                <span class="preview-label">Category:</span>
+                <span class="preview-value" id="previewCategory">-</span>
+            </div>
+            <div class="preview-item">
+                <span class="preview-label">Vendor:</span>
+                <span class="preview-value" id="previewVendor">-</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// File upload functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('receiptFiles');
+    const receiptList = document.getElementById('receiptList');
+    let selectedFiles = [];
+    
+    // Click to browse
+    fileUploadArea.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    // File selection
+    fileInput.addEventListener('change', function(e) {
+        handleFiles(e.target.files);
+    });
+    
+    // Drag and drop
+    fileUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        fileUploadArea.classList.add('dragover');
+    });
+    
+    fileUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        fileUploadArea.classList.remove('dragover');
+    });
+    
+    fileUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        fileUploadArea.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+    
+    function handleFiles(files) {
+        for (let file of files) {
+            if (validateFile(file)) {
+                selectedFiles.push(file);
+                displayFile(file);
+            }
+        }
+    }
+    
+    function validateFile(file) {
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        
+        if (!allowedTypes.includes(file.type)) {
+            alert('Invalid file type. Please select PDF or image files.');
+            return false;
+        }
+        
+        if (file.size > maxSize) {
+            alert('File size too large. Maximum size is 5MB.');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function displayFile(file) {
+        const fileDiv = document.createElement('div');
+        fileDiv.className = 'receipt-item';
+        fileDiv.innerHTML = `
+            <div class="receipt-info">
+                <i class="fas ${getFileIcon(file.type)} receipt-icon"></i>
+                <div>
+                    <div class="receipt-name">${file.name}</div>
+                    <div class="receipt-size">${formatFileSize(file.size)}</div>
+                </div>
+            </div>
+            <button type="button" class="remove-receipt" onclick="removeFile('${file.name}')">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        receiptList.appendChild(fileDiv);
+    }
+    
+    function getFileIcon(type) {
+        if (type === 'application/pdf') return 'fa-file-pdf';
+        if (type.startsWith('image/')) return 'fa-file-image';
+        return 'fa-file';
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    window.removeFile = function(fileName) {
+        selectedFiles = selectedFiles.filter(file => file.name !== fileName);
+        // Remove the visual element
+        event.target.closest('.receipt-item').remove();
+    };
+    
+    // Form preview updates
+    function updatePreview() {
+        const description = document.getElementById('description').value || '-';
+        const amount = document.getElementById('amount').value || '0.00';
+        const date = document.getElementById('expense_date').value || '-';
+        const categorySelect = document.getElementById('category_id');
+        const category = categorySelect.options[categorySelect.selectedIndex].text || '-';
+        const vendor = document.getElementById('vendor_name').value || '-';
+        
+        document.getElementById('previewDescription').textContent = description;
+        document.getElementById('previewAmount').textContent = '$' + parseFloat(amount).toFixed(2);
+        document.getElementById('previewDate').textContent = date;
+        document.getElementById('previewCategory').textContent = category;
+        document.getElementById('previewVendor').textContent = vendor;
+    }
+    
+    // Add event listeners for preview updates
+    document.querySelectorAll('#expenseForm input, #expenseForm select, #expenseForm textarea').forEach(element => {
+        element.addEventListener('input', updatePreview);
+        element.addEventListener('change', updatePreview);
+    });
+    
+    // Initial preview update
+    updatePreview();
+    
+    // Form submission
+    document.getElementById('expenseForm').addEventListener('submit', function(e) {
+        // Add selected files to form data
+        const formData = new FormData(this);
+        
+        // Remove existing file inputs to avoid conflicts
+        const existingFileInputs = this.querySelectorAll('input[name="receipts"]');
+        existingFileInputs.forEach(input => input.remove());
+        
+        // Add selected files
+        selectedFiles.forEach(file => {
+            formData.append('receipts', file);
+        });
+        
+        // Submit with fetch to handle files properly
+        if (selectedFiles.length > 0) {
+            e.preventDefault();
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = "{{ url_for('finance.expenses') }}";
+                } else {
+                    alert('Error submitting expense. Please try again.');
+                }
+            })
+            .catch(error => {
+                alert('Network error. Please try again.');
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
