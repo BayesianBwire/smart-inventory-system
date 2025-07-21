@@ -1,6 +1,11 @@
 import sys
 import os
 
+# Set Flask environment variables for proper Flask CLI support
+os.environ['FLASK_APP'] = 'app.py'
+os.environ['FLASK_ENV'] = 'development'
+os.environ['FLASK_DEBUG'] = '1'
+
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 

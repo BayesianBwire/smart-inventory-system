@@ -1,0 +1,279 @@
+{% extends "layout.html" %}
+
+{% block title %}Customers - CRM{% endblock %}
+
+{% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    .customer-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+        margin-bottom: 1rem;
+    }
+    .customer-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .customer-status {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+    }
+    .customer-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 1.2rem;
+    }
+    .filter-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="h3 mb-3"><i class="fas fa-users me-2"></i>Customers</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{{ url_for('crm.add_customer') }}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>Add New Customer
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-card">
+        <form method="GET" action="{{ url_for('crm.customers') }}">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Search customers..." value="{{ request.args.get('search', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select" aria-label="Filter by status">
+                        <option value="">All Statuses</option>
+                        <option value="active" {{ 'selected' if request.args.get('status') == 'active' }}>Active</option>
+                        <option value="inactive" {{ 'selected' if request.args.get('status') == 'inactive' }}>Inactive</option>
+                        <option value="blocked" {{ 'selected' if request.args.get('status') == 'blocked' }}>Blocked</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="type" class="form-select" aria-label="Filter by type">
+                        <option value="">All Types</option>
+                        <option value="individual" {{ 'selected' if request.args.get('type') == 'individual' }}>Individual</option>
+                        <option value="business" {{ 'selected' if request.args.get('type') == 'business' }}>Business</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="sort" class="form-select" aria-label="Sort by">
+                        <option value="created_at" {{ 'selected' if request.args.get('sort') == 'created_at' }}>Date Created</option>
+                        <option value="company_name" {{ 'selected' if request.args.get('sort') == 'company_name' }}>Company Name</option>
+                        <option value="last_name" {{ 'selected' if request.args.get('sort') == 'last_name' }}>Last Name</option>
+                        <option value="updated_at" {{ 'selected' if request.args.get('sort') == 'updated_at' }}>Last Updated</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Customers List -->
+    {% if customers %}
+        <div class="row">
+            {% for customer in customers %}
+            <div class="col-lg-6 col-xl-4">
+                <div class="card customer-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="customer-avatar me-3" style="background-color: {{ ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c'][loop.index0 % 6] }};">
+                                {% if customer.customer_type == 'business' and customer.company_name %}
+                                    {{ customer.company_name[0].upper() }}
+                                {% else %}
+                                    {{ customer.first_name[0].upper() if customer.first_name else 'C' }}
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">
+                                    <a href="{{ url_for('crm.view_customer', id=customer.id) }}" class="text-decoration-none">
+                                        {{ customer.display_name }}
+                                    </a>
+                                </h5>
+                                {% if customer.customer_type == 'business' and customer.business_type %}
+                                    <p class="text-muted mb-1"><i class="fas fa-industry me-1"></i>{{ customer.business_type }}</p>
+                                {% endif %}
+                                {% if customer.industry %}
+                                    <p class="text-muted mb-0"><i class="fas fa-tags me-1"></i>{{ customer.industry }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <p class="mb-1">
+                                <i class="fas fa-envelope me-2"></i>
+                                <a href="mailto:{{ customer.email }}">{{ customer.email }}</a>
+                            </p>
+                            {% if customer.phone %}
+                                <p class="mb-1">
+                                    <i class="fas fa-phone me-2"></i>
+                                    <a href="tel:{{ customer.phone }}">{{ customer.phone }}</a>
+                                </p>
+                            {% endif %}
+                            {% if customer.website %}
+                                <p class="mb-1">
+                                    <i class="fas fa-globe me-2"></i>
+                                    <a href="{{ customer.website }}" target="_blank">{{ customer.website }}</a>
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <span class="customer-status bg-{{ 
+                                        'success' if customer.customer_status == 'active' 
+                                        else 'warning' if customer.customer_status == 'inactive'
+                                        else 'danger'
+                                    }} text-white">
+                                        {{ customer.customer_status.title() }}
+                                    </span>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <small class="text-muted">
+                                        Type: <span class="text-primary">{{ customer.customer_type.title() }}</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if customer.customer_segment %}
+                            <div class="mb-3">
+                                <span class="badge bg-{{ 'warning' if customer.customer_segment == 'vip' 
+                                                        else 'info' if customer.customer_segment == 'premium'
+                                                        else 'primary' if customer.customer_segment == 'standard'
+                                                        else 'secondary' }}">
+                                    {{ customer.customer_segment.upper() }}
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        {% if customer.credit_limit and customer.credit_limit > 0 %}
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-credit-card me-1"></i>
+                                    Credit Limit: ${{ "{:,.0f}".format(customer.credit_limit) }}
+                                </small>
+                            </div>
+                        {% endif %}
+
+                        {% if customer.total_revenue and customer.total_revenue > 0 %}
+                            <div class="mb-3">
+                                <small class="text-success">
+                                    <i class="fas fa-dollar-sign me-1"></i>
+                                    Total Revenue: ${{ "{:,.0f}".format(customer.total_revenue) }}
+                                </small>
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ customer.created_at.strftime('%b %d, %Y') }}
+                            </small>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('crm.view_customer', id=customer.id) }}" class="btn btn-outline-primary btn-sm" title="View Customer">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('crm.edit_customer', id=customer.id) }}" class="btn btn-outline-secondary btn-sm" title="Edit Customer">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('crm.add_opportunity') }}?customer_id={{ customer.id }}" class="btn btn-outline-success btn-sm" title="Add Opportunity">
+                                    <i class="fas fa-bullseye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+            <nav aria-label="Customers pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if pagination.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('crm.customers', page=pagination.prev_num, **request.args) }}" title="Previous page">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in pagination.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != pagination.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('crm.customers', page=page_num, **request.args) }}">{{ page_num }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">…</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if pagination.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('crm.customers', page=pagination.next_num, **request.args) }}" title="Next page">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h4>No Customers Found</h4>
+            <p class="text-muted">{% if request.args.get('search') or request.args.get('status') or request.args.get('type') %}
+                No customers match your current filters. Try adjusting your search criteria.
+            {% else %}
+                You haven't added any customers yet. Start building your customer base!
+            {% endif %}</p>
+            <a href="{{ url_for('crm.add_customer') }}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>Add Your First Customer
+            </a>
+            {% if request.args.get('search') or request.args.get('status') or request.args.get('type') %}
+                <a href="{{ url_for('crm.customers') }}" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-times me-2"></i>Clear Filters
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -2,7 +2,6 @@
 {% block content %}
 
 <style>
-<<<<<<< HEAD
   section.module-section {
     padding: 1.5rem 1rem;
     border-radius: 0.3rem;
@@ -19,603 +18,392 @@
   .dropdown-toggle {
     cursor: pointer;
     user-select: none;
-=======
-  /* Background colors for each section */
-  section.core-operations {
-    background-color: #e9f5f5; /* light teal */
-    padding: 1.5rem 1rem;
-    border-radius: 0.3rem;
-  }
-  section.sales-marketing {
-    background-color: #fff8e1; /* light yellow */
-    padding: 1.5rem 1rem;
-    border-radius: 0.3rem;
-  }
-  section.finance-accounting {
-    background-color: #e8f0fe; /* light blue */
-    padding: 1.5rem 1rem;
-    border-radius: 0.3rem;
-  }
-  section.human-resources {
-    background-color: #fdecea; /* light pink */
-    padding: 1.5rem 1rem;
-    border-radius: 0.3rem;
-  }
-  section.projects-collaboration {
-    background-color: #f3f0ff; /* very light purple */
-    padding: 1.5rem 1rem;
-    border-radius: 0.3rem;
-  }
-  section.analytics-reports {
-    background-color: #e6f4ea; /* light green */
-    padding: 1.5rem 1rem;
-    border-radius: 0.3rem;
-  }
-  section.it-security {
-    background-color: #fef6e4; /* very light orange */
-    padding: 1.5rem 1rem;
-    border-radius: 0.3rem;
-  }
-  section.utilities {
-    background-color: #f5f5f5; /* light gray */
-    padding: 1.5rem 1rem;
-    border-radius: 0.3rem;
->>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
   }
 </style>
 
 <div class="container py-4">
   <h3 class="mb-4 fw-bold" style="color: #36585C;">Welcome to RahaSoft Suite</h3>
 
-<<<<<<< HEAD
-  {% set sections = [
-    ('Core Operations', 'core-operations'),
-    ('Sales & Marketing', 'sales-marketing'),
-    ('Finance & Accounting', 'finance-accounting'),
-    ('Human Resources', 'human-resources'),
-    ('Projects & Collaboration', 'projects-collaboration'),
-    ('Analytics & Reports', 'analytics-reports'),
-    ('IT & Security', 'it-security'),
-    ('Utilities', 'utilities')
-  ] %}
-
-  {% for section_title, section_class in sections %}
-    <section class="module-section {{ section_class }}">
-      <h5 class="mb-3 text-secondary fw-semibold dropdown-toggle" data-bs-toggle="collapse" href="#collapse-{{ loop.index }}" role="button" aria-expanded="false" aria-controls="collapse-{{ loop.index }}">
-        {{ section_title }}
-      </h5>
-      <div class="collapse" id="collapse-{{ loop.index }}">
-        <div class="row row-cols-2 row-cols-md-5 g-4">
-          {% if section_class == 'core-operations' %}
-            {% include 'modules/core_operations.html' %}
-          {% elif section_class == 'sales-marketing' %}
-            {% include 'modules/sales_marketing.html' %}
-          {% elif section_class == 'finance-accounting' %}
-            {% include 'modules/finance.html' %}
-          {% elif section_class == 'human-resources' %}
-            {% include 'modules/human_resource.html' %}
-          {% elif section_class == 'projects-collaboration' %}
-            {% include 'modules/project_management.html' %}
-          {% elif section_class == 'analytics-reports' %}
-            {% include 'modules/reports_analytics.html' %}
-          {% elif section_class == 'it-security' %}
-            {% include 'modules/Customer_Relations.html' %}
-          {% elif section_class == 'utilities' %}
-            {% include 'modules/inventory.html' %}
-          {% endif %}
-        </div>
+  <!-- Core Operations Section -->
+  <section class="core-operations module-section">
+    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('core-operations')">
+      🏢 Core Operations
+      <i class="fas fa-chevron-down ms-2" id="core-operations-icon"></i>
+    </h4>
+    <div id="core-operations-content" class="row">
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-boxes fa-2x mb-2" style="color: #36585C;"></i>
+              <h6 class="card-title">Inventory Management</h6>
+              <p class="card-text small">Track stock, manage suppliers, and optimize inventory levels</p>
+            </div>
+          </div>
+        </a>
       </div>
-    </section>
-  {% endfor %}
-=======
-  <!-- Core Operations -->
-  <section class="mb-5 core-operations">
-    <h5 class="mb-3 text-secondary fw-semibold">Core Operations</h5>
-    <div class="row row-cols-2 row-cols-md-5 g-4">
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-boxes fa-3x mb-3" style="color: #007bff;"></i>
-            <h6 class="card-title">Stock Management</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-warehouse fa-2x mb-2" style="color: #36585C;"></i>
+              <h6 class="card-title">Warehouse Management</h6>
+              <p class="card-text small">Organize storage, track locations, and manage logistics</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="{{ url_for('stock_management') }}" class="btn btn-outline-primary btn-sm">Open</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-shopping-cart fa-3x mb-3" style="color: #ffc107;"></i>
-            <h6 class="card-title">POS</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-users fa-2x mb-2" style="color: #36585C;"></i>
+              <h6 class="card-title">Customer Management</h6>
+              <p class="card-text small">Maintain customer records, preferences, and history</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="{{ url_for('pos_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-truck-loading fa-3x mb-3" style="color: #6c757d;"></i>
-            <h6 class="card-title">Purchasing</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="{{ url_for('purchasing_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-warehouse fa-3x mb-3" style="color: #17a2b8;"></i>
-            <h6 class="card-title">Warehouse</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="{{ url_for('warehouse_dashboard') }}" class="btn btn-outline-primary btn-sm">Open</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-box-open fa-3x mb-3" style="color: #28a745;"></i>
-            <h6 class="card-title">Order Management</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="{{ url_for('order_management_dashboard') }}" class="btn btn-outline-success btn-sm">Open</a>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
 
-  <!-- Sales & Marketing -->
-  <section class="mb-5 sales-marketing">
-    <h5 class="mb-3 text-secondary fw-semibold">Sales & Marketing</h5>
-    <div class="row row-cols-2 row-cols-md-5 g-4">
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-cash-register fa-3x mb-3" style="color: #28a745;"></i>
-            <h6 class="card-title">Sales</h6>
+  <!-- Sales & Marketing Section -->
+  <section class="sales-marketing module-section">
+    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('sales-marketing')">
+      📈 Sales & Marketing
+      <i class="fas fa-chevron-down ms-2" id="sales-marketing-icon"></i>
+    </h4>
+    <div id="sales-marketing-content" class="row">
+      <div class="col-md-4 mb-3">
+        <a href="{{ url_for('crm.dashboard') }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-users fa-2x mb-2" style="color: #f39c12;"></i>
+              <h6 class="card-title">Customer Relationship Management</h6>
+              <p class="card-text small">Manage leads, customers, opportunities, and sales pipeline</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-users fa-3x mb-3" style="color: #ffc107;"></i>
-            <h6 class="card-title">CRM</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-cash-register fa-2x mb-2" style="color: #f39c12;"></i>
+              <h6 class="card-title">Point of Sale (POS)</h6>
+              <p class="card-text small">Process sales, manage transactions, and track daily revenue</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-bullhorn fa-3x mb-3" style="color: #17a2b8;"></i>
-            <h6 class="card-title">Marketing</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-chart-line fa-2x mb-2" style="color: #f39c12;"></i>
+              <h6 class="card-title">Sales Analytics</h6>
+              <p class="card-text small">Analyze sales trends, performance metrics, and forecasts</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-info btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-envelope fa-3x mb-3" style="color: #dc3545;"></i>
-            <h6 class="card-title">Email Campaigns</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-bullhorn fa-2x mb-2" style="color: #f39c12;"></i>
+              <h6 class="card-title">Marketing Campaigns</h6>
+              <p class="card-text small">Create and manage marketing campaigns and promotions</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-danger btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-comment-dots fa-3x mb-3" style="color: #6f42c1;"></i>
-            <h6 class="card-title">Live Chat</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
 
-  <!-- Finance & Accounting -->
-  <section class="mb-5 finance-accounting">
-    <h5 class="mb-3 text-secondary fw-semibold">Finance & Accounting</h5>
-    <div class="row row-cols-2 row-cols-md-5 g-4">
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-coins fa-3x mb-3" style="color: #17a2b8;"></i>
-            <h6 class="card-title">Finance</h6>
+  <!-- Finance & Accounting Section -->
+  <section class="finance-accounting module-section">
+    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('finance-accounting')">
+      💰 Finance & Accounting
+      <i class="fas fa-chevron-down ms-2" id="finance-accounting-icon"></i>
+    </h4>
+    <div id="finance-accounting-content" class="row">
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-file-invoice fa-2x mb-2" style="color: #3498db;"></i>
+              <h6 class="card-title">Invoicing & Billing</h6>
+              <p class="card-text small">Generate invoices, track payments, and manage billing</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="{{ url_for('finance_bank_cash_dashboard') }}" class="btn btn-outline-info btn-sm">Open</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-calculator fa-3x mb-3" style="color: #ffc107;"></i>
-            <h6 class="card-title">Accounting</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-calculator fa-2x mb-2" style="color: #3498db;"></i>
+              <h6 class="card-title">Financial Reports</h6>
+              <p class="card-text small">Generate P&L, balance sheets, and financial statements</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-file-invoice-dollar fa-3x mb-3" style="color: #fd7e14;"></i>
-            <h6 class="card-title">Invoicing</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-credit-card fa-2x mb-2" style="color: #3498db;"></i>
+              <h6 class="card-title">Payment Processing</h6>
+              <p class="card-text small">Handle various payment methods and transaction processing</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-file-contract fa-3x mb-3" style="color: #6610f2;"></i>
-            <h6 class="card-title">Billing</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-chart-line fa-3x mb-3" style="color: #198754;"></i>
-            <h6 class="card-title">Financial Analytics</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
 
-  <!-- Human Resources -->
-  <section class="mb-5 human-resources">
-    <h5 class="mb-3 text-secondary fw-semibold">Human Resources</h5>
-    <div class="row row-cols-2 row-cols-md-5 g-4">
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-user-tie fa-3x mb-3" style="color: #dc3545;"></i>
-            <h6 class="card-title">HR</h6>
+  <!-- Human Resources Section -->
+  <section class="human-resources module-section">
+    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('human-resources')">
+      👥 Human Resources
+      <i class="fas fa-chevron-down ms-2" id="human-resources-icon"></i>
+    </h4>
+    <div id="human-resources-content" class="row">
+      <div class="col-md-4 mb-3">
+        <a href="/employees/" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-user-tie fa-2x mb-2" style="color: #e74c3c;"></i>
+              <h6 class="card-title">Employee Management</h6>
+              <p class="card-text small">Manage employee records, contracts, and profiles</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="{{ url_for('hr_dashboard') }}" class="btn btn-outline-danger btn-sm">Open</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-calendar-check fa-3x mb-3" style="color: #20c997;"></i>
-            <h6 class="card-title">Attendance</h6>
+      <div class="col-md-4 mb-3">
+        <a href="/payroll/" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-money-check-alt fa-2x mb-2" style="color: #e74c3c;"></i>
+              <h6 class="card-title">Payroll Management</h6>
+              <p class="card-text small">Process payroll, calculate salaries, and manage deductions</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="{{ url_for('attendance_dashboard') }}" class="btn btn-outline-success btn-sm">Open</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-file-medical fa-3x mb-3" style="color: #0d6efd;"></i>
-            <h6 class="card-title">Leave Management</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-clock fa-2x mb-2" style="color: #e74c3c;"></i>
+              <h6 class="card-title">Time & Attendance</h6>
+              <p class="card-text small">Track working hours, attendance, and leave management</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-handshake fa-3x mb-3" style="color: #fd7e14;"></i>
-            <h6 class="card-title">Payroll</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-headset fa-3x mb-3" style="color: #007bff;"></i>
-            <h6 class="card-title">Support / Helpdesk</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
 
-  <!-- Projects & Collaboration -->
-  <section class="mb-5 projects-collaboration">
-    <h5 class="mb-3 text-secondary fw-semibold">Projects & Collaboration</h5>
-    <div class="row row-cols-2 row-cols-md-5 g-4">
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-folder fa-3x mb-3" style="color: #6c757d;"></i>
-            <h6 class="card-title">Projects</h6>
+  <!-- Projects & Collaboration Section -->
+  <section class="projects-collaboration module-section">
+    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('projects-collaboration')">
+      🚀 Projects & Collaboration
+      <i class="fas fa-chevron-down ms-2" id="projects-collaboration-icon"></i>
+    </h4>
+    <div id="projects-collaboration-content" class="row">
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-tasks fa-2x mb-2" style="color: #9b59b6;"></i>
+              <h6 class="card-title">Project Management</h6>
+              <p class="card-text small">Plan, track, and manage projects and tasks</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-secondary btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-comments fa-3x mb-3" style="color: #6610f2;"></i>
-            <h6 class="card-title">Team Chat</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-comments fa-2x mb-2" style="color: #9b59b6;"></i>
+              <h6 class="card-title">Team Communication</h6>
+              <p class="card-text small">Internal messaging, announcements, and collaboration tools</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-tasks fa-3x mb-3" style="color: #198754;"></i>
-            <h6 class="card-title">Task Management</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-calendar-alt fa-2x mb-2" style="color: #9b59b6;"></i>
+              <h6 class="card-title">Schedule Management</h6>
+              <p class="card-text small">Manage appointments, meetings, and resource booking</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: #0d6efd;"></i>
-            <h6 class="card-title">File Sharing</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-calendar-alt fa-3x mb-3" style="color: #fd7e14;"></i>
-            <h6 class="card-title">Calendar</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
 
-  <!-- Analytics & Reports -->
-  <section class="mb-5 analytics-reports">
-    <h5 class="mb-3 text-secondary fw-semibold">Analytics & Reports</h5>
-    <div class="row row-cols-2 row-cols-md-5 g-4">
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-chart-pie fa-3x mb-3" style="color: #6610f2;"></i>
-            <h6 class="card-title">Reports</h6>
+  <!-- Analytics & Reports Section -->
+  <section class="analytics-reports module-section">
+    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('analytics-reports')">
+      📊 Analytics & Reports
+      <i class="fas fa-chevron-down ms-2" id="analytics-reports-icon"></i>
+    </h4>
+    <div id="analytics-reports-content" class="row">
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-chart-bar fa-2x mb-2" style="color: #27ae60;"></i>
+              <h6 class="card-title">Business Intelligence</h6>
+              <p class="card-text small">Advanced analytics and business intelligence dashboards</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-chart-line fa-3x mb-3" style="color: #198754;"></i>
-            <h6 class="card-title">Business Intelligence</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-file-export fa-2x mb-2" style="color: #27ae60;"></i>
+              <h6 class="card-title">Custom Reports</h6>
+              <p class="card-text small">Create and generate custom reports and exports</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-database fa-3x mb-3" style="color: #0d6efd;"></i>
-            <h6 class="card-title">Data Management</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-tachometer-alt fa-2x mb-2" style="color: #27ae60;"></i>
+              <h6 class="card-title">Performance Metrics</h6>
+              <p class="card-text small">KPI tracking and performance measurement tools</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-file-alt fa-3x mb-3" style="color: #6f42c1;"></i>
-            <h6 class="card-title">Compliance</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-purple btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
 
-  <!-- IT & Security -->
-  <section class="mb-5 it-security">
-    <h5 class="mb-3 text-secondary fw-semibold">IT & Security</h5>
-    <div class="row row-cols-2 row-cols-md-5 g-4">
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-server fa-3x mb-3" style="color: #6c757d;"></i>
-            <h6 class="card-title">IT Management</h6>
+  <!-- IT & Security Section -->
+  <section class="it-security module-section">
+    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('it-security')">
+      🔒 IT & Security
+      <i class="fas fa-chevron-down ms-2" id="it-security-icon"></i>
+    </h4>
+    <div id="it-security-content" class="row">
+      <div class="col-md-4 mb-3">
+        <a href="/users/" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-user-shield fa-2x mb-2" style="color: #f39c12;"></i>
+              <h6 class="card-title">User Management</h6>
+              <p class="card-text small">Manage user accounts, roles, and permissions</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-secondary btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-user-shield fa-3x mb-3" style="color: #dc3545;"></i>
-            <h6 class="card-title">Security</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-database fa-2x mb-2" style="color: #f39c12;"></i>
+              <h6 class="card-title">Backup & Recovery</h6>
+              <p class="card-text small">Data backup, recovery, and system maintenance</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-danger btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-network-wired fa-3x mb-3" style="color: #007bff;"></i>
-            <h6 class="card-title">Network Management</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-cogs fa-2x mb-2" style="color: #f39c12;"></i>
+              <h6 class="card-title">System Settings</h6>
+              <p class="card-text small">Configure system preferences and administrative settings</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-shield-alt fa-3x mb-3" style="color: #198754;"></i>
-            <h6 class="card-title">Compliance & Audit</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
 
-  <!-- Utilities -->
-  <section class="mb-5 utilities">
-    <h5 class="mb-3 text-secondary fw-semibold">Utilities</h5>
-    <div class="row row-cols-2 row-cols-md-5 g-4">
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-cogs fa-3x mb-3" style="color: #6c757d;"></i>
-            <h6 class="card-title">Settings</h6>
+  <!-- Utilities Section -->
+  <section class="utilities module-section">
+    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('utilities')">
+      🛠️ Utilities
+      <i class="fas fa-chevron-down ms-2" id="utilities-icon"></i>
+    </h4>
+    <div id="utilities-content" class="row">
+      <div class="col-md-4 mb-3">
+        <a href="/support/" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-life-ring fa-2x mb-2" style="color: #95a5a6;"></i>
+              <h6 class="card-title">Support & Help</h6>
+              <p class="card-text small">Get help, submit tickets, and access documentation</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-secondary btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-file-export fa-3x mb-3" style="color: #0d6efd;"></i>
-            <h6 class="card-title">Data Export</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-file-import fa-2x mb-2" style="color: #95a5a6;"></i>
+              <h6 class="card-title">Data Import/Export</h6>
+              <p class="card-text small">Import data from external sources and export reports</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-primary btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-sync-alt fa-3x mb-3" style="color: #198754;"></i>
-            <h6 class="card-title">Backup & Restore</h6>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-bell fa-2x mb-2" style="color: #95a5a6;"></i>
+              <h6 class="card-title">Notifications</h6>
+              <p class="card-text small">Manage alerts, reminders, and system notifications</p>
+            </div>
           </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-success btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
+        </a>
       </div>
-
-      <div class="col text-center">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center">
-            <i class="fas fa-file-alt fa-3x mb-3" style="color: #ffc107;"></i>
-            <h6 class="card-title">Logs & Audit Trail</h6>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 text-center">
-            <a href="#" class="btn btn-outline-warning btn-sm disabled">Coming Soon</a>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
->>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
 </div>
+
+<script>
+function toggleSection(sectionId) {
+  const content = document.getElementById(sectionId + '-content');
+  const icon = document.getElementById(sectionId + '-icon');
+  
+  if (content.style.display === 'none') {
+    content.style.display = 'block';
+    icon.className = 'fas fa-chevron-down ms-2';
+  } else {
+    content.style.display = 'none';
+    icon.className = 'fas fa-chevron-right ms-2';
+  }
+}
+
+// Initialize all sections as expanded
+document.addEventListener('DOMContentLoaded', function() {
+  const sections = ['core-operations', 'sales-marketing', 'finance-accounting', 'human-resources', 
+                   'projects-collaboration', 'analytics-reports', 'it-security', 'utilities'];
+  
+  sections.forEach(function(sectionId) {
+    const content = document.getElementById(sectionId + '-content');
+    content.style.display = 'block';
+  });
+});
+</script>
 
 {% endblock %}

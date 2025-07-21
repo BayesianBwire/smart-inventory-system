@@ -1,0 +1,321 @@
+{% extends "layout.html" %}
+
+{% block title %}Leads - CRM{% endblock %}
+
+{% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    .lead-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+        margin-bottom: 1rem;
+    }
+    .lead-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .lead-status {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+    }
+    .lead-score {
+        background: linear-gradient(45deg, #007bff, #6c5ce7);
+        color: white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    .priority-indicator {
+        width: 4px;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        border-radius: 10px 0 0 10px;
+    }
+    .priority-high { background: #dc3545; }
+    .priority-medium { background: #ffc107; }
+    .priority-low { background: #28a745; }
+    .filter-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .search-box {
+        border-radius: 25px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1.5rem;
+    }
+    .search-box:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="h3 mb-3"><i class="fas fa-user-plus me-2"></i>Leads</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{{ url_for('crm.add_lead') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add New Lead
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-card">
+        <form method="GET" action="{{ url_for('crm.leads') }}">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control search-box" 
+                           placeholder="Search leads..." value="{{ request.args.get('search', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="new" {{ 'selected' if request.args.get('status') == 'new' }}>New</option>
+                        <option value="contacted" {{ 'selected' if request.args.get('status') == 'contacted' }}>Contacted</option>
+                        <option value="qualified" {{ 'selected' if request.args.get('status') == 'qualified' }}>Qualified</option>
+                        <option value="converted" {{ 'selected' if request.args.get('status') == 'converted' }}>Converted</option>
+                        <option value="lost" {{ 'selected' if request.args.get('status') == 'lost' }}>Lost</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="source" class="form-select">
+                        <option value="">All Sources</option>
+                        <option value="website" {{ 'selected' if request.args.get('source') == 'website' }}>Website</option>
+                        <option value="referral" {{ 'selected' if request.args.get('source') == 'referral' }}>Referral</option>
+                        <option value="cold_call" {{ 'selected' if request.args.get('source') == 'cold_call' }}>Cold Call</option>
+                        <option value="email_campaign" {{ 'selected' if request.args.get('source') == 'email_campaign' }}>Email Campaign</option>
+                        <option value="social_media" {{ 'selected' if request.args.get('source') == 'social_media' }}>Social Media</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="sort" class="form-select">
+                        <option value="created_at" {{ 'selected' if request.args.get('sort') == 'created_at' }}>Date Created</option>
+                        <option value="lead_score" {{ 'selected' if request.args.get('sort') == 'lead_score' }}>Lead Score</option>
+                        <option value="last_name" {{ 'selected' if request.args.get('sort') == 'last_name' }}>Name</option>
+                        <option value="updated_at" {{ 'selected' if request.args.get('sort') == 'updated_at' }}>Last Updated</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Leads List -->
+    {% if leads %}
+        <div class="row">
+            {% for lead in leads %}
+            <div class="col-lg-6 col-xl-4">
+                <div class="card lead-card position-relative">
+                    <div class="priority-indicator priority-{{ lead.priority }}"></div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title mb-1">
+                                    <a href="{{ url_for('crm.view_lead', id=lead.id) }}" class="text-decoration-none">
+                                        {{ lead.full_name }}
+                                    </a>
+                                </h5>
+                                {% if lead.company_name %}
+                                    <p class="text-muted mb-1"><i class="fas fa-building me-1"></i>{{ lead.company_name }}</p>
+                                {% endif %}
+                                {% if lead.job_title %}
+                                    <p class="text-muted mb-0"><i class="fas fa-briefcase me-1"></i>{{ lead.job_title }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="lead-score">
+                                {{ lead.lead_score or 0 }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <p class="mb-1">
+                                <i class="fas fa-envelope me-2"></i>
+                                <a href="mailto:{{ lead.email }}">{{ lead.email }}</a>
+                            </p>
+                            {% if lead.phone %}
+                                <p class="mb-1">
+                                    <i class="fas fa-phone me-2"></i>
+                                    <a href="tel:{{ lead.phone }}">{{ lead.phone }}</a>
+                                </p>
+                            {% endif %}
+                            {% if lead.mobile %}
+                                <p class="mb-1">
+                                    <i class="fas fa-mobile-alt me-2"></i>
+                                    <a href="tel:{{ lead.mobile }}">{{ lead.mobile }}</a>
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <span class="lead-status bg-{{ 
+                                        'success' if lead.lead_status == 'converted' 
+                                        else 'primary' if lead.lead_status == 'qualified'
+                                        else 'warning' if lead.lead_status == 'contacted'
+                                        else 'danger' if lead.lead_status == 'lost'
+                                        else 'secondary'
+                                    }} text-{{ 'white' if lead.lead_status in ['converted', 'qualified', 'lost'] else 'dark' }}">
+                                        {{ lead.lead_status.title() }}
+                                    </span>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <small class="text-muted">
+                                        Priority: <span class="text-{{ 'danger' if lead.priority == 'high' else 'warning' if lead.priority == 'medium' else 'success' }}">
+                                            {{ lead.priority.title() }}
+                                        </span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if lead.lead_source %}
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-{{ 'globe' if lead.lead_source == 'website' 
+                                                         else 'share-alt' if lead.lead_source == 'referral'
+                                                         else 'phone' if lead.lead_source == 'cold_call'
+                                                         else 'envelope' if lead.lead_source == 'email_campaign'
+                                                         else 'share-square' if lead.lead_source == 'social_media'
+                                                         else 'question' }} me-1"></i>
+                                    Source: {{ lead.lead_source.replace('_', ' ').title() }}
+                                </small>
+                            </div>
+                        {% endif %}
+
+                        {% if lead.qualification_status and lead.qualification_status != 'unqualified' %}
+                            <div class="mb-3">
+                                <span class="badge bg-{{ 'success' if lead.qualification_status == 'sales_qualified' else 'info' }}">
+                                    {{ lead.qualification_status.replace('_', ' ').title() }}
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        {% if lead.budget %}
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-dollar-sign me-1"></i>
+                                    Budget: ${{ "{:,.0f}".format(lead.budget) }}
+                                </small>
+                            </div>
+                        {% endif %}
+
+                        {% if lead.next_follow_up %}
+                            <div class="mb-3">
+                                <small class="text-{{ 'danger' if lead.next_follow_up < moment.utcnow() else 'info' }}">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Follow-up: {{ lead.next_follow_up.strftime('%b %d, %Y at %I:%M %p') }}
+                                    {% if lead.next_follow_up < moment.utcnow() %}
+                                        <span class="badge bg-danger ms-1">Overdue</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ lead.created_at.strftime('%b %d, %Y') }}
+                            </small>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('crm.view_lead', id=lead.id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('crm.edit_lead', id=lead.id) }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if lead.lead_status != 'converted' %}
+                                    <a href="{{ url_for('crm.convert_lead', id=lead.id) }}" class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-user-check"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+            <nav aria-label="Leads pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if pagination.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('crm.leads', page=pagination.prev_num, **request.args) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in pagination.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != pagination.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('crm.leads', page=page_num, **request.args) }}">{{ page_num }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">…</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if pagination.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('crm.leads', page=pagination.next_num, **request.args) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+            <h4>No Leads Found</h4>
+            <p class="text-muted">{% if request.args.get('search') or request.args.get('status') or request.args.get('source') %}
+                No leads match your current filters. Try adjusting your search criteria.
+            {% else %}
+                You haven't added any leads yet. Start building your sales pipeline!
+            {% endif %}</p>
+            <a href="{{ url_for('crm.add_lead') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add Your First Lead
+            </a>
+            {% if request.args.get('search') or request.args.get('status') or request.args.get('source') %}
+                <a href="{{ url_for('crm.leads') }}" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-times me-2"></i>Clear Filters
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

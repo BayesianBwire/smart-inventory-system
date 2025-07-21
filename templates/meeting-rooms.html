@@ -1,0 +1,418 @@
+{% extends "base.html" %}
+
+{% block title %}Meeting Rooms - RahaSoft ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-video me-2"></i>Meeting Rooms
+                </h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRoomModal">
+                    <i class="fas fa-plus me-2"></i>Create Room
+                </button>
+            </div>
+
+            <!-- Active Rooms -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-users me-2"></i>Active Meeting Rooms
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="activeRooms">
+                                <!-- Demo Room -->
+                                <div class="meeting-room-card border rounded p-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="text-primary">Team Standup</h6>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-user me-1"></i>3 participants
+                                                <span class="ms-3">
+                                                    <i class="fas fa-clock me-1"></i>Started 15 min ago
+                                                </span>
+                                            </p>
+                                            <div class="participants mb-2">
+                                                <span class="badge bg-primary me-1">John Doe</span>
+                                                <span class="badge bg-secondary me-1">Jane Smith</span>
+                                                <span class="badge bg-success me-1">Mike Johnson</span>
+                                            </div>
+                                        </div>
+                                        <div class="room-actions">
+                                            <button class="btn btn-sm btn-success me-2">
+                                                <i class="fas fa-video me-1"></i>Join
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-times me-1"></i>End
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="meeting-room-card border rounded p-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="text-primary">Client Presentation</h6>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-user me-1"></i>5 participants
+                                                <span class="ms-3">
+                                                    <i class="fas fa-clock me-1"></i>Started 32 min ago
+                                                </span>
+                                            </p>
+                                            <div class="participants mb-2">
+                                                <span class="badge bg-primary me-1">Sarah Wilson</span>
+                                                <span class="badge bg-secondary me-1">Tom Brown</span>
+                                                <span class="badge bg-success me-1">+3 more</span>
+                                            </div>
+                                        </div>
+                                        <div class="room-actions">
+                                            <button class="btn btn-sm btn-success me-2">
+                                                <i class="fas fa-video me-1"></i>Join
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-times me-1"></i>End
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-center text-muted mt-4" id="noRoomsMessage" style="display: none;">
+                                    <i class="fas fa-video fa-3x mb-3"></i>
+                                    <p>No active meeting rooms. Create one to get started!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Quick Start -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-rocket me-2"></i>Quick Start
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" id="quickMeeting">
+                                    <i class="fas fa-video me-2"></i>Instant Meeting
+                                </button>
+                                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                                    <i class="fas fa-calendar me-2"></i>Schedule Meeting
+                                </button>
+                                <button class="btn btn-outline-secondary" id="shareScreen">
+                                    <i class="fas fa-desktop me-2"></i>Share Screen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Meeting Statistics -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Today's Stats
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="border-end">
+                                        <h4 class="text-primary">8</h4>
+                                        <small class="text-muted">Meetings</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-success">4.5h</h4>
+                                    <small class="text-muted">Total Time</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="border-end">
+                                        <h4 class="text-info">24</h4>
+                                        <small class="text-muted">Participants</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-warning">2</h4>
+                                    <small class="text-muted">Active Now</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Room Modal -->
+<div class="modal fade" id="createRoomModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>Create Meeting Room
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createRoomForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="roomName" class="form-label">Room Name</label>
+                        <input type="text" class="form-control" id="roomName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="roomDescription" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="roomDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Room Settings</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="waitingRoom" checked>
+                            <label class="form-check-label" for="waitingRoom">
+                                Enable waiting room
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="recordMeeting">
+                            <label class="form-check-label" for="recordMeeting">
+                                Record meeting
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="muteParticipants">
+                            <label class="form-check-label" for="muteParticipants">
+                                Mute participants on join
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-video me-2"></i>Create Room
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Schedule Meeting Modal -->
+<div class="modal fade" id="scheduleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar me-2"></i>Schedule Meeting
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="scheduleForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="meetingTitle" class="form-label">Meeting Title</label>
+                        <input type="text" class="form-control" id="meetingTitle" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="meetingDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="meetingDate" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="meetingTime" class="form-label">Time</label>
+                                <input type="time" class="form-control" id="meetingTime" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duration (minutes)</label>
+                        <select class="form-select" id="duration">
+                            <option value="30">30 minutes</option>
+                            <option value="60" selected>1 hour</option>
+                            <option value="90">1.5 hours</option>
+                            <option value="120">2 hours</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inviteEmails" class="form-label">Invite Participants (Email addresses)</label>
+                        <textarea class="form-control" id="inviteEmails" rows="3" placeholder="Enter email addresses separated by commas"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus me-2"></i>Schedule Meeting
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.meeting-room-card {
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.meeting-room-card:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.participants .badge {
+    font-size: 0.75rem;
+}
+
+.room-actions .btn {
+    min-width: 70px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const createRoomForm = document.getElementById('createRoomForm');
+    const scheduleForm = document.getElementById('scheduleForm');
+    const quickMeetingBtn = document.getElementById('quickMeeting');
+    const shareScreenBtn = document.getElementById('shareScreen');
+
+    // Set default date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('meetingDate').value = today;
+
+    // Quick meeting
+    quickMeetingBtn.addEventListener('click', function() {
+        createInstantMeeting();
+    });
+
+    // Share screen
+    shareScreenBtn.addEventListener('click', function() {
+        if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+            navigator.mediaDevices.getDisplayMedia({ video: true })
+                .then(stream => {
+                    alert('Screen sharing started! (Demo mode)');
+                    // In a real implementation, you would handle the stream
+                    stream.getTracks().forEach(track => track.stop());
+                })
+                .catch(err => {
+                    alert('Screen sharing not supported or permission denied');
+                });
+        } else {
+            alert('Screen sharing not supported in this browser');
+        }
+    });
+
+    // Create room form
+    createRoomForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const roomName = document.getElementById('roomName').value;
+        const description = document.getElementById('roomDescription').value;
+        
+        // Simulate room creation
+        createMeetingRoom(roomName, description);
+        
+        // Close modal and reset form
+        bootstrap.Modal.getInstance(document.getElementById('createRoomModal')).hide();
+        createRoomForm.reset();
+    });
+
+    // Schedule form
+    scheduleForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const title = document.getElementById('meetingTitle').value;
+        const date = document.getElementById('meetingDate').value;
+        const time = document.getElementById('meetingTime').value;
+        
+        // Simulate meeting scheduling
+        scheduleMeeting(title, date, time);
+        
+        // Close modal and reset form
+        bootstrap.Modal.getInstance(document.getElementById('scheduleModal')).hide();
+        scheduleForm.reset();
+    });
+
+    function createInstantMeeting() {
+        const roomName = `Quick Meeting ${new Date().toLocaleTimeString()}`;
+        createMeetingRoom(roomName, 'Instant meeting room');
+    }
+
+    function createMeetingRoom(name, description) {
+        const activeRooms = document.getElementById('activeRooms');
+        const roomCard = document.createElement('div');
+        roomCard.className = 'meeting-room-card border rounded p-3 mb-3';
+        roomCard.innerHTML = `
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="text-primary">${name}</h6>
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-user me-1"></i>1 participant
+                        <span class="ms-3">
+                            <i class="fas fa-clock me-1"></i>Just started
+                        </span>
+                    </p>
+                    <div class="participants mb-2">
+                        <span class="badge bg-primary me-1">You</span>
+                    </div>
+                </div>
+                <div class="room-actions">
+                    <button class="btn btn-sm btn-success me-2" onclick="joinRoom('${name}')">
+                        <i class="fas fa-video me-1"></i>Join
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="endRoom(this)">
+                        <i class="fas fa-times me-1"></i>End
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Insert at the beginning
+        activeRooms.insertBefore(roomCard, activeRooms.firstChild);
+        
+        showAlert('success', `Meeting room "${name}" created successfully!`);
+    }
+
+    function scheduleMeeting(title, date, time) {
+        showAlert('success', `Meeting "${title}" scheduled for ${date} at ${time}`);
+    }
+
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.row'));
+        
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // Global functions for room actions
+    window.joinRoom = function(roomName) {
+        showAlert('info', `Joining meeting room: ${roomName}`);
+    };
+
+    window.endRoom = function(button) {
+        const roomCard = button.closest('.meeting-room-card');
+        roomCard.remove();
+        showAlert('warning', 'Meeting room ended');
+    };
+});
+</script>
+{% endblock %}

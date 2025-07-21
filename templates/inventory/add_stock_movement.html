@@ -1,0 +1,432 @@
+{% extends "base.html" %}
+
+{% block title %}Add Stock Movement - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .movement-type-card {
+        transition: all 0.3s;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+    .movement-type-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .movement-type-card.selected {
+        border-color: #007bff;
+        background-color: #f8f9ff;
+    }
+    .movement-type-card .card-body {
+        text-align: center;
+        padding: 2rem;
+    }
+    .movement-type-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    .product-search {
+        position: relative;
+    }
+    .product-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-top: none;
+        border-radius: 0 0 0.375rem 0.375rem;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+    .product-suggestion {
+        padding: 0.75rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    .product-suggestion:hover {
+        background-color: #f8f9fa;
+    }
+    .product-suggestion:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-exchange-alt text-primary"></i>
+            Add Stock Movement
+        </h1>
+        <a href="{{ url_for('inventory.stock_movements') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Movements
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0">Record Stock Movement</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="stockMovementForm">
+                        <!-- Movement Type Selection -->
+                        <div class="mb-4">
+                            <label class="form-label"><strong>Select Movement Type:</strong></label>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="card movement-type-card" data-type="in">
+                                        <div class="card-body">
+                                            <i class="fas fa-arrow-down movement-type-icon text-success"></i>
+                                            <h5 class="card-title">Stock In</h5>
+                                            <p class="card-text">Add inventory from purchase, return, or transfer</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card movement-type-card" data-type="out">
+                                        <div class="card-body">
+                                            <i class="fas fa-arrow-up movement-type-icon text-danger"></i>
+                                            <h5 class="card-title">Stock Out</h5>
+                                            <p class="card-text">Remove inventory from sale, damage, or transfer</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card movement-type-card" data-type="adjustment">
+                                        <div class="card-body">
+                                            <i class="fas fa-adjust movement-type-icon text-warning"></i>
+                                            <h5 class="card-title">Adjustment</h5>
+                                            <p class="card-text">Correct inventory counts from physical count</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="movement_type" id="movement_type" required>
+                        </div>
+
+                        <!-- Product Selection -->
+                        <div class="mb-3">
+                            <label for="product_search" class="form-label"><strong>Product:</strong></label>
+                            <div class="product-search">
+                                <input type="text" id="product_search" class="form-control" 
+                                       placeholder="Search by product name, SKU, or barcode..." required>
+                                <div class="product-suggestions" id="productSuggestions"></div>
+                                <input type="hidden" name="product_id" id="product_id" required>
+                            </div>
+                        </div>
+
+                        <!-- Selected Product Display -->
+                        <div id="selectedProductInfo" class="alert alert-info" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Product:</strong> <span id="selectedProductName"></span><br>
+                                    <strong>SKU:</strong> <span id="selectedProductSku"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Current Stock:</strong> <span id="selectedProductStock"></span><br>
+                                    <strong>Price:</strong> $<span id="selectedProductPrice"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Movement Details -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="quantity" class="form-label"><strong>Quantity:</strong></label>
+                                <input type="number" name="quantity" id="quantity" class="form-control" 
+                                       min="1" required>
+                                <div id="quantityHelp" class="form-text"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="reference" class="form-label">Reference/Document No:</label>
+                                <input type="text" name="reference" id="reference" class="form-control" 
+                                       placeholder="e.g., PO-001, Invoice-123">
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-4">
+                            <label for="notes" class="form-label">Notes/Reason:</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="3" 
+                                      placeholder="Optional notes about this stock movement..."></textarea>
+                        </div>
+
+                        <!-- Preview -->
+                        <div id="movementPreview" class="alert alert-secondary" style="display: none;">
+                            <h6><i class="fas fa-eye"></i> Movement Preview:</h6>
+                            <div id="previewContent"></div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('inventory.stock_movements') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                                <i class="fas fa-save"></i> Record Movement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedProduct = null;
+let searchTimeout = null;
+
+$(document).ready(function() {
+    // Handle movement type selection
+    $('.movement-type-card').click(function() {
+        $('.movement-type-card').removeClass('selected');
+        $(this).addClass('selected');
+        
+        const type = $(this).data('type');
+        $('#movement_type').val(type);
+        
+        updateQuantityHelp();
+        updatePreview();
+        validateForm();
+    });
+    
+    // Product search with debounce
+    $('#product_search').on('input', function() {
+        const query = $(this).val();
+        
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        if (query.length < 2) {
+            $('#productSuggestions').hide();
+            return;
+        }
+        
+        searchTimeout = setTimeout(function() {
+            searchProducts(query);
+        }, 300);
+    });
+    
+    // Hide suggestions when clicking outside
+    $(document).click(function(e) {
+        if (!$(e.target).closest('.product-search').length) {
+            $('#productSuggestions').hide();
+        }
+    });
+    
+    // Update preview when inputs change
+    $('#quantity, #reference, #notes').on('input', function() {
+        updatePreview();
+        validateForm();
+    });
+    
+    // Pre-select product if passed in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('product_id');
+    if (productId) {
+        loadProduct(productId);
+    }
+});
+
+function searchProducts(query) {
+    $.ajax({
+        url: '{{ url_for("inventory.api_product_search") }}',
+        data: { q: query },
+        success: function(products) {
+            displayProductSuggestions(products);
+        },
+        error: function() {
+            console.error('Error searching products');
+        }
+    });
+}
+
+function displayProductSuggestions(products) {
+    const suggestions = $('#productSuggestions');
+    suggestions.empty();
+    
+    if (products.length === 0) {
+        suggestions.append('<div class="product-suggestion text-muted">No products found</div>');
+    } else {
+        products.forEach(function(product) {
+            const suggestion = $(`
+                <div class="product-suggestion" data-product-id="${product.id}">
+                    <strong>${product.name}</strong> (${product.sku})<br>
+                    <small class="text-muted">Stock: ${product.quantity} | Price: $${product.price}</small>
+                </div>
+            `);
+            
+            suggestion.click(function() {
+                selectProduct(product);
+            });
+            
+            suggestions.append(suggestion);
+        });
+    }
+    
+    suggestions.show();
+}
+
+function selectProduct(product) {
+    selectedProduct = product;
+    
+    $('#product_search').val(`${product.name} (${product.sku})`);
+    $('#product_id').val(product.id);
+    $('#productSuggestions').hide();
+    
+    // Display selected product info
+    $('#selectedProductName').text(product.name);
+    $('#selectedProductSku').text(product.sku);
+    $('#selectedProductStock').text(product.quantity);
+    $('#selectedProductPrice').text(product.price);
+    $('#selectedProductInfo').show();
+    
+    updateQuantityHelp();
+    updatePreview();
+    validateForm();
+}
+
+function loadProduct(productId) {
+    // Find product in the products list or make an API call
+    $.ajax({
+        url: `{{ url_for("inventory.api_product_stock_status", product_id=0) }}`.replace('0', productId),
+        success: function(data) {
+            // Create a mock product object for selectProduct
+            const product = {
+                id: productId,
+                name: 'Loading...', // You might want to get this from somewhere
+                sku: 'Loading...',
+                quantity: data.quantity,
+                price: 0 // You might want to get this from somewhere
+            };
+            selectProduct(product);
+        },
+        error: function() {
+            console.error('Error loading product');
+        }
+    });
+}
+
+function updateQuantityHelp() {
+    const type = $('#movement_type').val();
+    const helpText = $('#quantityHelp');
+    
+    if (!selectedProduct || !type) {
+        helpText.text('');
+        return;
+    }
+    
+    const currentStock = selectedProduct.quantity;
+    
+    if (type === 'in') {
+        helpText.text('Enter the quantity to add to stock').removeClass('text-danger').addClass('text-success');
+    } else if (type === 'out') {
+        helpText.text(`Enter the quantity to remove (Available: ${currentStock})`).removeClass('text-success');
+        if (currentStock === 0) {
+            helpText.addClass('text-danger');
+        }
+    } else if (type === 'adjustment') {
+        helpText.text(`Enter the new total quantity (Current: ${currentStock})`).removeClass('text-danger text-success');
+    }
+}
+
+function updatePreview() {
+    const type = $('#movement_type').val();
+    const quantity = parseInt($('#quantity').val()) || 0;
+    const reference = $('#reference').val();
+    const notes = $('#notes').val();
+    
+    if (!selectedProduct || !type || !quantity) {
+        $('#movementPreview').hide();
+        return;
+    }
+    
+    const currentStock = selectedProduct.quantity;
+    let newStock = currentStock;
+    let action = '';
+    
+    if (type === 'in') {
+        newStock = currentStock + quantity;
+        action = `Add ${quantity} units`;
+    } else if (type === 'out') {
+        newStock = currentStock - quantity;
+        action = `Remove ${quantity} units`;
+    } else if (type === 'adjustment') {
+        newStock = quantity;
+        action = `Adjust to ${quantity} units`;
+    }
+    
+    const preview = `
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Product:</strong> ${selectedProduct.name}<br>
+                <strong>Action:</strong> ${action}<br>
+                ${reference ? `<strong>Reference:</strong> ${reference}<br>` : ''}
+                ${notes ? `<strong>Notes:</strong> ${notes}` : ''}
+            </div>
+            <div class="col-md-6">
+                <strong>Current Stock:</strong> ${currentStock}<br>
+                <strong>New Stock:</strong> <span class="${newStock < 0 ? 'text-danger' : 'text-success'}">${newStock}</span>
+                ${newStock < 0 ? '<br><small class="text-danger">⚠️ This will result in negative stock!</small>' : ''}
+            </div>
+        </div>
+    `;
+    
+    $('#previewContent').html(preview);
+    $('#movementPreview').show();
+}
+
+function validateForm() {
+    const type = $('#movement_type').val();
+    const productId = $('#product_id').val();
+    const quantity = parseInt($('#quantity').val()) || 0;
+    
+    let isValid = type && productId && quantity > 0;
+    
+    // Additional validation for stock out
+    if (type === 'out' && selectedProduct) {
+        const currentStock = selectedProduct.quantity;
+        if (quantity > currentStock) {
+            isValid = false;
+            $('#quantity').addClass('is-invalid');
+        } else {
+            $('#quantity').removeClass('is-invalid');
+        }
+    }
+    
+    $('#submitBtn').prop('disabled', !isValid);
+}
+
+// Form submission
+$('#stockMovementForm').submit(function(e) {
+    const type = $('#movement_type').val();
+    const quantity = parseInt($('#quantity').val()) || 0;
+    
+    if (type === 'out' && selectedProduct && quantity > selectedProduct.quantity) {
+        e.preventDefault();
+        alert('Cannot remove more stock than available.');
+        return false;
+    }
+    
+    if (type === 'adjustment' && quantity < 0) {
+        e.preventDefault();
+        alert('Adjustment quantity cannot be negative.');
+        return false;
+    }
+    
+    return true;
+});
+</script>
+{% endblock %}

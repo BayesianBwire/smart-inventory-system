@@ -216,7 +216,6 @@
       flex-wrap: wrap;
     }
 
-<<<<<<< HEAD
     .footer-links a {
       color: rgba(255, 255, 255, 0.7);
       text-decoration: none;
@@ -233,21 +232,6 @@
       color: rgba(255, 255, 255, 0.5);
       padding-top: 2rem;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
-=======
-    footer .footer-content {
-      width: 100%;
-      max-width: 1140px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-
-    footer .copyright {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
->>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
     }
 
     #language-selector {
@@ -420,19 +404,7 @@
         </div>
       </div>
     </div>
-<<<<<<< HEAD
   </nav>
-=======
-    <div class="user-info">
-      <span>
-        Logged in as <strong>{{ session['user'] }}</strong>
-        {% if session['role'] %} ({{ session['role'].replace('_', ' ').title() }}){% endif %}
-      </span>
-      <a href="{{ url_for('user_bp.user_list') }}" class="btn btn-outline-primary btn-sm">👥 Users</a>
-      <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">🚪 Logout</a>
-    </div>
-  </header>
->>>>>>> 91ba72583ac0aa6fe24cbef1417db31698cdaf66
 
   <!-- Main Content -->
   <main>

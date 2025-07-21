@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 text-center">
+  <h1 class="display-3 text-warning fw-bold">404</h1>
+  <p class="lead">🔍 The page you're looking for could not be found.</p>
+  <p class="text-muted">The URL might be incorrect or the page may have been moved.</p>
+  <a href="{{ url_for('welcome') }}" class="btn btn-outline-primary mt-3 me-2">
+    🏠 Back to Home
+  </a>
+  <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mt-3">
+    📊 Go to Dashboard
+  </a>
+</div>
+{% endblock %}

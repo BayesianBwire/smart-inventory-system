@@ -1,37 +1,216 @@
-{% extends 'shared/base.html' %}
+{% extends "layout.html" %}
+
+{% block title %}Add Lead - CRM{% endblock %}
+
+{% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    .form-section {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    .section-title {
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="mb-4">➕ Add New Lead</h2>
-  <form method="POST">
-    {{ form.hidden_tag() }}
-
-    <div class="form-group mb-3">
-      {{ form.full_name.label }} {{ form.full_name(class="form-control") }}
-    </div>
-    <div class="form-group mb-3">
-      {{ form.email.label }} {{ form.email(class="form-control") }}
-    </div>
-    <div class="form-group mb-3">
-      {{ form.phone.label }} {{ form.phone(class="form-control") }}
-    </div>
-    <div class="form-group mb-3">
-      {{ form.company.label }} {{ form.company(class="form-control") }}
-    </div>
-    <div class="form-group mb-3">
-      {{ form.lead_source.label }} {{ form.lead_source(class="form-control") }}
-    </div>
-    <div class="form-group mb-3">
-      {{ form.lead_status.label }} {{ form.lead_status(class="form-control") }}
-    </div>
-    <div class="form-group mb-3">
-      {{ form.industry.label }} {{ form.industry(class="form-control") }}
-    </div>
-    <div class="form-group mb-3">
-      {{ form.notes.label }} {{ form.notes(class="form-control", rows="3") }}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="h3 mb-3"><i class="fas fa-user-plus me-2"></i>Add New Lead</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{{ url_for('crm.leads') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Leads
+            </a>
+        </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
-  </form>
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <!-- Basic Information -->
+        <div class="form-section">
+            <h5 class="section-title"><i class="fas fa-user me-2"></i>Basic Information</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    {{ form.first_name.label(class="form-label required-field") }}
+                    {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else "")) }}
+                    {% if form.first_name.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.first_name.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.last_name.label(class="form-label required-field") }}
+                    {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else "")) }}
+                    {% if form.last_name.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.last_name.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.company_name.label(class="form-label") }}
+                    {{ form.company_name(class="form-control" + (" is-invalid" if form.company_name.errors else "")) }}
+                    {% if form.company_name.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.company_name.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.job_title.label(class="form-label") }}
+                    {{ form.job_title(class="form-control" + (" is-invalid" if form.job_title.errors else "")) }}
+                    {% if form.job_title.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.job_title.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="form-section">
+            <h5 class="section-title"><i class="fas fa-address-book me-2"></i>Contact Information</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    {{ form.email.label(class="form-label required-field") }}
+                    {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+                    {% if form.email.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.phone.label(class="form-label") }}
+                    {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else "")) }}
+                    {% if form.phone.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.mobile.label(class="form-label") }}
+                    {{ form.mobile(class="form-control" + (" is-invalid" if form.mobile.errors else "")) }}
+                    {% if form.mobile.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.mobile.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.website.label(class="form-label") }}
+                    {{ form.website(class="form-control" + (" is-invalid" if form.website.errors else "")) }}
+                    {% if form.website.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.website.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Lead Details -->
+        <div class="form-section">
+            <h5 class="section-title"><i class="fas fa-chart-line me-2"></i>Lead Details</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    {{ form.lead_source.label(class="form-label") }}
+                    {{ form.lead_source(class="form-select" + (" is-invalid" if form.lead_source.errors else "")) }}
+                    {% if form.lead_source.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.lead_source.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    {{ form.lead_status.label(class="form-label required-field") }}
+                    {{ form.lead_status(class="form-select" + (" is-invalid" if form.lead_status.errors else "")) }}
+                    {% if form.lead_status.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.lead_status.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    {{ form.priority.label(class="form-label required-field") }}
+                    {{ form.priority(class="form-select" + (" is-invalid" if form.priority.errors else "")) }}
+                    {% if form.priority.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.priority.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.industry.label(class="form-label") }}
+                    {{ form.industry(class="form-control" + (" is-invalid" if form.industry.errors else "")) }}
+                    {% if form.industry.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.industry.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="form-section">
+            <h5 class="section-title"><i class="fas fa-sticky-note me-2"></i>Additional Information</h5>
+            <div class="row g-3">
+                <div class="col-12">
+                    {{ form.notes.label(class="form-label") }}
+                    {{ form.notes(class="form-control", rows="4", placeholder="Add any additional notes about this lead...") }}
+                    {% if form.notes.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.notes.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-12">
+                    {{ form.tags.label(class="form-label") }}
+                    {{ form.tags(class="form-control", placeholder="e.g., hot-prospect, enterprise, referral") }}
+                    {% if form.tags.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.tags.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">Separate tags with commas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-section">
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('crm.leads') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Add Lead
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 {% endblock %}

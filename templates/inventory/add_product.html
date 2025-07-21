@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Add Product - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-section h5 {
+        color: #495057;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+    .input-group-text {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-plus text-primary"></i>
+            Add New Product
+        </h1>
+        <a href="{{ url_for('inventory.products') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Products
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-info-circle"></i> Basic Information</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label required-field">Product Name</label>
+                                    <input type="text" name="name" id="name" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="sku" class="form-label required-field">SKU</label>
+                                    <input type="text" name="sku" id="sku" class="form-control" required
+                                           placeholder="e.g., PROD-001">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="brand" class="form-label">Brand</label>
+                                    <input type="text" name="brand" id="brand" class="form-control">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="barcode" class="form-label">Barcode</label>
+                                    <input type="text" name="barcode" id="barcode" class="form-control">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea name="description" id="description" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Pricing Information -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-dollar-sign"></i> Pricing Information</h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="cost" class="form-label">Cost Price</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">$</span>
+                                        </div>
+                                        <input type="number" name="cost" id="cost" class="form-control" 
+                                               step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="price" class="form-label required-field">Selling Price</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">$</span>
+                                        </div>
+                                        <input type="number" name="price" id="price" class="form-control" 
+                                               step="0.01" min="0" required placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="tax_rate" class="form-label">Tax Rate (%)</label>
+                                    <div class="input-group">
+                                        <input type="number" name="tax_rate" id="tax_rate" class="form-control" 
+                                               step="0.01" min="0" max="100" placeholder="0.00">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Profit Margin:</strong> <span id="profitMargin">—</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Inventory Information -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-warehouse"></i> Inventory Information</h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="quantity" class="form-label">Initial Quantity</label>
+                                    <input type="number" name="quantity" id="quantity" class="form-control" 
+                                           min="0" value="0">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="reorder_level" class="form-label">Reorder Level</label>
+                                    <input type="number" name="reorder_level" id="reorder_level" class="form-control" 
+                                           min="0" value="0">
+                                    <small class="text-muted">Alert when stock falls below this level</small>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="max_stock_level" class="form-label">Maximum Stock Level</label>
+                                    <input type="number" name="max_stock_level" id="max_stock_level" class="form-control" 
+                                           min="0" value="0">
+                                    <small class="text-muted">Maximum quantity to maintain</small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="location" class="form-label">Storage Location</label>
+                                    <input type="text" name="location" id="location" class="form-control" 
+                                           placeholder="e.g., Warehouse A, Shelf B3">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="expiry_date" class="form-label">Expiry Date</label>
+                                    <input type="date" name="expiry_date" id="expiry_date" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Details -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-cog"></i> Product Details</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="category_id" class="form-label">Category</label>
+                                    <select name="category_id" id="category_id" class="form-control">
+                                        <option value="">Select Category</option>
+                                        {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if not categories %}
+                                    <small class="text-muted">
+                                        <a href="{{ url_for('inventory.categories') }}">Create categories first</a>
+                                    </small>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="supplier_id" class="form-label">Supplier</label>
+                                    <select name="supplier_id" id="supplier_id" class="form-control">
+                                        <option value="">Select Supplier</option>
+                                        {% for supplier in suppliers %}
+                                        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if not suppliers %}
+                                    <small class="text-muted">
+                                        <a href="{{ url_for('inventory.suppliers') }}">Create suppliers first</a>
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="weight" class="form-label">Weight (kg)</label>
+                                    <input type="number" name="weight" id="weight" class="form-control" 
+                                           step="0.01" min="0" placeholder="0.00">
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label for="dimensions" class="form-label">Dimensions</label>
+                                    <input type="text" name="dimensions" id="dimensions" class="form-control" 
+                                           placeholder="e.g., 10cm x 5cm x 3cm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('inventory.products') }}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    <div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Save Product
+                                        </button>
+                                        <button type="button" class="btn btn-success" onclick="saveAndAddAnother()">
+                                            <i class="fas fa-plus"></i> Save & Add Another
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Calculate profit margin
+    function calculateProfitMargin() {
+        var cost = parseFloat($('#cost').val()) || 0;
+        var price = parseFloat($('#price').val()) || 0;
+        
+        if (cost > 0 && price > 0) {
+            var margin = ((price - cost) / price) * 100;
+            $('#profitMargin').text(margin.toFixed(2) + '%');
+            
+            if (margin < 10) {
+                $('#profitMargin').removeClass('text-success text-warning').addClass('text-danger');
+            } else if (margin < 25) {
+                $('#profitMargin').removeClass('text-success text-danger').addClass('text-warning');
+            } else {
+                $('#profitMargin').removeClass('text-danger text-warning').addClass('text-success');
+            }
+        } else {
+            $('#profitMargin').text('—').removeClass('text-success text-warning text-danger');
+        }
+    }
+    
+    // Recalculate profit margin when cost or price changes
+    $('#cost, #price').on('input', calculateProfitMargin);
+    
+    // Auto-generate SKU based on product name
+    $('#name').on('blur', function() {
+        if (!$('#sku').val()) {
+            var name = $(this).val();
+            var sku = name.toUpperCase()
+                         .replace(/[^A-Z0-9]/g, '')
+                         .substring(0, 10);
+            if (sku) {
+                sku += '-' + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                $('#sku').val(sku);
+            }
+        }
+    });
+    
+    // Form validation
+    $('form').on('submit', function(e) {
+        var name = $('#name').val().trim();
+        var sku = $('#sku').val().trim();
+        var price = parseFloat($('#price').val());
+        
+        if (!name) {
+            alert('Product name is required.');
+            $('#name').focus();
+            e.preventDefault();
+            return false;
+        }
+        
+        if (!sku) {
+            alert('SKU is required.');
+            $('#sku').focus();
+            e.preventDefault();
+            return false;
+        }
+        
+        if (!price || price <= 0) {
+            alert('Please enter a valid selling price.');
+            $('#price').focus();
+            e.preventDefault();
+            return false;
+        }
+        
+        var reorderLevel = parseInt($('#reorder_level').val()) || 0;
+        var maxLevel = parseInt($('#max_stock_level').val()) || 0;
+        
+        if (maxLevel > 0 && reorderLevel >= maxLevel) {
+            alert('Reorder level should be less than maximum stock level.');
+            $('#reorder_level').focus();
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+
+function saveAndAddAnother() {
+    // Add a hidden input to indicate "save and add another"
+    $('<input>').attr({
+        type: 'hidden',
+        name: 'save_and_add_another',
+        value: '1'
+    }).appendTo('form');
+    
+    $('form').submit();
+}
+</script>
+{% endblock %}

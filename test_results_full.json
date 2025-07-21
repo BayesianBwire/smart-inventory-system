@@ -1,0 +1,173 @@
+{
+  "timestamp": "2025-07-21T18:21:21.800050",
+  "summary": {
+    "total_tests": 27,
+    "passed": 11,
+    "failed": 16,
+    "success_rate": 40.74074074074074
+  },
+  "detailed_results": [
+    {
+      "test": "Server Health Check",
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.026591"
+    },
+    {
+      "test": "Welcome Page",
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.034379"
+    },
+    {
+      "test": "Login Page",
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.077308"
+    },
+    {
+      "test": "Company Registration Page",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.218038"
+    },
+    {
+      "test": "Company Registration",
+      "passed": false,
+      "details": "Status: 400",
+      "timestamp": "2025-07-21T18:21:21.250063"
+    },
+    {
+      "test": "Founder Login",
+      "passed": false,
+      "details": "Status: 400",
+      "timestamp": "2025-07-21T18:21:21.280669"
+    },
+    {
+      "test": "Protected Route: Founder Dashboard",
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.310334"
+    },
+    {
+      "test": "Protected Route: Main Dashboard",
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.337873"
+    },
+    {
+      "test": "Protected Route: Inventory Management",
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.372015"
+    },
+    {
+      "test": "Protected Route: Point of Sale",
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.406529"
+    },
+    {
+      "test": "Protected Route: User Management",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.423404"
+    },
+    {
+      "test": "Protected Route: Employee Management",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.439166"
+    },
+    {
+      "test": "Protected Route: Payroll System",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.449012"
+    },
+    {
+      "test": "Protected Route: Support System",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.462004"
+    },
+    {
+      "test": "Advanced Feature: AI Assistant",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.472323"
+    },
+    {
+      "test": "Advanced Feature: Meeting Rooms",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.485228"
+    },
+    {
+      "test": "Advanced Feature: Marketplace",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.498313"
+    },
+    {
+      "test": "Advanced Feature: Calendar",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.509514"
+    },
+    {
+      "test": "Advanced Feature: Notifications",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.521467"
+    },
+    {
+      "test": "Advanced Feature: Training Center",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.534515"
+    },
+    {
+      "test": "Advanced Feature: Audit System",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.543992"
+    },
+    {
+      "test": "Advanced Feature: Backup System",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.554766"
+    },
+    {
+      "test": "404 Error Page",
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.565597"
+    },
+    {
+      "test": "Static Asset: /static/css/dashboard.css",
+      "passed": false,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.580362"
+    },
+    {
+      "test": "Static Asset: /static/js/main.js",
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.752666"
+    },
+    {
+      "test": "API Endpoint: Health Check API",
+      "passed": true,
+      "details": "Status: 404",
+      "timestamp": "2025-07-21T18:21:21.762071"
+    },
+    {
+      "test": "Database Operations",
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-21T18:21:21.786696"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+/* RahaSoft ERP - Main Stylesheet */
+:root {
+  --primary-color: #004d7a;
+  --secondary-color: #008793;
+  --accent-color: #f39c12;
+  --dark-color: #1f2937;
+  --light-color: #f8fafc;
+  --gradient-primary: linear-gradient(135deg, #004d7a 0%, #008793 100%);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--light-color);
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--primary-color) !important;
+}
+
+.card {
+  border-radius: 15px;
+  box-shadow: var(--shadow-lg);
+  border: none;
+}

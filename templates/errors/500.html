@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 text-center">
+  <h1 class="display-3 text-danger fw-bold">500</h1>
+  <p class="lead">⚠️ Internal Server Error - Something went wrong on our end.</p>
+  <p class="text-muted">Please try again later or contact support if the problem persists.</p>
+  <a href="{{ url_for('welcome') }}" class="btn btn-outline-secondary mt-3">
+    🏠 Back to Home
+  </a>
+</div>
+{% endblock %}

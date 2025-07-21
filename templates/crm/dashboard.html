@@ -1,21 +1,447 @@
-{% extends 'shared/base.html' %}
+{% extends "layout.html" %}
+
+{% block title %}CRM Dashboard{% endblock %}
+
+{% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    .metric-card.success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    .metric-card.warning {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .metric-card.info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .metric-card.secondary {
+        background: linear-gradient(135deg, #c471f5 0%, #fa71cd 100%);
+    }
+    .metric-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    .metric-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    .metric-icon {
+        font-size: 2.5rem;
+        opacity: 0.3;
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+    }
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .activity-item {
+        border-left: 4px solid #007bff;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        border-radius: 0 8px 8px 0;
+    }
+    .activity-item.call { border-left-color: #28a745; }
+    .activity-item.email { border-left-color: #17a2b8; }
+    .activity-item.meeting { border-left-color: #ffc107; }
+    .activity-item.task { border-left-color: #6f42c1; }
+    .task-item {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: white;
+        border-radius: 8px;
+        border-left: 4px solid #dee2e6;
+    }
+    .task-item.high { border-left-color: #dc3545; }
+    .task-item.medium { border-left-color: #ffc107; }
+    .task-item.low { border-left-color: #28a745; }
+    .pipeline-stage {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>📊 CRM Dashboard</h2>
-  <ul class="list-group mt-3">
-    <li class="list-group-item d-flex justify-content-between">
-      <span>Deals</span>
-      <span class="badge bg-primary">{{ deals_count }}</span>
-    </li>
-    <li class="list-group-item d-flex justify-content-between">
-      <span>Tasks</span>
-      <span class="badge bg-success">{{ tasks_count }}</span>
-    </li>
-    <li class="list-group-item d-flex justify-content-between">
-      <span>Contacts</span>
-      <span class="badge bg-warning text-dark">{{ contacts_count }}</span>
-    </li>
-  </ul>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-3"><i class="fas fa-chart-line me-2"></i>CRM Dashboard</h1>
+        </div>
+    </div>
+
+    <!-- Key Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card position-relative">
+                <div class="metric-value">{{ total_leads or 0 }}</div>
+                <div class="metric-label">Total Leads</div>
+                <div class="metric-icon"><i class="fas fa-user-plus"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card success position-relative">
+                <div class="metric-value">{{ active_customers or 0 }}</div>
+                <div class="metric-label">Active Customers</div>
+                <div class="metric-icon"><i class="fas fa-users"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card warning position-relative">
+                <div class="metric-value">${{ "{:,.0f}".format(total_pipeline_value or 0) }}</div>
+                <div class="metric-label">Pipeline Value</div>
+                <div class="metric-icon"><i class="fas fa-funnel-dollar"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card info position-relative">
+                <div class="metric-value">${{ "{:,.0f}".format(revenue_this_month or 0) }}</div>
+                <div class="metric-label">Revenue This Month</div>
+                <div class="metric-icon"><i class="fas fa-dollar-sign"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card secondary position-relative">
+                <div class="metric-value">{{ new_leads_this_month or 0 }}</div>
+                <div class="metric-label">New Leads This Month</div>
+                <div class="metric-icon"><i class="fas fa-chart-line"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card position-relative">
+                <div class="metric-value">{{ qualified_leads or 0 }}</div>
+                <div class="metric-label">Qualified Leads</div>
+                <div class="metric-icon"><i class="fas fa-star"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card success position-relative">
+                <div class="metric-value">{{ "{:.1f}".format(conversion_rate or 0) }}%</div>
+                <div class="metric-label">Lead Conversion Rate</div>
+                <div class="metric-icon"><i class="fas fa-percentage"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card warning position-relative">
+                <div class="metric-value">{{ overdue_tasks or 0 }}</div>
+                <div class="metric-label">Overdue Tasks</div>
+                <div class="metric-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sales Pipeline -->
+        <div class="col-lg-8 mb-4">
+            <div class="chart-container">
+                <h5 class="mb-3"><i class="fas fa-funnel-dollar me-2"></i>Sales Pipeline</h5>
+                <canvas id="pipelineChart" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4 mb-4">
+            <div class="chart-container">
+                <h5 class="mb-3"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('crm.add_lead') }}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Add New Lead
+                    </a>
+                    <a href="{{ url_for('crm.add_customer') }}" class="btn btn-success">
+                        <i class="fas fa-users me-2"></i>Add New Customer
+                    </a>
+                    <a href="{{ url_for('crm.add_opportunity') }}" class="btn btn-warning">
+                        <i class="fas fa-bullseye me-2"></i>Add Opportunity
+                    </a>
+                    <a href="{{ url_for('crm.add_activity') }}" class="btn btn-info">
+                        <i class="fas fa-calendar-plus me-2"></i>Log Activity
+                    </a>
+                    <a href="{{ url_for('crm.add_task') }}" class="btn btn-secondary">
+                        <i class="fas fa-tasks me-2"></i>Create Task
+                    </a>
+                    <a href="{{ url_for('crm.search') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-search me-2"></i>Search CRM
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Activities -->
+        <div class="col-lg-6 mb-4">
+            <div class="chart-container">
+                <h5 class="mb-3"><i class="fas fa-clock me-2"></i>Recent Activities</h5>
+                {% if recent_activities %}
+                    {% for activity in recent_activities %}
+                    <div class="activity-item {{ activity.activity_type }}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ activity.subject }}</h6>
+                                <p class="mb-1 text-muted small">{{ activity.description or 'No description' }}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>{{ activity.creator.username if activity.creator else 'Unknown' }}
+                                    • {{ activity.activity_date.strftime('%b %d, %Y at %I:%M %p') }}
+                                </small>
+                            </div>
+                            <span class="badge bg-{{ 'success' if activity.status == 'completed' else 'warning' }}">
+                                {{ activity.status.title() }}
+                            </span>
+                        </div>
+                        {% if activity.lead %}
+                            <div class="mt-2">
+                                <small class="text-primary">
+                                    <i class="fas fa-user-plus me-1"></i>
+                                    <a href="{{ url_for('crm.view_lead', id=activity.lead.id) }}">{{ activity.lead.full_name }}</a>
+                                </small>
+                            </div>
+                        {% elif activity.customer %}
+                            <div class="mt-2">
+                                <small class="text-success">
+                                    <i class="fas fa-users me-1"></i>
+                                    <a href="{{ url_for('crm.view_customer', id=activity.customer.id) }}">{{ activity.customer.display_name }}</a>
+                                </small>
+                            </div>
+                        {% elif activity.opportunity %}
+                            <div class="mt-2">
+                                <small class="text-warning">
+                                    <i class="fas fa-bullseye me-1"></i>
+                                    <a href="{{ url_for('crm.view_opportunity', id=activity.opportunity.id) }}">{{ activity.opportunity.opportunity_name }}</a>
+                                </small>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('crm.activities') }}" class="btn btn-outline-primary btn-sm">
+                            View All Activities
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No recent activities</p>
+                        <a href="{{ url_for('crm.add_activity') }}" class="btn btn-primary btn-sm">
+                            Log Your First Activity
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Upcoming Tasks -->
+        <div class="col-lg-6 mb-4">
+            <div class="chart-container">
+                <h5 class="mb-3"><i class="fas fa-tasks me-2"></i>Upcoming Tasks</h5>
+                {% if upcoming_tasks %}
+                    {% for task in upcoming_tasks %}
+                    <div class="task-item {{ task.priority }}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ task.title }}</h6>
+                                {% if task.description %}
+                                    <p class="mb-1 text-muted small">{{ task.description[:100] }}{% if task.description|length > 100 %}...{% endif %}</p>
+                                {% endif %}
+                                {% if task.due_date %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>Due: {{ task.due_date.strftime('%b %d, %Y at %I:%M %p') }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-{{ 'danger' if task.priority == 'high' else 'warning' if task.priority == 'medium' else 'success' }}">
+                                    {{ task.priority.title() }}
+                                </span>
+                            </div>
+                        </div>
+                        {% if task.lead or task.customer or task.opportunity %}
+                            <div class="mt-2">
+                                {% if task.lead %}
+                                    <small class="text-primary">
+                                        <i class="fas fa-user-plus me-1"></i>
+                                        <a href="{{ url_for('crm.view_lead', id=task.lead.id) }}">{{ task.lead.full_name }}</a>
+                                    </small>
+                                {% elif task.customer %}
+                                    <small class="text-success">
+                                        <i class="fas fa-users me-1"></i>
+                                        <a href="{{ url_for('crm.view_customer', id=task.customer.id) }}">{{ task.customer.display_name }}</a>
+                                    </small>
+                                {% elif task.opportunity %}
+                                    <small class="text-warning">
+                                        <i class="fas fa-bullseye me-1"></i>
+                                        <a href="{{ url_for('crm.view_opportunity', id=task.opportunity.id) }}">{{ task.opportunity.opportunity_name }}</a>
+                                    </small>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        <div class="mt-2">
+                            <form method="POST" action="{{ url_for('crm.complete_task', id=task.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-outline-success btn-sm" onclick="return confirm('Mark this task as completed?')">
+                                    <i class="fas fa-check me-1"></i>Complete
+                                </button>
+                            </form>
+                            <a href="{{ url_for('crm.edit_task', id=task.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('crm.tasks') }}" class="btn btn-outline-primary btn-sm">
+                            View All Tasks
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-check-circle fa-3x mb-3"></i>
+                        <p>No upcoming tasks</p>
+                        <a href="{{ url_for('crm.add_task') }}" class="btn btn-primary btn-sm">
+                            Create Your First Task
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Pipeline Stages Overview -->
+    <div class="row">
+        <div class="col-12">
+            <div class="chart-container">
+                <h5 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Pipeline by Stage</h5>
+                <div class="row">
+                    {% for stage in pipeline_data %}
+                    <div class="col-lg-2 col-md-4 col-sm-6">
+                        <div class="pipeline-stage">
+                            <h3 class="text-primary">{{ stage.count }}</h3>
+                            <h6 class="mb-2">{{ stage.stage.replace('_', ' ').title() }}</h6>
+                            <p class="text-muted mb-0">${{ "{:,.0f}".format(stage.value or 0) }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if not pipeline_data %}
+                    <div class="col-12 text-center text-muted py-4">
+                        <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                        <p>No pipeline data available</p>
+                        <a href="{{ url_for('crm.add_opportunity') }}" class="btn btn-primary btn-sm">
+                            Create Your First Opportunity
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Pipeline Chart
+    const pipelineCtx = document.getElementById('pipelineChart').getContext('2d');
+    
+    fetch('{{ url_for("crm.api_pipeline_data") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.length === 0) {
+                // Show message if no data
+                pipelineCtx.canvas.parentElement.innerHTML = '<p class="text-center text-muted">No pipeline data available. <a href="{{ url_for("crm.add_opportunity") }}">Create your first opportunity</a></p>';
+                return;
+            }
+            
+            new Chart(pipelineCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.stage),
+                    datasets: [{
+                        label: 'Opportunities',
+                        data: data.map(item => item.count),
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Value ($)',
+                        data: data.map(item => item.value),
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        type: 'line',
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Number of Opportunities'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Value ($)'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sales Pipeline Overview'
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading pipeline data:', error);
+            pipelineCtx.canvas.parentElement.innerHTML = '<p class="text-center text-muted">Error loading pipeline data</p>';
+        });
+});
+</script>
 {% endblock %}

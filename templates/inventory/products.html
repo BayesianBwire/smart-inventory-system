@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}Products - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stock-status {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+    }
+    .status-in-stock { background-color: #d4edda; color: #155724; }
+    .status-low-stock { background-color: #fff3cd; color: #856404; }
+    .status-out-of-stock { background-color: #f8d7da; color: #721c24; }
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 0.25rem;
+    }
+    .filters-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    .table-actions {
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-boxes text-primary"></i>
+            Products
+        </h1>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('inventory.add_product') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Product
+            </a>
+            <a href="{{ url_for('inventory.import_products') }}" class="btn btn-info">
+                <i class="fas fa-upload"></i> Import
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card filters-card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row">
+                <div class="col-md-3 mb-2">
+                    <label for="search" class="form-label">Search</label>
+                    <input type="text" name="search" id="search" class="form-control" 
+                           value="{{ current_search }}" placeholder="Name, SKU, Barcode...">
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label for="category" class="form-label">Category</label>
+                    <select name="category" id="category" class="form-control">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" 
+                                {% if category.id == current_category %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label for="supplier" class="form-label">Supplier</label>
+                    <select name="supplier" id="supplier" class="form-control">
+                        <option value="">All Suppliers</option>
+                        {% for supplier in suppliers %}
+                        <option value="{{ supplier.id }}"
+                                {% if supplier.id == current_supplier %}selected{% endif %}>
+                            {{ supplier.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label for="status" class="form-label">Stock Status</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">All Status</option>
+                        <option value="in_stock" {% if current_status == 'in_stock' %}selected{% endif %}>In Stock</option>
+                        <option value="low_stock" {% if current_status == 'low_stock' %}selected{% endif %}>Low Stock</option>
+                        <option value="out_of_stock" {% if current_status == 'out_of_stock' %}selected{% endif %}>Out of Stock</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label for="sort" class="form-label">Sort By</label>
+                    <select name="sort" id="sort" class="form-control">
+                        <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Name</option>
+                        <option value="sku" {% if current_sort == 'sku' %}selected{% endif %}>SKU</option>
+                        <option value="price" {% if current_sort == 'price' %}selected{% endif %}>Price</option>
+                        <option value="quantity" {% if current_sort == 'quantity' %}selected{% endif %}>Quantity</option>
+                        <option value="created_at" {% if current_sort == 'created_at' %}selected{% endif %}>Date Added</option>
+                    </select>
+                </div>
+                <div class="col-md-1 mb-2">
+                    <label for="order" class="form-label">Order</label>
+                    <select name="order" id="order" class="form-control">
+                        <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Asc</option>
+                        <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Desc</option>
+                    </select>
+                </div>
+                <div class="col-12 mt-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Filter
+                    </button>
+                    <a href="{{ url_for('inventory.products') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="card shadow">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Products List ({{ products.total }} items)
+            </h6>
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ url_for('inventory.export_report', report_type='products') }}">
+                        <i class="fas fa-file-csv"></i> Export as CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if products.items %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>SKU</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Supplier</th>
+                            <th>Price</th>
+                            <th>Cost</th>
+                            <th>Quantity</th>
+                            <th>Stock Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products.items %}
+                        <tr>
+                            <td>
+                                <code>{{ product.sku }}</code>
+                                {% if product.barcode %}
+                                <br><small class="text-muted">{{ product.barcode }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ product.name }}</strong>
+                                {% if product.brand %}
+                                <br><small class="text-muted">{{ product.brand }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if product.category %}
+                                <span class="badge badge-secondary">{{ product.category.name }}</span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if product.supplier %}
+                                {{ product.supplier.name }}
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>${{ "%.2f"|format(product.price) }}</td>
+                            <td>${{ "%.2f"|format(product.cost) }}</td>
+                            <td>
+                                <strong>{{ product.quantity }}</strong>
+                                {% if product.reorder_level > 0 %}
+                                <br><small class="text-muted">Reorder: {{ product.reorder_level }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set status = product.get_stock_status() %}
+                                <span class="stock-status status-{{ status.replace(' ', '-').lower() }}">
+                                    {{ status }}
+                                </span>
+                                {% if product.is_low_stock() %}
+                                <br><small class="text-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> Low Stock
+                                </small>
+                                {% endif %}
+                            </td>
+                            <td class="table-actions">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('inventory.product_detail', product_id=product.id) }}" 
+                                       class="btn btn-info" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('inventory.edit_product', product_id=product.id) }}" 
+                                       class="btn btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-danger" 
+                                            onclick="confirmDelete('{{ product.id }}', '{{ product.name }}')"
+                                            title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if products.pages > 1 %}
+            <nav aria-label="Products pagination">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('inventory.products', page=products.prev_num, 
+                                                             search=current_search, category=current_category,
+                                                             supplier=current_supplier, status=current_status,
+                                                             sort=current_sort, order=current_order) }}">
+                            Previous
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in products.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != products.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('inventory.products', page=page_num,
+                                                                     search=current_search, category=current_category,
+                                                                     supplier=current_supplier, status=current_status,
+                                                                     sort=current_sort, order=current_order) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('inventory.products', page=products.next_num,
+                                                             search=current_search, category=current_category,
+                                                             supplier=current_supplier, status=current_status,
+                                                             sort=current_sort, order=current_order) }}">
+                            Next
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No products found</h5>
+                <p class="text-muted">
+                    {% if current_search or current_category or current_supplier or current_status %}
+                        Try adjusting your filters or 
+                        <a href="{{ url_for('inventory.products') }}">clear all filters</a>.
+                    {% else %}
+                        Start by <a href="{{ url_for('inventory.add_product') }}">adding your first product</a>.
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the product "<span id="productName"></span>"?</p>
+                <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete(productId, productName) {
+    $('#productName').text(productName);
+    $('#deleteForm').attr('action', '{{ url_for("inventory.delete_product", product_id=0) }}'.replace('0', productId));
+    $('#deleteModal').modal('show');
+}
+
+$(document).ready(function() {
+    // Auto-submit form when filters change
+    $('#category, #supplier, #status, #sort, #order').change(function() {
+        $(this).closest('form').submit();
+    });
+    
+    // Initialize tooltips
+    $('[title]').tooltip();
+});
+</script>
+{% endblock %}

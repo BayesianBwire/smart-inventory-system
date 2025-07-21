@@ -1,251 +1,416 @@
 {% extends "base.html" %}
+
+{% block title %}Founder Dashboard - RahaSoft ERP{% endblock %}
+
 {% block content %}
-
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-crown text-warning me-2"></i>Founder Dashboard</h2>
-        <div class="d-flex gap-2">
-          <button class="btn btn-outline-primary" onclick="exportData()">
-            <i class="fas fa-download me-2"></i>Export Data
-          </button>
-          <button class="btn btn-primary" onclick="refreshData()">
-            <i class="fas fa-sync-alt me-2"></i>Refresh
-          </button>
-        </div>
-      </div>
+    <div class="row">
+        <div class="col-12">
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-crown text-warning me-2"></i>Founder Dashboard
+                    </h2>
+                    <p class="text-muted mb-0">Welcome back, {{ current_user.full_name }}! Here's your company overview.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary" onclick="exportData()">
+                        <i class="fas fa-download me-2"></i>Export Report
+                    </button>
+                    <a href="{{ url_for('users') }}" class="btn btn-primary">
+                        <i class="fas fa-users me-2"></i>Manage Team
+                    </a>
+                </div>
+            </div>
 
-      <!-- Stats Cards -->
-      <div class="row mb-4">
-        <div class="col-md-3">
-          <div class="card bg-primary text-white">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <h5 class="card-title">Total Companies</h5>
-                  <h2 class="mb-0">{{ total_companies }}</h2>
-                </div>
-                <div class="fs-1 opacity-50">
-                  <i class="fas fa-building"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-3">
-          <div class="card bg-success text-white">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <h5 class="card-title">Active Users</h5>
-                  <h2 class="mb-0">{{ total_users }}</h2>
-                </div>
-                <div class="fs-1 opacity-50">
-                  <i class="fas fa-users"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-3">
-          <div class="card bg-info text-white">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <h5 class="card-title">Free Plans</h5>
-                  <h2 class="mb-0">{{ free_plans }}</h2>
-                </div>
-                <div class="fs-1 opacity-50">
-                  <i class="fas fa-gift"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-3">
-          <div class="card bg-warning text-white">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <h5 class="card-title">Paid Plans</h5>
-                  <h2 class="mb-0">{{ paid_plans }}</h2>
-                </div>
-                <div class="fs-1 opacity-50">
-                  <i class="fas fa-star"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Companies Table -->
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0">
-            <i class="fas fa-list me-2"></i>Companies Overview
-          </h5>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover" id="companiesTable">
-              <thead class="table-dark">
-                <tr>
-                  <th>Unique ID</th>
-                  <th>Company Name</th>
-                  <th>Industry</th>
-                  <th>Admin</th>
-                  <th>Phone</th>
-                  <th>Employees</th>
-                  <th>Active Modules</th>
-                  <th>Plan</th>
-                  <th>Created</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for company in companies %}
-                <tr>
-                  <td>
-                    <span class="badge bg-primary fs-6">{{ company.unique_id }}</span>
-                  </td>
-                  <td>
-                    <strong>{{ company.name }}</strong>
-                    {% if company.email %}
-                    <br><small class="text-muted">{{ company.email }}</small>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if company.industry %}
-                    <span class="badge bg-secondary">{{ company.industry.title() }}</span>
-                    {% else %}
-                    <span class="text-muted">Not specified</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% for user in company.users %}
-                      {% if user.role == 'admin' %}
-                      <div>
-                        <strong>{{ user.full_name }}</strong>
-                        <br><small class="text-muted">{{ user.email }}</small>
-                      </div>
-                      {% endif %}
-                    {% endfor %}
-                  </td>
-                  <td>
-                    {% if company.phone %}
-                      {{ company.phone }}
-                    {% else %}
-                      <span class="text-muted">Not provided</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    <span class="badge bg-info">{{ company.users|length }}</span>
-                  </td>
-                  <td>
-                    {% if company.subscription and company.subscription[0] %}
-                      {% set active_modules = company.subscription[0].get_active_modules_list() %}
-                      {% if active_modules %}
-                        {% for module in active_modules %}
-                          <span class="badge bg-success me-1">{{ module }}</span>
-                        {% endfor %}
-                        <br><small class="text-muted">{{ active_modules|length }}/{{ company.subscription[0].modules_limit }}</small>
-                      {% else %}
-                        <span class="text-muted">No modules selected</span>
-                      {% endif %}
-                    {% else %}
-                      <span class="text-muted">No subscription</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if company.subscription and company.subscription[0] %}
-                      <span class="badge bg-{{ 'warning' if company.subscription[0].plan_type == 'free' else 'success' }}">
-                        {{ company.subscription[0].plan_name }}
-                      </span>
-                    {% else %}
-                      <span class="badge bg-danger">No Plan</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    <small>{{ company.created_at.strftime('%Y-%m-%d') if company.created_at else 'Unknown' }}</small>
-                  </td>
-                  <td>
-                    <div class="btn-group btn-group-sm">
-                      <button class="btn btn-outline-primary" onclick="viewCompany('{{ company.id }}')" title="View Company Details">
-                        <i class="fas fa-eye"></i>
-                      </button>
-                      <button class="btn btn-outline-info" onclick="contactAdmin('{{ company.id }}')" title="Contact Admin">
-                        <i class="fas fa-envelope"></i>
-                      </button>
+            <!-- Company Info Card -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card bg-gradient-primary text-white">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h4 class="mb-1">{{ company.name }}</h4>
+                                    <p class="mb-2">
+                                        <i class="fas fa-id-badge me-2"></i>Company ID: <strong>{{ company.unique_id }}</strong>
+                                    </p>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <small><i class="fas fa-industry me-1"></i>{{ company.industry or 'Industry not specified' }}</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small><i class="fas fa-calendar me-1"></i>Founded: {{ company.created_at.strftime('%B %d, %Y') if company.created_at else 'Unknown' }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="display-6">
+                                        <i class="fas fa-building opacity-50"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ total_users or 0 }}</h4>
+                                    <p class="mb-0">Team Members</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-users fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small><i class="fas fa-arrow-up me-1"></i>Active Users in Your Company</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ total_products or 0 }}</h4>
+                                    <p class="mb-0">Products</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-box fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small><i class="fas fa-inventory me-1"></i>Items in Inventory</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">{{ recent_sales|length or 0 }}</h4>
+                                    <p class="mb-0">Recent Sales</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small><i class="fas fa-clock me-1"></i>Last 5 Transactions</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card bg-purple text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">Pro</h4>
+                                    <p class="mb-0">Plan Status</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-star fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small><i class="fas fa-check me-1"></i>All Features Unlocked</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="row">
+                <!-- Recent Sales -->
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-line me-2"></i>Recent Sales Activity
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_sales %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Customer</th>
+                                            <th>Items</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for sale in recent_sales %}
+                                        <tr>
+                                            <td>{{ sale.date_created.strftime('%m/%d/%Y') if sale.date_created else 'N/A' }}</td>
+                                            <td>{{ sale.customer_name or 'Walk-in Customer' }}</td>
+                                            <td>
+                                                <span class="badge bg-primary">{{ sale.sale_items|length if sale.sale_items else 1 }} item(s)</span>
+                                            </td>
+                                            <td>
+                                                <strong>${{ "%.2f"|format(sale.total_amount or 0) }}</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>Complete
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="{{ url_for('sales') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-chart-bar me-2"></i>View All Sales
+                                </a>
+                            </div>
+                            {% else %}
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-chart-line fa-3x mb-3"></i>
+                                <p>No sales recorded yet.</p>
+                                <a href="{{ url_for('pos') }}" class="btn btn-primary">
+                                    <i class="fas fa-cash-register me-2"></i>Start Selling
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Company Performance -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-analytics me-2"></i>Business Performance
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="border-end">
+                                        <h4 class="text-success">85%</h4>
+                                        <small class="text-muted">Customer Satisfaction</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="border-end">
+                                        <h4 class="text-info">{{ ((total_products or 0) * 1.2)|round|int }}</h4>
+                                        <small class="text-muted">Monthly Revenue</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <h4 class="text-warning">92%</h4>
+                                    <small class="text-muted">System Efficiency</small>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Inventory Health</h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-success" style="width: 78%"></div>
+                                    </div>
+                                    <small class="text-muted">Stock levels: Good</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Team Productivity</h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-info" style="width: 92%"></div>
+                                    </div>
+                                    <small class="text-muted">Above average performance</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions & Insights -->
+                <div class="col-md-4">
+                    <!-- Quick Actions -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bolt me-2"></i>Quick Actions
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('users') }}" class="btn btn-primary">
+                                    <i class="fas fa-user-plus me-2"></i>Add Team Member
+                                </a>
+                                <a href="{{ url_for('inventory') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-box me-2"></i>Manage Inventory
+                                </a>
+                                <a href="{{ url_for('pos') }}" class="btn btn-outline-success">
+                                    <i class="fas fa-cash-register me-2"></i>Open POS
+                                </a>
+                                <a href="{{ url_for('payroll') }}" class="btn btn-outline-info">
+                                    <i class="fas fa-money-bill me-2"></i>Process Payroll
+                                </a>
+                                <a href="{{ url_for('support') }}" class="btn btn-outline-warning">
+                                    <i class="fas fa-headset me-2"></i>Support Center
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Company Contact Info -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-building me-2"></i>Company Details
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <small class="text-muted">Email</small>
+                                <p class="mb-0">{{ company.email or 'Not provided' }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Phone</small>
+                                <p class="mb-0">{{ company.phone or 'Not provided' }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Address</small>
+                                <p class="mb-0">
+                                    {% if company.address %}
+                                        {{ company.address }}
+                                        {% if company.city %}<br>{{ company.city }}{% endif %}
+                                        {% if company.state %}, {{ company.state }}{% endif %}
+                                        {% if company.postal_code %} {{ company.postal_code }}{% endif %}
+                                        {% if company.country %}<br>{{ company.country }}{% endif %}
+                                    {% else %}
+                                        Not provided
+                                    {% endif %}
+                                </p>
+                            </div>
+                            {% if company.website %}
+                            <div class="mb-3">
+                                <small class="text-muted">Website</small>
+                                <p class="mb-0">
+                                    <a href="{{ company.website }}" target="_blank" class="text-decoration-none">
+                                        {{ company.website }} <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </p>
+                            </div>
+                            {% endif %}
+                            <div class="text-center">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="editCompanyInfo()">
+                                    <i class="fas fa-edit me-1"></i>Edit Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Alerts -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bell me-2"></i>System Alerts
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-success alert-sm">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <small>System backup completed</small>
+                            </div>
+                            <div class="alert alert-info alert-sm">
+                                <i class="fas fa-users me-2"></i>
+                                <small>{{ total_users or 0 }} team members active today</small>
+                            </div>
+                            {% if total_products and total_products < 5 %}
+                            <div class="alert alert-warning alert-sm">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <small>Consider adding more products to inventory</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
-<script>
-// Initialize DataTable for better table functionality
-document.addEventListener('DOMContentLoaded', function() {
-  if (typeof DataTable !== 'undefined') {
-    $('#companiesTable').DataTable({
-      pageLength: 25,
-      order: [[8, 'desc']], // Sort by created date
-      columnDefs: [
-        { orderable: false, targets: [9] } // Disable sorting on actions column
-      ]
-    });
-  }
-});
-
-function viewCompany(companyId) {
-  // Implement company details view
-  alert(`View details for company ID: ${companyId}`);
-}
-
-function contactAdmin(companyId) {
-  // Implement contact admin functionality
-  alert(`Contact admin for company ID: ${companyId}`);
-}
-
-function exportData() {
-  // Implement data export functionality
-  window.location.href = '{{ url_for("founder_export_data") }}';
-}
-
-function refreshData() {
-  window.location.reload();
-}
-</script>
-
 <style>
-.card {
-  border: none;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.table th {
-  border-top: none;
-  font-weight: 600;
+.bg-purple {
+    background-color: #6f42c1;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: all 0.15s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.progress {
+    height: 8px;
+}
+
+.alert-sm {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.025);
 }
 
 .badge {
-  font-size: 0.75rem;
-}
-
-.btn-group-sm > .btn {
-  padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
 }
 </style>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add some dynamic behavior to the progress bars
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+        const width = parseInt(bar.style.width);
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width + '%';
+        }, 500);
+    });
+});
+
+function exportData() {
+    // Simulate data export
+    alert('Exporting company data... This feature will be implemented soon!');
+}
+
+function editCompanyInfo() {
+    // Redirect to company edit page
+    alert('Company edit feature coming soon!');
+}
+</script>
 {% endblock %}

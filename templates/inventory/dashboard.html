@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Dashboard - RahaSoft ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-boxes text-primary me-2"></i>
+            Inventory Dashboard
+        </h1>
+        <div class="btn-group">
+            <a href="{{ url_for('inventory.add_product') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add Product
+            </a>
+            <a href="{{ url_for('inventory.adjust_stock') }}" class="btn btn-warning">
+                <i class="fas fa-exchange-alt me-2"></i>Adjust Stock
+            </a>
+            <a href="{{ url_for('inventory.export_products') }}" class="btn btn-success">
+                <i class="fas fa-download me-2"></i>Export
+            </a>
+        </div>
+    </div>
+
+    <!-- Key Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Products
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_products }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-box fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Inventory Value
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                ${{ "{:,.2f}".format(total_inventory_value) }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Low Stock Items
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ low_stock_products|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Out of Stock
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ out_of_stock_products|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="row mb-4">
+        <div class="col-xl-4 col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Categories & Suppliers</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <div class="h4 font-weight-bold text-primary">{{ total_categories }}</div>
+                            <div class="small text-gray-500">Categories</div>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="h4 font-weight-bold text-success">{{ total_suppliers }}</div>
+                            <div class="small text-gray-500">Suppliers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Distribution -->
+        <div class="col-xl-8 col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Category Distribution</h6>
+                </div>
+                <div class="card-body">
+                    {% if category_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th class="text-center">Products</th>
+                                    <th class="text-center">Total Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in category_stats %}
+                                <tr>
+                                    <td>{{ stat[0] or 'Uncategorized' }}</td>
+                                    <td class="text-center">{{ stat[1] }}</td>
+                                    <td class="text-center">{{ stat[2] or 0 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No categories with products found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts and Recent Activity Row -->
+    <div class="row">
+        <!-- Stock Alerts -->
+        <div class="col-xl-6 col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-warning">Stock Alerts</h6>
+                    {% if low_stock_products or out_of_stock_products %}
+                    <span class="badge badge-warning">{{ (low_stock_products|length) + (out_of_stock_products|length) }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    {% if out_of_stock_products %}
+                    <h6 class="text-danger mb-2">
+                        <i class="fas fa-times-circle me-2"></i>Out of Stock
+                    </h6>
+                    {% for product in out_of_stock_products[:5] %}
+                    <div class="alert alert-danger py-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>{{ product.product_name }}</span>
+                            <small>{{ product.product_code }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if out_of_stock_products|length > 5 %}
+                    <small class="text-muted">... and {{ out_of_stock_products|length - 5 }} more</small>
+                    {% endif %}
+                    {% endif %}
+
+                    {% if low_stock_products %}
+                    <h6 class="text-warning mb-2 mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Low Stock
+                    </h6>
+                    {% for product in low_stock_products[:5] %}
+                    <div class="alert alert-warning py-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>{{ product.product_name }}</span>
+                            <small>{{ product.quantity }}/{{ product.reorder_level }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if low_stock_products|length > 5 %}
+                    <small class="text-muted">... and {{ low_stock_products|length - 5 }} more</small>
+                    {% endif %}
+                    {% endif %}
+
+                    {% if not low_stock_products and not out_of_stock_products %}
+                    <p class="text-success mb-0">
+                        <i class="fas fa-check-circle me-2"></i>All products are well stocked!
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Stock Movements -->
+        <div class="col-xl-6 col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Stock Movements</h6>
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    {% if recent_movements %}
+                    {% for movement in recent_movements %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="mr-3">
+                            {% if movement.quantity_change > 0 %}
+                            <i class="fas fa-arrow-up text-success"></i>
+                            {% else %}
+                            <i class="fas fa-arrow-down text-danger"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="font-weight-bold">{{ movement.product.product_name }}</div>
+                            <div class="small text-muted">
+                                {{ movement.movement_type.replace('_', ' ').title() }}
+                                {% if movement.quantity_change > 0 %}+{% endif %}{{ movement.quantity_change }}
+                                → {{ movement.quantity_after }}
+                            </div>
+                        </div>
+                        <div class="text-muted small">
+                            {{ movement.created_at.strftime('%m/%d %H:%M') }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted mb-0">No recent stock movements.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products Row -->
+    {% if top_products %}
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top Selling Products (Last 30 Days)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-center">Quantity Sold</th>
+                                    <th class="text-center">Rank</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_products %}
+                                <tr>
+                                    <td>{{ product[1] }}</td>
+                                    <td class="text-center">{{ product[2] }}</td>
+                                    <td class="text-center">
+                                        {% if loop.index == 1 %}
+                                        <span class="badge badge-warning">🥇 #{{ loop.index }}</span>
+                                        {% elif loop.index == 2 %}
+                                        <span class="badge badge-secondary">🥈 #{{ loop.index }}</span>
+                                        {% elif loop.index == 3 %}
+                                        <span class="badge badge-info">🥉 #{{ loop.index }}</span>
+                                        {% else %}
+                                        <span class="badge badge-light">#{{ loop.index }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('inventory.products') }}" class="btn btn-outline-primary btn-block">
+                                <i class="fas fa-list me-2"></i>View All Products
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('inventory.categories') }}" class="btn btn-outline-success btn-block">
+                                <i class="fas fa-tags me-2"></i>Manage Categories
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('inventory.suppliers') }}" class="btn btn-outline-info btn-block">
+                                <i class="fas fa-truck me-2"></i>Manage Suppliers
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('inventory.reports') }}" class="btn btn-outline-warning btn-block">
+                                <i class="fas fa-chart-bar me-2"></i>View Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-refresh metrics every 30 seconds
+    setInterval(function() {
+        fetch('{{ url_for("inventory.dashboard_metrics") }}')
+            .then(response => response.json())
+            .then(data => {
+                // Update metrics if needed
+                console.log('Metrics refreshed:', data);
+            })
+            .catch(error => console.log('Error refreshing metrics:', error));
+    }, 30000);
+</script>
+{% endblock %}

@@ -10,8 +10,14 @@ class Company(db.Model):
     unique_id = db.Column(db.String(6), nullable=False, unique=True)  # ABC12D format
     industry = db.Column(db.String(100), nullable=True)  # Added industry field
     address = db.Column(db.String(250))
+    city = db.Column(db.String(100), nullable=True)
+    state = db.Column(db.String(100), nullable=True)
+    country = db.Column(db.String(100), nullable=True)
+    postal_code = db.Column(db.String(20), nullable=True)
     phone = db.Column(db.String(50))
     email = db.Column(db.String(120), unique=True)
+    website = db.Column(db.String(200), nullable=True)
+    description = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 

@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}AI Assistant - RahaSoft ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-robot me-2"></i>AI Assistant
+                </h2>
+                <button class="btn btn-outline-primary" id="clearChat">
+                    <i class="fas fa-trash me-2"></i>Clear Chat
+                </button>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Chat with RahaSoft AI
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Chat Messages -->
+                    <div id="chatMessages" class="chat-messages mb-3" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px;">
+                        <div class="message ai-message mb-3">
+                            <div class="d-flex">
+                                <div class="avatar bg-primary text-white rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-content">
+                                    <strong>RahaSoft AI:</strong><br>
+                                    Hello! I'm your AI assistant. I can help you with:
+                                    <ul class="mt-2">
+                                        <li>Inventory management questions</li>
+                                        <li>Sales analysis and reporting</li>
+                                        <li>Employee productivity insights</li>
+                                        <li>Financial recommendations</li>
+                                        <li>General business advice</li>
+                                    </ul>
+                                    How can I assist you today?
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <form id="chatForm">
+                        <div class="input-group">
+                            <input type="text" id="messageInput" class="form-control" placeholder="Type your message here..." required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bolt me-2"></i>Quick Actions
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary quick-action" data-message="Show me today's sales summary">
+                                    <i class="fas fa-chart-line me-2"></i>Today's Sales Summary
+                                </button>
+                                <button class="btn btn-outline-primary quick-action" data-message="What are my low stock items?">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alert
+                                </button>
+                                <button class="btn btn-outline-primary quick-action" data-message="Generate financial report for this month">
+                                    <i class="fas fa-file-alt me-2"></i>Monthly Financial Report
+                                </button>
+                                <button class="btn btn-outline-primary quick-action" data-message="Show employee productivity metrics">
+                                    <i class="fas fa-users me-2"></i>Employee Metrics
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-lightbulb me-2"></i>AI Insights
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle me-2"></i>Tip of the Day</h6>
+                                <p class="mb-0">Use natural language to ask questions like "What were my best selling products last week?" or "Which employees need training?"</p>
+                            </div>
+                            <div class="alert alert-success">
+                                <h6><i class="fas fa-check-circle me-2"></i>AI Status</h6>
+                                <p class="mb-0">
+                                    <span class="badge bg-success me-2">Online</span>
+                                    Ready to assist with your business needs
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.chat-messages {
+    background-color: #f8f9fa;
+}
+
+.message {
+    margin-bottom: 15px;
+}
+
+.ai-message .message-content {
+    background-color: #e3f2fd;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 80%;
+}
+
+.user-message {
+    justify-content: flex-end;
+}
+
+.user-message .message-content {
+    background-color: #bbdefb;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 80%;
+    text-align: right;
+}
+
+.avatar {
+    flex-shrink: 0;
+}
+
+.quick-action:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const chatMessages = document.getElementById('chatMessages');
+    const clearChatBtn = document.getElementById('clearChat');
+    const quickActionBtns = document.querySelectorAll('.quick-action');
+
+    // Handle form submission
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        if (message) {
+            addUserMessage(message);
+            messageInput.value = '';
+            simulateAIResponse(message);
+        }
+    });
+
+    // Handle quick actions
+    quickActionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const message = this.getAttribute('data-message');
+            addUserMessage(message);
+            simulateAIResponse(message);
+        });
+    });
+
+    // Clear chat
+    clearChatBtn.addEventListener('click', function() {
+        const messages = chatMessages.querySelectorAll('.message:not(:first-child)');
+        messages.forEach(msg => msg.remove());
+    });
+
+    function addUserMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message user-message mb-3';
+        messageDiv.innerHTML = `
+            <div class="d-flex justify-content-end">
+                <div class="message-content">
+                    <strong>You:</strong><br>${message}
+                </div>
+                <div class="avatar bg-secondary text-white rounded-circle ms-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addAIMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ai-message mb-3';
+        messageDiv.innerHTML = `
+            <div class="d-flex">
+                <div class="avatar bg-primary text-white rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <strong>RahaSoft AI:</strong><br>${message}
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function simulateAIResponse(userMessage) {
+        // Show typing indicator
+        setTimeout(() => {
+            let response = "I understand you're asking about: '" + userMessage + "'. ";
+            
+            if (userMessage.toLowerCase().includes('sales')) {
+                response += "Based on your current data, I can help you analyze sales trends, identify top-performing products, and suggest optimization strategies.";
+            } else if (userMessage.toLowerCase().includes('stock') || userMessage.toLowerCase().includes('inventory')) {
+                response += "I can help you monitor inventory levels, predict stock needs, and optimize your supply chain management.";
+            } else if (userMessage.toLowerCase().includes('employee') || userMessage.toLowerCase().includes('productivity')) {
+                response += "I can analyze employee performance metrics, suggest training programs, and help optimize workforce productivity.";
+            } else if (userMessage.toLowerCase().includes('financial') || userMessage.toLowerCase().includes('report')) {
+                response += "I can generate comprehensive financial reports, analyze cash flow, and provide insights for better financial planning.";
+            } else {
+                response += "I'm here to help with any business-related questions. Feel free to ask about sales, inventory, employees, finances, or any other aspect of your business operations.";
+            }
+            
+            addAIMessage(response);
+        }, 1000);
+    }
+});
+</script>
+{% endblock %}
