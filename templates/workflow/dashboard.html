@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Workflow Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Workflow & Process Automation</h1>
+            <p class="text-muted">Manage workflows, approvals, and business process automation</p>
+        </div>
+        <div>
+            <a href="{{ url_for('workflow.create_workflow') }}" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> New Workflow
+            </a>
+            <a href="{{ url_for('workflow.create_template') }}" class="btn btn-outline-primary">
+                <i class="fas fa-file-alt"></i> New Template
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">{{ total_workflows }}</h4>
+                            <p class="mb-0">Total Workflows</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-project-diagram fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">{{ active_workflows }}</h4>
+                            <p class="mb-0">Active Workflows</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-play-circle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">{{ pending_tasks|length }}</h4>
+                            <p class="mb-0">Pending Tasks</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-tasks fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">{{ active_automations }}</h4>
+                            <p class="mb-0">Active Automations</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-robot fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Pending Tasks -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">My Pending Tasks</h5>
+                    <a href="{{ url_for('workflow.my_tasks') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if pending_tasks %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Task</th>
+                                        <th>Workflow</th>
+                                        <th>Priority</th>
+                                        <th>Due Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for task in pending_tasks %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ task.name }}</strong>
+                                            {% if task.description %}
+                                                <br><small class="text-muted">{{ task.description[:100] }}...</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ task.workflow.name }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'danger' if task.priority == 'urgent' else 'warning' if task.priority == 'high' else 'info' if task.priority == 'medium' else 'secondary' }}">
+                                                {{ task.priority.title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if task.due_date %}
+                                                <span class="{{ 'text-danger' if task.is_overdue() else '' }}">
+                                                    {{ task.due_date.strftime('%Y-%m-%d %H:%M') }}
+                                                </span>
+                                                {% if task.is_overdue() %}
+                                                    <i class="fas fa-exclamation-triangle text-danger ms-1"></i>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">No due date</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('workflow.view_task', task_id=task.id) }}" class="btn btn-sm btn-primary">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5>No pending tasks</h5>
+                            <p class="text-muted">You're all caught up!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Workflows</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_workflows %}
+                        {% for workflow in recent_workflows %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="workflow-status-indicator bg-{{ 'success' if workflow.status.value == 'completed' else 'primary' if workflow.status.value == 'active' else 'warning' if workflow.status.value == 'paused' else 'secondary' }}"></div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('workflow.view_workflow', workflow_id=workflow.id) }}" class="text-decoration-none">
+                                        {{ workflow.name }}
+                                    </a>
+                                </h6>
+                                <p class="mb-0 text-muted small">
+                                    {{ workflow.status.value.title() }} • {{ workflow.updated_at.strftime('%Y-%m-%d') }}
+                                </p>
+                                <div class="progress progress-sm mt-1">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ workflow.progress_percentage }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-project-diagram fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No recent workflows</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('workflow.workflow_templates') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-file-alt me-2"></i>Workflow Templates
+                        </a>
+                        <a href="{{ url_for('workflow.approval_workflows') }}" class="btn btn-outline-success">
+                            <i class="fas fa-check-circle me-2"></i>Approval Workflows
+                        </a>
+                        <a href="{{ url_for('workflow.process_automations') }}" class="btn btn-outline-info">
+                            <i class="fas fa-robot me-2"></i>Process Automations
+                        </a>
+                        <a href="{{ url_for('workflow.workflow_list') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list me-2"></i>All Workflows
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Analytics -->
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Workflow Status Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="workflowStatusChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Task Status Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="taskStatusChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.workflow-status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.progress-sm {
+    height: 4px;
+}
+</style>
+
+<script>
+// Load workflow analytics
+fetch('{{ url_for("workflow.workflow_stats_api") }}')
+    .then(response => response.json())
+    .then(data => {
+        // Workflow Status Chart
+        const workflowCtx = document.getElementById('workflowStatusChart').getContext('2d');
+        new Chart(workflowCtx, {
+            type: 'doughnut',
+            data: {
+                labels: data.status_distribution.map(item => item.status.replace('_', ' ').toUpperCase()),
+                datasets: [{
+                    data: data.status_distribution.map(item => item.count),
+                    backgroundColor: [
+                        '#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Task Status Chart
+        const taskCtx = document.getElementById('taskStatusChart').getContext('2d');
+        new Chart(taskCtx, {
+            type: 'doughnut',
+            data: {
+                labels: data.task_distribution.map(item => item.status.replace('_', ' ').toUpperCase()),
+                datasets: [{
+                    data: data.task_distribution.map(item => item.count),
+                    backgroundColor: [
+                        '#17a2b8', '#28a745', '#ffc107', '#dc3545', '#6c757d'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Error loading workflow analytics:', error);
+    });
+</script>
+{% endblock %}

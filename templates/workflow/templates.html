@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Workflow Templates{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Workflow Templates</h1>
+            <p class="text-muted">Create and manage reusable workflow templates</p>
+        </div>
+        <div>
+            <a href="{{ url_for('workflow.create_template') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Template
+            </a>
+        </div>
+    </div>
+
+    <!-- Templates Grid -->
+    <div class="row">
+        {% for template in templates %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title">{{ template.name }}</h5>
+                        <span class="badge bg-{{ 'success' if template.is_active else 'secondary' }}">
+                            {{ 'Active' if template.is_active else 'Inactive' }}
+                        </span>
+                    </div>
+                    
+                    <p class="card-text text-muted">
+                        {{ template.description[:100] }}{% if template.description and template.description|length > 100 %}...{% endif %}
+                    </p>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <strong>Category:</strong> {{ template.category or 'General' }}<br>
+                            <strong>Version:</strong> {{ template.version }}<br>
+                            <strong>Created:</strong> {{ template.created_at.strftime('%Y-%m-%d') if template.created_at }}
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100">
+                        <a href="#" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        <a href="#" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-play"></i> Use
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% if not templates %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                <h5>No workflow templates</h5>
+                <p class="text-muted">Create your first workflow template to get started with process automation.</p>
+                <a href="{{ url_for('workflow.create_template') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Template
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

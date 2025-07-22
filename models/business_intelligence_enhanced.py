@@ -198,7 +198,7 @@ class KPIValue(db.Model):
     calculated_at = Column(DateTime, default=datetime.utcnow)
     period_start = Column(DateTime)  # For period-based KPIs
     period_end = Column(DateTime)
-    metadata = Column(JSON)  # Additional calculation details
+    calculation_metadata = Column(JSON)  # Additional calculation details
     
     # Relationships
     kpi = relationship('KPIDefinition', back_populates='values')
@@ -210,7 +210,7 @@ class KPIValue(db.Model):
             'calculated_at': self.calculated_at.isoformat(),
             'period_start': self.period_start.isoformat() if self.period_start else None,
             'period_end': self.period_end.isoformat() if self.period_end else None,
-            'metadata': self.metadata
+            'calculation_metadata': self.calculation_metadata
         }
 
 class DataAlert(db.Model):

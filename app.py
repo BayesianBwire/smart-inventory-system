@@ -28,23 +28,51 @@ load_dotenv()
 from extensions import db, mail
 
 # Local imports - After app initialization to avoid circular imports
-from models import User, Product, Sale, LoginLog, BankAccount, Transaction, Payroll, Employee
-from models.audit_log import AuditLog
-from models.product import Product, StockMovement, Category, Supplier
+# Import core models first (order matters for foreign keys)
 from models.company import Company
-from models.login_log import LoginLog
 from models.user import User
+from models.login_log import LoginLog
+from models.audit_log import AuditLog
+
+# Import basic business models
+from models import Product, Sale, BankAccount, Transaction, Payroll, Employee
+from models.product import StockMovement, Category, Supplier
 from models.sale import Sale
-from models.contact import Contact  # Add Contact model import
-from models.crm import Lead, Customer, Opportunity, CRMActivity, CRMTask, CRMNote  # Add CRM model imports
+from models.contact import Contact
+
+# Import CRM models
+from models.crm import Lead, Customer, Opportunity, CRMActivity, CRMTask, CRMNote
+
 # Import Finance models
 from models.finance import (ChartOfAccounts, Invoice, InvoiceItem, Payment, Expense, 
                            ExpenseCategory, JournalEntry, BudgetPeriod, BudgetItem)
 from models.finance_extended import (BankTransaction, TaxRate, 
                                    FinancialReport, RecurringTransaction, CashFlowCategory)
-# Import enterprise features
+
+# Import enterprise features (these depend on Company model)
 from models.security import TwoFactorAuth, LoginAttempt, SecuritySettings
 from models.api_framework import APIKey, APIUsageLog, Webhook, DataImportJob, IntegrationConfig
+
+# Import Business Intelligence models
+try:
+    from models.business_intelligence_enhanced import (
+        Dashboard, DashboardWidget, Report, ReportExecution, 
+        KPIDefinition, KPIValue, DataAlert, AlertNotification, 
+        DataExport, AnalyticsSession
+    )
+    print("✅ Business Intelligence models imported")
+except ImportError as e:
+    print(f"⚠️ Business Intelligence models not available: {e}")
+
+# Import Workflow & Automation models
+try:
+    from models.workflow_automation import (
+        WorkflowTemplate, Workflow, WorkflowTask, WorkflowAction, WorkflowLog,
+        ApprovalWorkflow, ProcessAutomation, AutomationExecution
+    )
+    print("✅ Workflow & Automation models imported")
+except ImportError as e:
+    print(f"⚠️ Workflow & Automation models not available: {e}")
 # Import forms from the correct locations
 from forms import ProductForm, LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm
 from forms.company_form import CompanyForm
@@ -173,6 +201,14 @@ try:
     print("✅ Business Intelligence blueprint registered")
 except ImportError as e:
     print(f"❌ Business Intelligence blueprint not found: {e}")
+
+# Register Workflow & Automation blueprint
+try:
+    from routes.workflow_routes import workflow_bp
+    app.register_blueprint(workflow_bp)
+    print("✅ Workflow & Automation blueprint registered")
+except ImportError as e:
+    print(f"❌ Workflow & Automation blueprint not found: {e}")
 
 # Register advanced feature blueprints if available
 if rahasoft_bp:
@@ -664,8 +700,8 @@ except Exception as e:
 
 # Register existing blueprints
 try:
-    from routes.finance_routes import finance_bp
-    from routes.crm_routes import crm_bp
+    from routes.finance import finance_bp
+    from routes.crm import crm_bp
     
     # Check if already registered to avoid duplicate registration
     if not any(bp.name == 'finance' for bp in app.blueprints.values()):

@@ -22,7 +22,7 @@ class TwoFactorSetupForm(FlaskForm):
         }
     )
 
-class TwoFactorVerifyForm(FlaskForm):
+class TwoFactorVerificationForm(FlaskForm):
     """Form for verifying 2FA during login"""
     token = StringField(
         'Authentication Code',
@@ -38,6 +38,21 @@ class TwoFactorVerifyForm(FlaskForm):
         }
     )
     use_backup_code = BooleanField('Use backup code instead')
+
+# Keep both names for compatibility
+TwoFactorVerifyForm = TwoFactorVerificationForm
+
+class TwoFactorDisableForm(FlaskForm):
+    """Form for disabling 2FA"""
+    password = PasswordField(
+        'Current Password',
+        validators=[DataRequired()],
+        render_kw={'placeholder': 'Enter your current password to disable 2FA'}
+    )
+    confirmation = BooleanField(
+        'I understand that disabling 2FA will reduce my account security',
+        validators=[DataRequired()]
+    )
 
 class BackupCodeForm(FlaskForm):
     """Form for using backup codes"""

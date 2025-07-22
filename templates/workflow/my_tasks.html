@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}My Tasks{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">My Workflow Tasks</h1>
+            <p class="text-muted">Manage your assigned workflow tasks</p>
+        </div>
+        <div>
+            <a href="{{ url_for('workflow.workflow_dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="pending" {{ 'selected' if status_filter == 'pending' }}>Pending</option>
+                        <option value="in_progress" {{ 'selected' if status_filter == 'in_progress' }}>In Progress</option>
+                        <option value="completed" {{ 'selected' if status_filter == 'completed' }}>Completed</option>
+                        <option value="rejected" {{ 'selected' if status_filter == 'rejected' }}>Rejected</option>
+                        <option value="overdue" {{ 'selected' if status_filter == 'overdue' }}>Overdue</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="{{ url_for('workflow.my_tasks') }}" class="btn btn-outline-secondary ms-2">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tasks List -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Tasks ({{ tasks.total }} total)</h5>
+        </div>
+        <div class="card-body">
+            {% if tasks.items %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Workflow</th>
+                                <th>Type</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Due Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks.items %}
+                            <tr class="{{ 'table-danger' if task.is_overdue() else '' }}">
+                                <td>
+                                    <strong>{{ task.name }}</strong>
+                                    {% if task.description %}
+                                        <br><small class="text-muted">{{ task.description[:100] }}{% if task.description|length > 100 %}...{% endif %}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('workflow.view_workflow', workflow_id=task.workflow.id) }}" class="text-decoration-none">
+                                        {{ task.workflow.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ task.task_type.value.replace('_', ' ').title() }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if task.priority == 'urgent' else 'warning' if task.priority == 'high' else 'info' if task.priority == 'medium' else 'secondary' }}">
+                                        {{ task.priority.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'warning' if task.status.value == 'pending' else 'primary' if task.status.value == 'in_progress' else 'success' if task.status.value == 'completed' else 'danger' if task.status.value == 'rejected' else 'dark' }}">
+                                        {{ task.status.value.replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if task.due_date %}
+                                        <span class="{{ 'text-danger fw-bold' if task.is_overdue() else '' }}">
+                                            {{ task.due_date.strftime('%Y-%m-%d %H:%M') }}
+                                        </span>
+                                        {% if task.is_overdue() %}
+                                            <br><small class="text-danger"><i class="fas fa-exclamation-triangle"></i> Overdue</small>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">No due date</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('workflow.view_task', task_id=task.id) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if task.status.value in ['pending', 'in_progress'] %}
+                                            <button type="button" class="btn btn-outline-success" onclick="completeTask({{ task.id }})">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if tasks.pages > 1 %}
+                <nav aria-label="Tasks pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if tasks.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('workflow.my_tasks', page=tasks.prev_num, status=status_filter) }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page_num in tasks.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != tasks.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('workflow.my_tasks', page=page_num, status=status_filter) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if tasks.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('workflow.my_tasks', page=tasks.next_num, status=status_filter) }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                    <h5>No tasks found</h5>
+                    <p class="text-muted">
+                        {% if status_filter %}
+                            No tasks match the selected filter criteria.
+                        {% else %}
+                            You don't have any workflow tasks assigned yet.
+                        {% endif %}
+                    </p>
+                    {% if status_filter %}
+                        <a href="{{ url_for('workflow.my_tasks') }}" class="btn btn-outline-primary">View All Tasks</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Task Completion Modal -->
+<div class="modal fade" id="completeTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Complete Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="completeTaskForm">
+                    <div class="mb-3">
+                        <label for="taskComments" class="form-label">Comments</label>
+                        <textarea class="form-control" id="taskComments" name="comments" rows="3" placeholder="Add any comments about task completion..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskResults" class="form-label">Results (JSON)</label>
+                        <textarea class="form-control" id="taskResults" name="result_data" rows="3" placeholder='{"key": "value"}'></textarea>
+                        <small class="text-muted">Optional: Enter task results in JSON format</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="submitTaskCompletion()">Complete Task</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentTaskId = null;
+
+function completeTask(taskId) {
+    currentTaskId = taskId;
+    $('#completeTaskModal').modal('show');
+}
+
+function submitTaskCompletion() {
+    if (!currentTaskId) return;
+    
+    const formData = new FormData(document.getElementById('completeTaskForm'));
+    
+    fetch(`/workflow/tasks/${currentTaskId}/complete`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            comments: formData.get('comments'),
+            result_data: formData.get('result_data') || '{}'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#completeTaskModal').modal('hide');
+            location.reload(); // Refresh the page
+        } else {
+            alert('Error completing task: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error completing task');
+    });
+}
+</script>
+{% endblock %}
