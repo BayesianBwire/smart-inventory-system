@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}Business Intelligence - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bi-module-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .bi-module-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+    
+    .bi-module-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #3498db;
+    }
+    
+    .bi-module-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+    
+    .bi-module-desc {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    
+    .stats-overview {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .quick-insights {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .insight-item {
+        padding: 15px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .insight-item:last-child {
+        border-bottom: none;
+    }
+    
+    .insight-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+    }
+    
+    .insight-icon.positive {
+        background: rgba(46, 204, 113, 0.1);
+        color: #2ecc71;
+    }
+    
+    .insight-icon.negative {
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+    
+    .insight-icon.neutral {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-1 text-gray-800">
+                <i class="fas fa-chart-line text-primary me-2"></i>
+                Business Intelligence
+            </h1>
+            <p class="text-muted mb-0">Analyze data, track performance, and make informed decisions</p>
+        </div>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <div class="stat-value">{{ company_stats.total_sales or 0 }}</div>
+                    <div class="stat-label">Total Sales</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <div class="stat-value">${{ "{:,.0f}".format(company_stats.monthly_revenue or 0) }}</div>
+                    <div class="stat-label">Monthly Revenue</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <div class="stat-value">{{ company_stats.total_products or 0 }}</div>
+                    <div class="stat-label">Products</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <div class="stat-value">{{ company_stats.total_employees or 0 }}</div>
+                    <div class="stat-label">Employees</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Insights -->
+    <div class="quick-insights">
+        <h5 class="mb-4">
+            <i class="fas fa-lightbulb text-warning me-2"></i>
+            Quick Insights
+        </h5>
+        
+        <div class="insight-item d-flex align-items-center">
+            <div class="insight-icon positive">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div>
+                <strong>Sales Performance</strong>
+                <div class="text-muted small">Sales are trending upward this month</div>
+            </div>
+        </div>
+        
+        <div class="insight-item d-flex align-items-center">
+            <div class="insight-icon neutral">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <strong>User Activity</strong>
+                <div class="text-muted small">{{ user_activity.active_sessions or 0 }} active sessions currently</div>
+            </div>
+        </div>
+        
+        <div class="insight-item d-flex align-items-center">
+            <div class="insight-icon positive">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div>
+                <strong>Data Quality</strong>
+                <div class="text-muted small">All systems are collecting data normally</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BI Modules -->
+    <div class="row">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <a href="{{ url_for('business_intelligence.dashboards') }}" class="text-decoration-none">
+                <div class="bi-module-card">
+                    <div class="bi-module-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div class="bi-module-title">Dashboards</div>
+                    <div class="bi-module-desc">Interactive dashboards with real-time data visualization</div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <a href="{{ url_for('business_intelligence.reports') }}" class="text-decoration-none">
+                <div class="bi-module-card">
+                    <div class="bi-module-icon">
+                        <i class="fas fa-file-chart-column"></i>
+                    </div>
+                    <div class="bi-module-title">Reports</div>
+                    <div class="bi-module-desc">Generate detailed reports in multiple formats</div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <a href="{{ url_for('business_intelligence.kpis') }}" class="text-decoration-none">
+                <div class="bi-module-card">
+                    <div class="bi-module-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="bi-module-title">KPI Tracking</div>
+                    <div class="bi-module-desc">Monitor key performance indicators and trends</div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <a href="{{ url_for('business_intelligence.analytics') }}" class="text-decoration-none">
+                <div class="bi-module-card">
+                    <div class="bi-module-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="bi-module-title">Analytics</div>
+                    <div class="bi-module-desc">Advanced analytics and data exploration tools</div>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>
+                        Recent Reports
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-file-alt fa-2x mb-2"></i>
+                        <p>No recent reports</p>
+                        <a href="{{ url_for('business_intelligence.create_report') }}" class="btn btn-sm btn-primary">
+                            Create Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bell me-2"></i>
+                        Active Alerts
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_alerts %}
+                        {% for alert in recent_alerts %}
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-3">
+                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">{{ alert.name }}</div>
+                                <small class="text-muted">{{ alert.description }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+                        <p>No active alerts</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects and animations
+    const moduleCards = document.querySelectorAll('.bi-module-card');
+    
+    moduleCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

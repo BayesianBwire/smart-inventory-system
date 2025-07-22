@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}KPI Dashboard - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .kpi-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        border-left: 4px solid #3498db;
+        transition: transform 0.2s;
+    }
+    
+    .kpi-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .kpi-card.positive {
+        border-left-color: #27ae60;
+    }
+    
+    .kpi-card.negative {
+        border-left-color: #e74c3c;
+    }
+    
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 10px 0;
+    }
+    
+    .kpi-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .kpi-change {
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+    
+    .kpi-change.positive {
+        color: #27ae60;
+    }
+    
+    .kpi-change.negative {
+        color: #e74c3c;
+    }
+    
+    .kpi-change.neutral {
+        color: #7f8c8d;
+    }
+    
+    .trend-icon {
+        margin-right: 5px;
+    }
+    
+    .kpi-history {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .chart-container {
+        height: 300px;
+        margin-top: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1 text-gray-800">
+                        <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                        Key Performance Indicators
+                    </h1>
+                    <p class="text-muted mb-0">Monitor your business performance metrics</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('business_intelligence.create_kpi') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create KPI
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+        {% for kpi in kpis %}
+        <div class="kpi-card {{ 'positive' if kpi.trend == 'up' else 'negative' if kpi.trend == 'down' else '' }}">
+            <div class="kpi-label">{{ kpi.name }}</div>
+            <div class="kpi-value">
+                {% if kpi.unit == 'currency' %}
+                    ${{ "{:,.0f}".format(kpi.current_value) }}
+                {% elif kpi.unit == 'percentage' %}
+                    {{ "{:.1f}".format(kpi.current_value) }}%
+                {% else %}
+                    {{ "{:,.0f}".format(kpi.current_value) }}
+                {% endif %}
+            </div>
+            {% if kpi.trend %}
+            <div class="kpi-change {{ kpi.trend == 'up' and 'positive' or kpi.trend == 'down' and 'negative' or 'neutral' }}">
+                <i class="fas fa-arrow-{{ 'up' if kpi.trend == 'up' else 'down' if kpi.trend == 'down' else 'right' }} trend-icon"></i>
+                {% if kpi.change_percentage %}
+                    {{ "{:+.1f}%".format(kpi.change_percentage) }}
+                {% else %}
+                    No change
+                {% endif %}
+                <small class="d-block mt-1">vs previous period</small>
+            </div>
+            {% endif %}
+            {% if kpi.target_value %}
+            <div class="mt-2">
+                <small class="text-muted">
+                    Target: 
+                    {% if kpi.unit == 'currency' %}
+                        ${{ "{:,.0f}".format(kpi.target_value) }}
+                    {% elif kpi.unit == 'percentage' %}
+                        {{ "{:.1f}".format(kpi.target_value) }}%
+                    {% else %}
+                        {{ "{:,.0f}".format(kpi.target_value) }}
+                    {% endif %}
+                </small>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if not kpis %}
+    <div class="text-center py-5">
+        <i class="fas fa-tachometer-alt fa-4x text-muted mb-4"></i>
+        <h4 class="text-muted">No KPIs configured</h4>
+        <p class="text-muted">Create your first KPI to start monitoring performance</p>
+        <a href="{{ url_for('business_intelligence.create_kpi') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create Your First KPI
+        </a>
+    </div>
+    {% endif %}
+    
+    <!-- KPI History Charts -->
+    {% if kpis %}
+    <div class="row">
+        {% for kpi in kpis[:4] %}
+        <div class="col-lg-6 mb-4">
+            <div class="kpi-history">
+                <h6 class="mb-3">{{ kpi.name }} - Trend</h6>
+                <div class="chart-container">
+                    <canvas id="chart-{{ kpi.id }}"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize KPI trend charts
+    {% for kpi in kpis[:4] %}
+    initKPIChart({{ kpi.id }}, '{{ kpi.name }}');
+    {% endfor %}
+});
+
+function initKPIChart(kpiId, kpiName) {
+    // Fetch KPI history data
+    fetch(`/bi/api/kpi/${kpiId}/history?days=30`)
+        .then(response => response.json())
+        .then(data => {
+            createKPIChart(kpiId, kpiName, data.values);
+        })
+        .catch(error => {
+            console.error('Error loading KPI data:', error);
+        });
+}
+
+function createKPIChart(kpiId, kpiName, values) {
+    const ctx = document.getElementById(`chart-${kpiId}`);
+    if (!ctx || !values || values.length === 0) return;
+    
+    const labels = values.map(v => new Date(v.calculated_at).toLocaleDateString());
+    const data = values.map(v => v.value);
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: kpiName,
+                data: data,
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

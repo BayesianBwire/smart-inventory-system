@@ -1,0 +1,643 @@
+{% extends "base.html" %}
+
+{% block title %}Business Intelligence Dashboard - RahaSoft ERP{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css" rel="stylesheet">
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .widget-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .widget-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 25px rgba(0,0,0,0.15);
+    }
+    
+    .widget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f8f9fa;
+    }
+    
+    .widget-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .widget-actions {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .widget-btn {
+        padding: 4px 8px;
+        border: none;
+        border-radius: 4px;
+        background: #f8f9fa;
+        color: #6c757d;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+    }
+    
+    .widget-btn:hover {
+        background: #e9ecef;
+        color: #495057;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 250px;
+        margin-top: 15px;
+    }
+    
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2980b9;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .kpi-label {
+        text-align: center;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .kpi-change {
+        text-align: center;
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+    
+    .kpi-change.positive {
+        color: #27ae60;
+    }
+    
+    .kpi-change.negative {
+        color: #e74c3c;
+    }
+    
+    .kpi-change.neutral {
+        color: #7f8c8d;
+    }
+    
+    .data-table {
+        width: 100%;
+        margin-top: 15px;
+    }
+    
+    .data-table th {
+        background: #f8f9fa;
+        padding: 8px 12px;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .data-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .dashboard-controls {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .refresh-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+    
+    .auto-refresh {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+    }
+    
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255,255,255,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        z-index: 100;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .error-message {
+        color: #e74c3c;
+        text-align: center;
+        padding: 20px;
+        background: #fdf2f2;
+        border-radius: 8px;
+        border: 1px solid #f8d7da;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1 text-gray-800">
+                        <i class="fas fa-chart-line text-primary me-2"></i>
+                        {{ dashboard.name }}
+                    </h1>
+                    <p class="text-muted mb-0">{{ dashboard.description or "Business Intelligence Dashboard" }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="refreshDashboard()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    {% if dashboard.user_id == current_user.id or current_user.role in ['admin', 'founder'] %}
+                    <a href="{{ url_for('business_intelligence.edit_dashboard', dashboard_id=dashboard.id) }}" 
+                       class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    {% endif %}
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" 
+                                data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> Options
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="exportDashboard()">
+                                <i class="fas fa-download me-2"></i>Export PDF</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="shareDashboard()">
+                                <i class="fas fa-share me-2"></i>Share</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="toggleAutoRefresh()">
+                                <i class="fas fa-clock me-2"></i>Auto Refresh: <span id="auto-refresh-status">ON</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dashboard Controls -->
+    <div class="dashboard-controls">
+        <div class="d-flex align-items-center gap-3">
+            <div>
+                <label class="form-label mb-1">Date Range:</label>
+                <select class="form-select form-select-sm" id="dateRange" onchange="updateDateRange()">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 3 months</option>
+                    <option value="365">Last year</option>
+                    <option value="custom">Custom range</option>
+                </select>
+            </div>
+            <div class="d-none" id="customDateRange">
+                <input type="date" class="form-control form-control-sm me-2" id="startDate">
+                <input type="date" class="form-control form-control-sm" id="endDate">
+            </div>
+        </div>
+        
+        <div class="refresh-indicator">
+            <i class="fas fa-clock auto-refresh"></i>
+            <span>Auto-refresh every {{ dashboard.refresh_interval or 300 }}s</span>
+            <span class="ms-2 text-success">
+                <i class="fas fa-circle" style="font-size: 8px;"></i>
+                Live
+            </span>
+        </div>
+    </div>
+    
+    <!-- Widgets Grid -->
+    <div class="dashboard-grid" id="dashboardGrid">
+        {% for widget in widgets %}
+        <div class="widget-card" id="widget-{{ widget.id }}" 
+             style="grid-column: span {{ widget.width }}; grid-row: span {{ widget.height }};">
+            <div class="widget-header">
+                <h5 class="widget-title">{{ widget.title }}</h5>
+                <div class="widget-actions">
+                    <button class="widget-btn" onclick="refreshWidget({{ widget.id }})" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="widget-btn" onclick="expandWidget({{ widget.id }})" title="Expand">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="widget-content" id="widget-content-{{ widget.id }}">
+                {% if widget.widget_type == 'kpi_card' %}
+                    <div class="kpi-label">{{ widget.title }}</div>
+                    <div class="kpi-value" id="kpi-value-{{ widget.id }}">
+                        {% if widget.data and widget.data.value is defined %}
+                            {{ "{:,.0f}".format(widget.data.value) }}
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <div class="kpi-change neutral" id="kpi-change-{{ widget.id }}">
+                        {% if widget.data and widget.data.change_percentage is defined %}
+                            {% set change_class = 'positive' if widget.data.change_percentage > 0 else 'negative' if widget.data.change_percentage < 0 else 'neutral' %}
+                            <span class="{{ change_class }}">
+                                <i class="fas fa-arrow-{{ 'up' if widget.data.change_percentage > 0 else 'down' if widget.data.change_percentage < 0 else 'right' }}"></i>
+                                {{ "{:+.1f}%".format(widget.data.change_percentage) }}
+                            </span>
+                        {% else %}
+                            <span class="neutral">No change data</span>
+                        {% endif %}
+                    </div>
+                
+                {% elif widget.widget_type in ['line_chart', 'bar_chart', 'pie_chart'] %}
+                    <div class="chart-container">
+                        <canvas id="chart-{{ widget.id }}"></canvas>
+                    </div>
+                
+                {% elif widget.widget_type == 'data_table' %}
+                    <div class="table-responsive">
+                        <table class="table table-sm data-table" id="table-{{ widget.id }}">
+                            {% if widget.data and widget.data.columns %}
+                            <thead>
+                                <tr>
+                                    {% for column in widget.data.columns %}
+                                    <th>{{ column }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in widget.data.data %}
+                                <tr>
+                                    {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            {% else %}
+                            <tbody>
+                                <tr>
+                                    <td class="text-center text-muted">No data available</td>
+                                </tr>
+                            </tbody>
+                            {% endif %}
+                        </table>
+                    </div>
+                
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                        <p>Widget type: {{ widget.widget_type }}</p>
+                        <p>Data source: {{ widget.data_source }}</p>
+                    </div>
+                {% endif %}
+                
+                {% if widget.data and widget.data.error %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ widget.data.error }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if not widgets %}
+    <div class="text-center py-5">
+        <i class="fas fa-chart-line fa-4x text-muted mb-4"></i>
+        <h4 class="text-muted">No widgets configured</h4>
+        <p class="text-muted">Add widgets to start building your dashboard</p>
+        {% if dashboard.user_id == current_user.id or current_user.role in ['admin', 'founder'] %}
+        <a href="{{ url_for('business_intelligence.edit_dashboard', dashboard_id=dashboard.id) }}" 
+           class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Widgets
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Widget Data -->
+<script>
+    const widgetData = {{ widgets | tojson }};
+    const dashboardId = {{ dashboard.id }};
+    const refreshInterval = {{ dashboard.refresh_interval or 300 }} * 1000;
+    let autoRefreshEnabled = true;
+    let refreshTimer;
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    startAutoRefresh();
+});
+
+function initializeCharts() {
+    widgetData.forEach(widget => {
+        if (['line_chart', 'bar_chart', 'pie_chart'].includes(widget.widget_type)) {
+            createChart(widget);
+        }
+    });
+}
+
+function createChart(widget) {
+    const ctx = document.getElementById(`chart-${widget.id}`);
+    if (!ctx || !widget.data) return;
+    
+    let chartConfig = {
+        type: widget.widget_type.replace('_chart', ''),
+        data: {
+            labels: widget.data.labels || [],
+            datasets: [{
+                label: widget.title,
+                data: widget.data.data || [],
+                backgroundColor: generateColors(widget.data.data?.length || 1),
+                borderColor: generateColors(widget.data.data?.length || 1, 0.8),
+                borderWidth: 2,
+                fill: widget.widget_type === 'line_chart' ? false : true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: widget.widget_type === 'pie_chart',
+                    position: 'bottom'
+                }
+            },
+            scales: widget.widget_type !== 'pie_chart' ? {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            } : {}
+        }
+    };
+    
+    new Chart(ctx, chartConfig);
+}
+
+function generateColors(count, alpha = 0.6) {
+    const colors = [
+        `rgba(52, 152, 219, ${alpha})`,  // Blue
+        `rgba(46, 204, 113, ${alpha})`,  // Green
+        `rgba(241, 196, 15, ${alpha})`,  // Yellow
+        `rgba(231, 76, 60, ${alpha})`,   // Red
+        `rgba(155, 89, 182, ${alpha})`,  // Purple
+        `rgba(26, 188, 156, ${alpha})`,  // Teal
+        `rgba(230, 126, 34, ${alpha})`,  // Orange
+        `rgba(149, 165, 166, ${alpha})`  // Gray
+    ];
+    
+    return Array.from({length: count}, (_, i) => colors[i % colors.length]);
+}
+
+function refreshWidget(widgetId) {
+    const widgetCard = document.getElementById(`widget-${widgetId}`);
+    showLoadingOverlay(widgetCard);
+    
+    fetch(`/bi/api/widget/${widgetId}/data`)
+        .then(response => response.json())
+        .then(data => {
+            updateWidgetContent(widgetId, data);
+        })
+        .catch(error => {
+            console.error('Error refreshing widget:', error);
+            showWidgetError(widgetId, 'Failed to refresh widget data');
+        })
+        .finally(() => {
+            hideLoadingOverlay(widgetCard);
+        });
+}
+
+function refreshDashboard() {
+    widgetData.forEach(widget => {
+        refreshWidget(widget.id);
+    });
+}
+
+function showLoadingOverlay(element) {
+    const overlay = document.createElement('div');
+    overlay.className = 'loading-overlay';
+    overlay.innerHTML = '<div class="spinner"></div>';
+    element.style.position = 'relative';
+    element.appendChild(overlay);
+}
+
+function hideLoadingOverlay(element) {
+    const overlay = element.querySelector('.loading-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
+function showWidgetError(widgetId, message) {
+    const content = document.getElementById(`widget-content-${widgetId}`);
+    content.innerHTML = `<div class="error-message">${message}</div>`;
+}
+
+function updateWidgetContent(widgetId, data) {
+    const widget = widgetData.find(w => w.id === widgetId);
+    if (!widget) return;
+    
+    widget.data = data;
+    
+    if (widget.widget_type === 'kpi_card') {
+        updateKPIWidget(widgetId, data);
+    } else if (['line_chart', 'bar_chart', 'pie_chart'].includes(widget.widget_type)) {
+        updateChartWidget(widgetId, data);
+    } else if (widget.widget_type === 'data_table') {
+        updateTableWidget(widgetId, data);
+    }
+}
+
+function updateKPIWidget(widgetId, data) {
+    const valueElement = document.getElementById(`kpi-value-${widgetId}`);
+    const changeElement = document.getElementById(`kpi-change-${widgetId}`);
+    
+    if (valueElement && data.value !== undefined) {
+        valueElement.textContent = Number(data.value).toLocaleString();
+    }
+    
+    if (changeElement && data.change_percentage !== undefined) {
+        const changeClass = data.change_percentage > 0 ? 'positive' : 
+                           data.change_percentage < 0 ? 'negative' : 'neutral';
+        const arrow = data.change_percentage > 0 ? 'up' : 
+                     data.change_percentage < 0 ? 'down' : 'right';
+        
+        changeElement.className = `kpi-change ${changeClass}`;
+        changeElement.innerHTML = `
+            <span class="${changeClass}">
+                <i class="fas fa-arrow-${arrow}"></i>
+                ${data.change_percentage > 0 ? '+' : ''}${data.change_percentage.toFixed(1)}%
+            </span>
+        `;
+    }
+}
+
+function updateChartWidget(widgetId, data) {
+    const chart = Chart.getChart(`chart-${widgetId}`);
+    if (chart) {
+        chart.data.labels = data.labels || [];
+        chart.data.datasets[0].data = data.data || [];
+        chart.update();
+    }
+}
+
+function updateTableWidget(widgetId, data) {
+    const table = document.getElementById(`table-${widgetId}`);
+    if (!table || !data.columns || !data.data) return;
+    
+    let html = '<thead><tr>';
+    data.columns.forEach(column => {
+        html += `<th>${column}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+    
+    data.data.forEach(row => {
+        html += '<tr>';
+        row.forEach(cell => {
+            html += `<td>${cell}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody>';
+    
+    table.innerHTML = html;
+}
+
+function startAutoRefresh() {
+    if (autoRefreshEnabled && refreshInterval > 0) {
+        refreshTimer = setInterval(refreshDashboard, refreshInterval);
+    }
+}
+
+function stopAutoRefresh() {
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+    }
+}
+
+function toggleAutoRefresh() {
+    autoRefreshEnabled = !autoRefreshEnabled;
+    const statusElement = document.getElementById('auto-refresh-status');
+    
+    if (autoRefreshEnabled) {
+        startAutoRefresh();
+        statusElement.textContent = 'ON';
+    } else {
+        stopAutoRefresh();
+        statusElement.textContent = 'OFF';
+    }
+}
+
+function updateDateRange() {
+    const dateRange = document.getElementById('dateRange').value;
+    const customRange = document.getElementById('customDateRange');
+    
+    if (dateRange === 'custom') {
+        customRange.classList.remove('d-none');
+    } else {
+        customRange.classList.add('d-none');
+        // Apply the date range filter and refresh dashboard
+        refreshDashboard();
+    }
+}
+
+function expandWidget(widgetId) {
+    // Implement widget expansion in modal
+    const widget = widgetData.find(w => w.id === widgetId);
+    if (widget) {
+        // Create and show modal with expanded widget
+        console.log('Expanding widget:', widget.title);
+    }
+}
+
+function exportDashboard() {
+    // Implement dashboard export functionality
+    window.print();
+}
+
+function shareDashboard() {
+    // Implement dashboard sharing functionality
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        alert('Dashboard URL copied to clipboard!');
+    });
+}
+
+// Handle window visibility change to pause/resume auto-refresh
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        stopAutoRefresh();
+    } else if (autoRefreshEnabled) {
+        startAutoRefresh();
+    }
+});
+</script>
+{% endblock %}

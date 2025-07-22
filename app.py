@@ -166,6 +166,14 @@ try:
 except ImportError as e:
     print(f"❌ CRM blueprint not found: {e}")
 
+# Register Business Intelligence blueprint
+try:
+    from routes.business_intelligence_routes import bi_bp
+    app.register_blueprint(bi_bp)
+    print("✅ Business Intelligence blueprint registered")
+except ImportError as e:
+    print(f"❌ Business Intelligence blueprint not found: {e}")
+
 # Register advanced feature blueprints if available
 if rahasoft_bp:
     app.register_blueprint(rahasoft_bp)

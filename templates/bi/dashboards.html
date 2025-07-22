@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboards - RahaSoft ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1 text-gray-800">
+                        <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                        Dashboards
+                    </h1>
+                    <p class="text-muted mb-0">Create and manage interactive dashboards</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('business_intelligence.create_dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dashboard Grid -->
+    <div class="row">
+        {% for dashboard in user_dashboards %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">{{ dashboard.name }}</h6>
+                    <span class="badge bg-primary">{{ dashboard.dashboard_type }}</span>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">
+                        {{ dashboard.description or "No description available" }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            Updated {{ dashboard.updated_at.strftime('%b %d, %Y') }}
+                        </small>
+                        {% if dashboard.is_public %}
+                        <span class="badge bg-success">Public</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="btn-group w-100" role="group">
+                        <a href="{{ url_for('business_intelligence.view_dashboard', dashboard_id=dashboard.id) }}" 
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        {% if dashboard.user_id == current_user.id or current_user.role in ['admin', 'founder'] %}
+                        <a href="{{ url_for('business_intelligence.edit_dashboard', dashboard_id=dashboard.id) }}" 
+                           class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% if public_dashboards %}
+        {% for dashboard in public_dashboards %}
+        {% if dashboard.company_id != current_user.company_id %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 border-success">
+                <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                    <h6 class="mb-0">{{ dashboard.name }}</h6>
+                    <span class="badge bg-success">Public Template</span>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">
+                        {{ dashboard.description or "No description available" }}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('business_intelligence.view_dashboard', dashboard_id=dashboard.id) }}" 
+                       class="btn btn-outline-success btn-sm w-100">
+                        <i class="fas fa-eye"></i> View Template
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </div>
+    
+    {% if not user_dashboards and not public_dashboards %}
+    <div class="text-center py-5">
+        <i class="fas fa-tachometer-alt fa-4x text-muted mb-4"></i>
+        <h4 class="text-muted">No dashboards available</h4>
+        <p class="text-muted">Create your first dashboard to start visualizing your data</p>
+        <a href="{{ url_for('business_intelligence.create_dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create Your First Dashboard
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

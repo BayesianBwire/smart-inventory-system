@@ -14,3 +14,10 @@ from .attendance import AttendanceRecord
 from .leave import LeaveRequest
 from .payroll import Payroll
 from .support_ticket import SupportTicket
+
+# Import Business Intelligence models
+from .business_intelligence_enhanced import (
+    Dashboard, DashboardWidget, Report, ReportExecution,
+    KPIDefinition, KPIValue, DataAlert, AlertNotification,
+    DataExport, AnalyticsSession
+)
