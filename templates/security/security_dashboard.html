@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block title %}Security Dashboard - RahaSoft ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Security Overview Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-shield-alt text-primary"></i> Security Dashboard
+        </h1>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('security.security_settings') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-cogs"></i> Security Settings
+            </a>
+            <a href="{{ url_for('security.audit_log') }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-clipboard-list"></i> Audit Log
+            </a>
+        </div>
+    </div>
+
+    <!-- Security Status Cards -->
+    <div class="row">
+        <!-- 2FA Status -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-{% if user_2fa and user_2fa.is_enabled %}success{% else %}warning{% endif %} shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-{% if user_2fa and user_2fa.is_enabled %}success{% else %}warning{% endif %} text-uppercase mb-1">
+                                Two-Factor Authentication
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if user_2fa and user_2fa.is_enabled %}
+                                    <i class="fas fa-check-circle text-success"></i> Enabled
+                                {% else %}
+                                    <i class="fas fa-exclamation-triangle text-warning"></i> Disabled
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-mobile-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        {% if user_2fa and user_2fa.is_enabled %}
+                            <a href="{{ url_for('security.view_backup_codes') }}" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-key"></i> Backup Codes
+                            </a>
+                            <a href="{{ url_for('security.disable_2fa') }}" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-times"></i> Disable
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('security.setup_2fa') }}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-plus"></i> Enable 2FA
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Status -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-{% if get_password_age() and get_password_age() > 90 %}danger{% elif get_password_age() and get_password_age() > 60 %}warning{% else %}primary{% endif %} shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Password Status
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if get_password_age() %}
+                                    {{ get_password_age() }} days old
+                                {% else %}
+                                    Unknown
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-key fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a href="{{ url_for('security.change_password') }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit"></i> Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Failed Login Attempts -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-{% if failed_attempts_today > 0 %}danger{% else %}success{% endif %} shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-{% if failed_attempts_today > 0 %}danger{% else %}success{% endif %} text-uppercase mb-1">
+                                Failed Logins Today
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ failed_attempts_today or 0 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Sessions -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Active Sessions
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ active_sessions_count or 1 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-desktop fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Alerts -->
+    <div class="row">
+        {% if security_alerts %}
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Security Alerts
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if get_password_age() and get_password_age() > 90 %}
+                        <div class="col-md-6 mb-3">
+                            <div class="alert alert-danger border-left-danger" role="alert">
+                                <div class="alert-heading h6">
+                                    <i class="fas fa-key"></i> Password Outdated
+                                </div>
+                                <p class="mb-1">Your password is {{ get_password_age() }} days old. Consider updating it for better security.</p>
+                                <a href="{{ url_for('security.change_password') }}" class="btn btn-sm btn-danger">Update Password</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if failed_attempts_today > 5 %}
+                        <div class="col-md-6 mb-3">
+                            <div class="alert alert-danger border-left-danger" role="alert">
+                                <div class="alert-heading h6">
+                                    <i class="fas fa-exclamation-triangle"></i> Multiple Failed Login Attempts
+                                </div>
+                                <p class="mb-1">{{ failed_attempts_today }} failed login attempts detected today. Review your account security.</p>
+                                <a href="{{ url_for('security.change_password') }}" class="btn btn-sm btn-danger">Secure Account</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="alert alert-info border-left-info" role="alert">
+                                <div class="alert-heading h6">
+                                    <i class="fas fa-info-circle"></i> Security Tip
+                                </div>
+                                <p class="mb-1">Enable two-factor authentication for enhanced account security. It only takes a minute to set up!</p>
+                                {% if not (user_2fa and user_2fa.is_enabled) %}
+                                <a href="{{ url_for('security.setup_2fa') }}" class="btn btn-sm btn-info">Enable 2FA</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Security Actions -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-shield-alt"></i> Security Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('security.change_password') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-key text-primary"></i> Change Password</h6>
+                                <small>Security</small>
+                            </div>
+                            <p class="mb-1">Update your account password for better security</p>
+                        </a>
+                        
+                        {% if not (user_2fa and user_2fa.is_enabled) %}
+                        <a href="{{ url_for('security.setup_2fa') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-mobile-alt text-warning"></i> Enable Two-Factor Authentication</h6>
+                                <small>Recommended</small>
+                            </div>
+                            <p class="mb-1">Add an extra layer of security to your account</p>
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('security.view_backup_codes') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-key text-success"></i> View Backup Codes</h6>
+                                <small>2FA</small>
+                            </div>
+                            <p class="mb-1">Access your two-factor authentication backup codes</p>
+                        </a>
+                        {% endif %}
+                        
+                        {% if current_user.is_admin() %}
+                        <a href="{{ url_for('security.security_settings') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-cogs text-info"></i> Security Settings</h6>
+                                <small>Admin</small>
+                            </div>
+                            <p class="mb-1">Configure company-wide security policies</p>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Security Events -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-history"></i> Recent Security Events
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_security_events %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in recent_security_events %}
+                                <tr>
+                                    <td>
+                                        <small>
+                                            {% if event.event_type == 'login_success' %}
+                                                <i class="fas fa-sign-in-alt text-success"></i> Login
+                                            {% elif event.event_type == 'login_failed' %}
+                                                <i class="fas fa-times text-danger"></i> Failed Login
+                                            {% elif event.event_type == 'password_changed' %}
+                                                <i class="fas fa-key text-warning"></i> Password Change
+                                            {% elif event.event_type == '2fa_enabled' %}
+                                                <i class="fas fa-mobile-alt text-success"></i> 2FA Enabled
+                                            {% else %}
+                                                <i class="fas fa-info-circle text-info"></i> {{ event.event_type|title }}
+                                            {% endif %}
+                                        </small>
+                                    </td>
+                                    <td><small>{{ event.timestamp.strftime('%m/%d %H:%M') }}</small></td>
+                                    <td>
+                                        {% if event.blocked %}
+                                            <span class="badge badge-danger">Blocked</span>
+                                        {% else %}
+                                            <span class="badge badge-success">Allowed</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-shield-alt fa-3x mb-3"></i>
+                        <p>No recent security events</p>
+                        <small>Security events will appear here</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Checklist -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-check-circle"></i> Security Checklist
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Account Security</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    {% if user_2fa and user_2fa.is_enabled %}
+                                        <i class="fas fa-check text-success"></i>
+                                    {% else %}
+                                        <i class="fas fa-times text-danger"></i>
+                                    {% endif %}
+                                    Two-Factor Authentication enabled
+                                </li>
+                                <li class="mb-2">
+                                    {% if get_password_age() and get_password_age() < 90 %}
+                                        <i class="fas fa-check text-success"></i>
+                                    {% else %}
+                                        <i class="fas fa-times text-danger"></i>
+                                    {% endif %}
+                                    Password is recent (less than 90 days)
+                                </li>
+                                <li class="mb-2">
+                                    {% if failed_attempts_today == 0 %}
+                                        <i class="fas fa-check text-success"></i>
+                                    {% else %}
+                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    {% endif %}
+                                    No failed login attempts today
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">System Security</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    HTTPS encryption enabled
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    CSRF protection active
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    Security headers configured
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success"></i>
+                                    Input validation enabled
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+</style>
+{% endblock %}

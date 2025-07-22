@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Company - RahaSoft ERP | Business Registration</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --rahasoft-gradient: linear-gradient(135deg, #004d7a 0%, #008793 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background: var(--rahasoft-gradient);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        /* Animated Background */
+        .bg-animated {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--rahasoft-gradient);
+            overflow: hidden;
+        }
+
+        .bg-animated::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="500" cy="500" r="500"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="500" cy="500" r="500" fill="url(%23a)"/></svg>') center/cover;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) { width: 80px; height: 80px; top: 20%; left: 10%; animation-delay: 0s; }
+        .shape:nth-child(2) { width: 120px; height: 120px; top: 60%; left: 80%; animation-delay: 2s; }
+        .shape:nth-child(3) { width: 60px; height: 60px; top: 80%; left: 20%; animation-delay: 4s; }
+        .shape:nth-child(4) { width: 100px; height: 100px; top: 30%; left: 70%; animation-delay: 1s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Company Registration Card */
+        .company-card {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .company-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rahasoft-gradient);
+        }
+
+        .card-header {
+            background: var(--rahasoft-gradient);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="200" cy="200" r="100" fill="rgba(255,255,255,0.1)"/><circle cx="800" cy="800" r="150" fill="rgba(255,255,255,0.05)"/><circle cx="600" cy="300" r="80" fill="rgba(255,255,255,0.08)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+        }
+
+        .header-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .card-body {
+            padding: 3rem;
+        }
+
+        .form-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--rahasoft-gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-floating .form-control,
+        .form-floating .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            height: 60px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-floating .form-control:focus,
+        .form-floating .form-select:focus {
+            border-color: #004d7a;
+            box-shadow: 0 0 0 3px rgba(0, 77, 122, 0.1);
+            background: white;
+        }
+
+        .form-floating label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-floating textarea.form-control {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            z-index: 5;
+        }
+
+        .btn-register {
+            background: var(--rahasoft-gradient);
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 77, 122, 0.3);
+            margin-top: 2rem;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 77, 122, 0.4);
+            color: white;
+        }
+
+        .btn-register:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .terms-section {
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .form-check-input {
+            border-radius: 4px;
+            border: 2px solid #e2e8f0;
+            margin-top: 2px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .form-check-input:checked {
+            background-color: #004d7a;
+            border-color: #004d7a;
+        }
+
+        .form-check-label {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .form-check-label a {
+            color: #004d7a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-check-label a:hover {
+            color: #008793;
+            text-decoration: underline;
+        }
+
+        .back-to-home {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            color: #004d7a;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-to-home:hover {
+            background: white;
+            color: #004d7a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .alert {
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .info-badge {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-badge-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 0 0.5rem;
+            }
+
+            .company-card {
+                margin: 1rem 0;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 2rem 1.5rem;
+            }
+
+            .header-title {
+                font-size: 1.5rem;
+            }
+
+            .header-subtitle {
+                font-size: 1rem;
+            }
+
+            .back-to-home {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animated">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+    </div>
+
+    <!-- Back to Home Button -->
+    <a href="{{ url_for('welcome') }}" class="back-to-home" data-aos="fade-right">
+        <i class="fas fa-arrow-left me-2"></i>Back to Home
+    </a>
+
+    <div class="main-container">
+        <!-- Company Registration Card -->
+        <div class="company-card" data-aos="fade-up" data-aos-duration="800">
+            <!-- Header -->
+            <div class="card-header">
+                <div class="header-content">
+                    <div class="header-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h1 class="header-title">Register Your Company</h1>
+                    <p class="header-subtitle">
+                        Create your business profile and start managing your operations with RahaSoft ERP
+                    </p>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body">
+                <!-- Info Badge -->
+                <div class="info-badge d-flex align-items-center" data-aos="fade-up" data-aos-delay="200">
+                    <div class="info-badge-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1 fw-bold text-primary">Quick Company Setup</h6>
+                        <p class="mb-0 small text-secondary">
+                            Register your company details to get started. You can invite team members and set up user accounts after registration.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                                <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }} me-2"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Registration Form -->
+                <form method="POST" id="companyForm" data-aos="fade-up" data-aos-delay="400">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Company Information Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <div class="section-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            Company Information
+                        </h3>
+                        
+                        <div class="row g-3">
+                            <!-- Company Name -->
+                            <div class="col-12">
+                                <div class="form-floating position-relative">
+                                    {{ form.name(class="form-control", placeholder="Enter your company name", required=true) }}
+                                    {{ form.name.label(class="form-label") }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    {% if form.name.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.name.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Industry and Email -->
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative">
+                                    {{ form.industry(class="form-select", placeholder="Select industry") }}
+                                    {{ form.industry.label(class="form-label") }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-industry"></i>
+                                    </div>
+                                    {% if form.industry.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.industry.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative">
+                                    {{ form.email(class="form-control", placeholder="company@example.com", type="email", required=true) }}
+                                    {{ form.email.label(class="form-label") }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    {% if form.email.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.email.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Phone and Website -->
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative">
+                                    {{ form.phone(class="form-control", placeholder="(254) 123-456-789") }}
+                                    {{ form.phone.label(class="form-label") }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    {% if form.phone.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.phone.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative">
+                                    {{ form.website(class="form-control", placeholder="https://www.yourcompany.com") }}
+                                    {{ form.website.label(class="form-label") }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-globe"></i>
+                                    </div>
+                                    {% if form.website.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.website.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="col-12">
+                                <div class="form-floating position-relative">
+                                    {{ form.address(class="form-control", placeholder="Enter your company address") }}
+                                    {{ form.address.label(class="form-label") }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    {% if form.address.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.address.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- City, State, Country -->
+                            <div class="col-md-4">
+                                <div class="form-floating position-relative">
+                                    {{ form.city(class="form-control", placeholder="City") }}
+                                    {{ form.city.label(class="form-label") }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-city"></i>
+                                    </div>
+                                    {% if form.city.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.city.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-floating position-relative">
+                                    {{ form.state(class="form-control", placeholder="State/Province") }}
+                                    {{ form.state.label(class="form-label") }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-flag"></i>
+                                    </div>
+                                    {% if form.state.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.state.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-floating position-relative">
+                                    {{ form.country(class="form-control", placeholder="Country") }}
+                                    {{ form.country.label(class="form-label") }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-globe-americas"></i>
+                                    </div>
+                                    {% if form.country.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.country.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Postal Code -->
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative">
+                                    {{ form.postal_code(class="form-control", placeholder="Postal Code") }}
+                                    {{ form.postal_code.label(class="form-label") }}
+                                    <div class="input-icon">
+                                        <i class="fas fa-mail-bulk"></i>
+                                    </div>
+                                    {% if form.postal_code.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.postal_code.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12">
+                                <div class="form-floating position-relative">
+                                    {{ form.description(class="form-control", placeholder="Briefly describe your company and its services...") }}
+                                    {{ form.description.label(class="form-label") }}
+                                    <div class="input-icon" style="top: 25px;">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    {% if form.description.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.description.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="terms-section">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the <a href="{{ url_for('terms') }}" target="_blank">Terms of Service</a> 
+                                and <a href="{{ url_for('privacy') }}" target="_blank">Privacy Policy</a>. 
+                                I understand that this will create a company profile that can be managed through user accounts.
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-register" id="registerBtn">
+                        <span class="btn-text">
+                            <i class="fas fa-rocket me-2"></i>Register Company
+                        </span>
+                        <div class="spinner"></div>
+                    </button>
+
+                    <!-- Additional Information -->
+                    <div class="text-center mt-3">
+                        <small class="text-secondary">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Your data is secure and encrypted. After registration, you can create user accounts and invite team members.
+                        </small>
+                    </div>
+                </form>
+
+                <!-- Navigation Links -->
+                <div class="text-center mt-4 pt-3 border-top">
+                    <p class="mb-0">
+                        Already have an account? <a href="{{ url_for('login_page') }}" class="text-decoration-none fw-semibold">Sign in here</a>
+                        <span class="mx-2">|</span>
+                        <a href="{{ url_for('register') }}" class="text-decoration-none fw-semibold">Join existing company</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AOS Animation JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Form submission handling
+        document.getElementById('companyForm').addEventListener('submit', function(e) {
+            const registerBtn = document.getElementById('registerBtn');
+            const btnText = registerBtn.querySelector('.btn-text');
+            const spinner = registerBtn.querySelector('.spinner');
+            const termsCheck = document.getElementById('terms');
+            
+            // Check terms and conditions
+            if (!termsCheck.checked) {
+                e.preventDefault();
+                alert('Please accept the Terms of Service and Privacy Policy to continue.');
+                return;
+            }
+            
+            // Show loading state
+            registerBtn.disabled = true;
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            
+            // Re-enable after 10 seconds if no response (fallback)
+            setTimeout(() => {
+                registerBtn.disabled = false;
+                btnText.style.display = 'inline-block';
+                spinner.style.display = 'none';
+            }, 10000);
+        });
+
+        // Auto-focus company name field
+        document.addEventListener('DOMContentLoaded', function() {
+            const companyNameField = document.querySelector('input[name="name"]');
+            if (companyNameField) {
+                companyNameField.focus();
+            }
+        });
+
+        // Real-time validation feedback
+        const formFields = document.querySelectorAll('.form-control, .form-select');
+        formFields.forEach(field => {
+            field.addEventListener('blur', function() {
+                if (this.hasAttribute('required') && this.value.trim() === '') {
+                    this.style.borderColor = '#ef4444';
+                } else if (this.value.trim() !== '') {
+                    this.style.borderColor = '#10b981';
+                }
+            });
+            
+            field.addEventListener('focus', function() {
+                this.style.borderColor = '#004d7a';
+            });
+        });
+
+        // Form validation
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.validity.valid) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -161,6 +161,11 @@ redis_manager.init_app(app)
 migrate = Migrate(app, db)
 csrf = CSRFProtect(app)
 
+# -------------------- Initialize Security Enhancements --------------------
+from security_enhancements import security_enhancer
+security_enhancer.init_app(app)
+print("🔒 COMPREHENSIVE SECURITY ENHANCEMENTS ACTIVATED")
+
 # -------------------- Login Manager Setup --------------------
 login_manager = LoginManager()
 login_manager.login_view = 'login_page'
@@ -209,6 +214,14 @@ try:
     print("✅ Workflow & Automation blueprint registered")
 except ImportError as e:
     print(f"❌ Workflow & Automation blueprint not found: {e}")
+
+# Register Security blueprint
+try:
+    from routes.security_routes import security_bp
+    app.register_blueprint(security_bp)
+    print("✅ Security management blueprint registered")
+except ImportError as e:
+    print(f"❌ Security blueprint not found: {e}")
 
 # Register advanced feature blueprints if available
 if rahasoft_bp:
@@ -289,12 +302,12 @@ def index():
 
 @app.route('/welcome')
 def welcome():
-    """Welcome page for non-authenticated users"""
-    return render_template('welcome.html')
+    """Advanced welcome page for non-authenticated users"""
+    return render_template('welcome_advanced.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    """Login page"""
+    """Modern login page"""
     print(f"🔍 Login route accessed - Method: {request.method}")
     
     form = LoginForm()
@@ -357,7 +370,7 @@ def login_page():
         else:
             flash('Invalid username or password.', 'error')
     
-    return render_template('login.html', form=form)
+    return render_template('login_modern.html', form=form)
 
 @app.route('/logout')
 @login_required()
@@ -380,7 +393,7 @@ def register():
             
             if not company:
                 flash('Invalid company ID. Please contact your company administrator.', 'error')
-                return render_template('register.html', form=form)
+                return render_template('register_modern.html', form=form)
             
             # Check if username or email already exists
             existing_user = User.query.filter(
@@ -390,7 +403,7 @@ def register():
             
             if existing_user:
                 flash('Username or email already exists. Please choose a different one.', 'error')
-                return render_template('register.html', form=form)
+                return render_template('register_modern.html', form=form)
             
             # Create new user
             user = User(
@@ -414,7 +427,7 @@ def register():
             db.session.rollback()
             flash(f'Error during registration: {str(e)}', 'error')
     
-    return render_template('register.html', form=form)
+    return render_template('register_modern.html', form=form)
 
 @app.route('/register_company', methods=['GET', 'POST'])
 def register_company():
@@ -471,7 +484,7 @@ def register_company():
             db.session.rollback()
             flash(f'Error registering company: {str(e)}', 'error')
     
-    return render_template('register_company.html', form=form)
+    return render_template('register_company_modern.html', form=form)
 
 @app.route('/select_modules')
 @login_required()

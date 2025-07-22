@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}Security Settings - RahaSoft ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-cogs text-primary"></i> Security Settings
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('security.security_dashboard') }}">Security</a></li>
+                <li class="breadcrumb-item active">Settings</li>
+            </ol>
+        </nav>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        
+        <div class="row">
+            <!-- Password Policy -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-key"></i> Password Policy
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            {{ form.min_password_length.label(class="form-label") }}
+                            {{ form.min_password_length(class="form-control") }}
+                            <small class="form-text text-muted">Minimum number of characters required</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Character Requirements</label>
+                            <div class="form-check">
+                                {{ form.require_uppercase(class="form-check-input") }}
+                                {{ form.require_uppercase.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check">
+                                {{ form.require_lowercase(class="form-check-input") }}
+                                {{ form.require_lowercase.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check">
+                                {{ form.require_numbers(class="form-check-input") }}
+                                {{ form.require_numbers.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check">
+                                {{ form.require_special_chars(class="form-check-input") }}
+                                {{ form.require_special_chars.label(class="form-check-label") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.password_expiry_days.label(class="form-label") }}
+                            {{ form.password_expiry_days(class="form-control") }}
+                            <small class="form-text text-muted">How often users must change passwords (0 = never)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-Factor Authentication -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-mobile-alt"></i> Two-Factor Authentication
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <div class="form-check">
+                                {{ form.require_2fa_for_admins(class="form-check-input") }}
+                                {{ form.require_2fa_for_admins.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Highly recommended for security</small>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                {{ form.require_2fa(class="form-check-input") }}
+                                {{ form.require_2fa.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Enforce 2FA for all company users</small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> 2FA Benefits</h6>
+                            <ul class="mb-0">
+                                <li>Protects against password breaches</li>
+                                <li>Prevents unauthorized access</li>
+                                <li>Required for compliance standards</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Login Security -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login Security
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            {{ form.max_login_attempts.label(class="form-label") }}
+                            {{ form.max_login_attempts(class="form-control") }}
+                            <small class="form-text text-muted">Account locks after this many failed attempts</small>
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.lockout_duration.label(class="form-label") }}
+                            {{ form.lockout_duration(class="form-control") }}
+                            <small class="form-text text-muted">How long accounts stay locked (minutes)</small>
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.session_timeout.label(class="form-label") }}
+                            {{ form.session_timeout(class="form-control") }}
+                            <small class="form-text text-muted">Automatic logout after inactivity (minutes)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Security -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-code"></i> API Security
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <div class="form-check">
+                                {{ form.enable_api_rate_limiting(class="form-check-input") }}
+                                {{ form.enable_api_rate_limiting.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">Prevents API abuse and attacks</small>
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.api_rate_limit.label(class="form-label") }}
+                            {{ form.api_rate_limit(class="form-control") }}
+                            <small class="form-text text-muted">Maximum API requests per minute</small>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                {{ form.require_api_authentication(class="form-check-input") }}
+                                {{ form.require_api_authentication.label(class="form-check-label") }}
+                            </div>
+                            <small class="form-text text-muted">All API calls must be authenticated</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Features Overview -->
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-success">
+                            <i class="fas fa-shield-alt"></i> Active Security Features
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Protection Layers</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success"></i>
+                                        <strong>HTTPS Encryption:</strong> All data encrypted in transit
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success"></i>
+                                        <strong>CSRF Protection:</strong> Prevents cross-site request forgery
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success"></i>
+                                        <strong>SQL Injection Prevention:</strong> All queries parameterized
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success"></i>
+                                        <strong>XSS Protection:</strong> Input sanitization and output encoding
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success"></i>
+                                        <strong>Rate Limiting:</strong> Prevents brute force attacks
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Monitoring & Auditing</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success"></i>
+                                        <strong>Login Tracking:</strong> All login attempts logged
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success"></i>
+                                        <strong>Security Events:</strong> Real-time threat detection
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success"></i>
+                                        <strong>Audit Trail:</strong> Complete action history
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success"></i>
+                                        <strong>IP Monitoring:</strong> Suspicious IP detection
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success"></i>
+                                        <strong>Session Security:</strong> Session hijacking prevention
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success mt-3">
+                            <h6><i class="fas fa-shield-alt"></i> Enterprise-Grade Security</h6>
+                            <p class="mb-0">
+                                Your RahaSoft ERP system implements military-grade security measures including:
+                                advanced threat detection, real-time monitoring, comprehensive audit logging,
+                                and industry-standard encryption protocols.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-body text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Save Security Settings
+                        </button>
+                        <a href="{{ url_for('security.security_dashboard') }}" class="btn btn-secondary btn-lg ml-3">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Real-time validation and warnings
+document.addEventListener('DOMContentLoaded', function() {
+    // Password length validation
+    const passwordLengthInput = document.getElementById('min_password_length');
+    if (passwordLengthInput) {
+        passwordLengthInput.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            const feedback = this.parentNode.querySelector('.form-text');
+            
+            if (value < 8) {
+                feedback.className = 'form-text text-danger';
+                feedback.textContent = 'Warning: Passwords shorter than 8 characters are not secure';
+            } else if (value >= 12) {
+                feedback.className = 'form-text text-success';
+                feedback.textContent = 'Excellent: Strong password length requirement';
+            } else {
+                feedback.className = 'form-text text-muted';
+                feedback.textContent = 'Good: Minimum number of characters required';
+            }
+        });
+    }
+
+    // 2FA requirement warning
+    const require2faAll = document.getElementById('require_2fa');
+    if (require2faAll) {
+        require2faAll.addEventListener('change', function() {
+            if (this.checked) {
+                if (!confirm('This will require ALL users to enable 2FA. Are you sure?')) {
+                    this.checked = false;
+                }
+            }
+        });
+    }
+
+    // Session timeout validation
+    const sessionTimeoutInput = document.getElementById('session_timeout');
+    if (sessionTimeoutInput) {
+        sessionTimeoutInput.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            const feedback = this.parentNode.querySelector('.form-text');
+            
+            if (value < 30) {
+                feedback.className = 'form-text text-warning';
+                feedback.textContent = 'Warning: Very short session timeout may impact user experience';
+            } else if (value > 720) { // 12 hours
+                feedback.className = 'form-text text-warning';
+                feedback.textContent = 'Warning: Long session timeout may pose security risks';
+            } else {
+                feedback.className = 'form-text text-muted';
+                feedback.textContent = 'Automatic logout after inactivity (minutes)';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

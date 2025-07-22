@@ -13,11 +13,11 @@ from models.api_framework import api, api_bp, BaseAPIResource, APIResponse, api_
 from models.user import User
 from models.company import Company
 from models.product import Product
-from models.customer import Customer
-from models.supplier import Supplier
-from models.invoice import Invoice
-from models.expense import Expense
-from models.finance_extended import BankTransaction, Account
+from models.crm import Customer
+from models.product import Supplier
+from models.finance import Invoice
+from models.finance import Expense
+from models.finance_extended import BankTransaction
 from utils.cache_manager import cache, CacheConfig, APIResponseCache
 
 

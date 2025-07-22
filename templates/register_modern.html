@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join RahaSoft ERP | Create Your Account</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --rahasoft-gradient: linear-gradient(135deg, #004d7a 0%, #008793 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background: var(--rahasoft-gradient);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        /* Animated Background */
+        .bg-animated {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--rahasoft-gradient);
+            overflow: hidden;
+        }
+
+        .bg-animated::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="500" cy="500" r="500"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="500" cy="500" r="500" fill="url(%23a)"/></svg>') center/cover;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) { width: 80px; height: 80px; top: 20%; left: 10%; animation-delay: 0s; }
+        .shape:nth-child(2) { width: 120px; height: 120px; top: 60%; left: 80%; animation-delay: 2s; }
+        .shape:nth-child(3) { width: 60px; height: 60px; top: 80%; left: 20%; animation-delay: 4s; }
+        .shape:nth-child(4) { width: 100px; height: 100px; top: 30%; left: 70%; animation-delay: 1s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Registration Card */
+        .register-card {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .register-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rahasoft-gradient);
+        }
+
+        /* Split Layout */
+        .register-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 600px;
+        }
+
+        /* Left Side - Information */
+        .register-info {
+            background: var(--rahasoft-gradient);
+            color: white;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="200" cy="200" r="100" fill="rgba(255,255,255,0.1)"/><circle cx="800" cy="800" r="150" fill="rgba(255,255,255,0.05)"/><circle cx="600" cy="300" r="80" fill="rgba(255,255,255,0.08)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .info-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-logo-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .info-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .info-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .info-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-features li {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .info-features i {
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        /* Right Side - Form */
+        .register-form {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-floating .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            height: 60px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-floating .form-control:focus {
+            border-color: #004d7a;
+            box-shadow: 0 0 0 3px rgba(0, 77, 122, 0.1);
+            background: white;
+        }
+
+        .form-floating label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            z-index: 5;
+        }
+
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .password-strength.visible {
+            opacity: 1;
+        }
+
+        .strength-weak { background: #ef4444; }
+        .strength-medium { background: #f59e0b; }
+        .strength-strong { background: #10b981; }
+
+        .strength-text {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        .btn-register {
+            background: var(--rahasoft-gradient);
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 77, 122, 0.3);
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 77, 122, 0.4);
+            color: white;
+        }
+
+        .btn-register:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .terms-check {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .form-check-input {
+            border-radius: 4px;
+            border: 2px solid #e2e8f0;
+            margin-top: 2px;
+        }
+
+        .form-check-input:checked {
+            background-color: #004d7a;
+            border-color: #004d7a;
+        }
+
+        .form-check-label {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .form-check-label a {
+            color: #004d7a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-check-label a:hover {
+            color: #008793;
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .divider span {
+            margin: 0 1rem;
+            background: white;
+            padding: 0 0.5rem;
+        }
+
+        .social-register {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-social:hover {
+            border-color: #004d7a;
+            color: #004d7a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .register-footer {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .register-footer a {
+            color: #004d7a;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .register-footer a:hover {
+            color: #008793;
+        }
+
+        .back-to-home {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            color: #004d7a;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-to-home:hover {
+            background: white;
+            color: #004d7a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .alert {
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .register-content {
+                grid-template-columns: 1fr;
+            }
+
+            .register-info {
+                order: 2;
+                padding: 2rem;
+                text-align: center;
+            }
+
+            .register-form {
+                order: 1;
+                padding: 2rem;
+            }
+
+            .info-title {
+                font-size: 1.5rem;
+            }
+
+            .info-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 0 0.5rem;
+            }
+
+            .register-card {
+                margin: 1rem 0;
+            }
+
+            .register-form,
+            .register-info {
+                padding: 1.5rem;
+            }
+
+            .back-to-home {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animated">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+    </div>
+
+    <!-- Back to Home Button -->
+    <a href="{{ url_for('welcome') }}" class="back-to-home" data-aos="fade-right">
+        <i class="fas fa-arrow-left me-2"></i>Back to Home
+    </a>
+
+    <div class="main-container">
+        <!-- Registration Card -->
+        <div class="register-card" data-aos="fade-up" data-aos-duration="800">
+            <div class="register-content">
+                <!-- Left Side - Information -->
+                <div class="register-info" data-aos="fade-right" data-aos-delay="200">
+                    <div class="info-content">
+                        <div class="info-logo">
+                            <div class="info-logo-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.5rem; font-weight: 700;">RahaSoft ERP</div>
+                                <div style="font-size: 0.9rem; opacity: 0.8;">Smart Business Management</div>
+                            </div>
+                        </div>
+                        
+                        <h2 class="info-title">Join Thousands of Businesses</h2>
+                        <p class="info-subtitle">
+                            Create your account and start transforming your business operations with our comprehensive ERP solution.
+                        </p>
+                        
+                        <ul class="info-features">
+                            <li>
+                                <i class="fas fa-check"></i>
+                                <span>Complete Business Management Suite</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                <span>Real-time Analytics & Reporting</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                <span>Multi-user Collaboration</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                <span>Cloud-based & Secure</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                <span>24/7 Customer Support</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right Side - Registration Form -->
+                <div class="register-form" data-aos="fade-left" data-aos-delay="400">
+                    <div class="form-header">
+                        <h2>Create Your Account</h2>
+                        <p>Join an existing company or register a new one</p>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                                    <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }} me-2"></i>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <!-- Registration Form -->
+                    <form method="POST" id="registerForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Full Name Field -->
+                        <div class="form-floating position-relative">
+                            {{ form.full_name(class="form-control", placeholder="Enter your full name") }}
+                            {{ form.full_name.label(class="form-label") }}
+                            <div class="input-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% if form.full_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.full_name.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="form-floating position-relative">
+                            {{ form.email(class="form-control", placeholder="Enter your email") }}
+                            {{ form.email.label(class="form-label") }}
+                            <div class="input-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.email.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-floating position-relative">
+                            {{ form.password(class="form-control", placeholder="Create a password", id="password") }}
+                            {{ form.password.label(class="form-label") }}
+                            <div class="input-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="password-strength" id="passwordStrength"></div>
+                            <div class="strength-text" id="strengthText"></div>
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div class="form-floating position-relative">
+                            {{ form.confirm_password(class="form-control", placeholder="Confirm your password") }}
+                            {{ form.confirm_password.label(class="form-label") }}
+                            <div class="input-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            {% if form.confirm_password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.confirm_password.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div class="form-floating position-relative">
+                            {{ form.role(class="form-select", placeholder="Select your role") }}
+                            {{ form.role.label(class="form-label") }}
+                            <div class="input-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            {% if form.role.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.role.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="terms-check">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="{{ url_for('terms') }}" target="_blank">Terms of Service</a> 
+                                    and <a href="{{ url_for('privacy') }}" target="_blank">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Register Button -->
+                        <button type="submit" class="btn-register" id="registerBtn">
+                            <span class="btn-text">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
+                            </span>
+                            <div class="spinner"></div>
+                        </button>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="divider">
+                        <span>or continue with</span>
+                    </div>
+
+                    <!-- Social Registration -->
+                    <div class="social-register">
+                        <a href="#" class="btn-social">
+                            <i class="fab fa-google"></i>
+                            Continue with Google
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="register-footer">
+                        <p class="mb-2">Already have an account? <a href="{{ url_for('login_page') }}">Sign in here</a></p>
+                        <p class="mb-0 small">Need to register a company? <a href="{{ url_for('register_company') }}">Register Company</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AOS Animation JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            const strengthBar = document.getElementById('passwordStrength');
+            const strengthText = document.getElementById('strengthText');
+            
+            if (!password) {
+                strengthBar.className = 'password-strength';
+                strengthText.textContent = '';
+                return;
+            }
+            
+            strengthBar.classList.add('visible');
+            
+            let score = 0;
+            let feedback = [];
+            
+            // Length check
+            if (password.length >= 8) score++;
+            else feedback.push('at least 8 characters');
+            
+            // Uppercase check
+            if (/[A-Z]/.test(password)) score++;
+            else feedback.push('uppercase letter');
+            
+            // Lowercase check
+            if (/[a-z]/.test(password)) score++;
+            else feedback.push('lowercase letter');
+            
+            // Number check
+            if (/[0-9]/.test(password)) score++;
+            else feedback.push('number');
+            
+            // Special character check
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+            else feedback.push('special character');
+            
+            // Update UI based on score
+            if (score < 3) {
+                strengthBar.className = 'password-strength visible strength-weak';
+                strengthText.textContent = 'Weak - Add: ' + feedback.slice(0, 2).join(', ');
+                strengthText.style.color = '#ef4444';
+            } else if (score < 5) {
+                strengthBar.className = 'password-strength visible strength-medium';
+                strengthText.textContent = 'Medium - Add: ' + feedback.slice(0, 1).join(', ');
+                strengthText.style.color = '#f59e0b';
+            } else {
+                strengthBar.className = 'password-strength visible strength-strong';
+                strengthText.textContent = 'Strong password';
+                strengthText.style.color = '#10b981';
+            }
+        }
+
+        // Password input event listener
+        document.getElementById('password').addEventListener('input', function(e) {
+            checkPasswordStrength(e.target.value);
+        });
+
+        // Form submission handling
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const registerBtn = document.getElementById('registerBtn');
+            const btnText = registerBtn.querySelector('.btn-text');
+            const spinner = registerBtn.querySelector('.spinner');
+            const termsCheck = document.getElementById('terms');
+            
+            // Check terms and conditions
+            if (!termsCheck.checked) {
+                e.preventDefault();
+                alert('Please accept the Terms of Service and Privacy Policy to continue.');
+                return;
+            }
+            
+            // Show loading state
+            registerBtn.disabled = true;
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            
+            // Re-enable after 10 seconds if no response (fallback)
+            setTimeout(() => {
+                registerBtn.disabled = false;
+                btnText.style.display = 'inline-block';
+                spinner.style.display = 'none';
+            }, 10000);
+        });
+
+        // Auto-focus first empty field
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstField = document.querySelector('input[name="full_name"]');
+            if (firstField) {
+                firstField.focus();
+            }
+        });
+
+        // Real-time validation feedback
+        const formFields = document.querySelectorAll('.form-control');
+        formFields.forEach(field => {
+            field.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.style.borderColor = '#ef4444';
+                } else {
+                    this.style.borderColor = '#10b981';
+                }
+            });
+            
+            field.addEventListener('focus', function() {
+                this.style.borderColor = '#004d7a';
+            });
+        });
+    </script>
+</body>
+</html>

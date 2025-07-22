@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField, PasswordField, SubmitField, DecimalField,
-    IntegerField, TextAreaField, SelectField
+    IntegerField, TextAreaField, SelectField, BooleanField
 )
 from wtforms.validators import (
     DataRequired, Email, Length, EqualTo, Optional, URL, NumberRange
@@ -104,6 +104,7 @@ class LoginForm(FlaskForm):
         DataRequired()
     ], render_kw={"placeholder": "Enter your password"})
 
+    remember_me = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
 
