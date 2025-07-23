@@ -765,7 +765,7 @@
                         <a class="nav-link" href="/login">Login</a>
                     </li>
                     <li class="nav-item ms-3">
-                        <a href="{{ url_for('register_company') }}" class="btn-primary-modern">Start Free Trial</a>
+                        <a href="{{ url_for('register') }}" class="btn-primary-modern">Start Free Trial</a>
                     </li>
                 </ul>
             </div>
@@ -780,14 +780,14 @@
                     <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
                         <h1 class="hero-title">Smart Business Management<br><span class="hero-accent">Built for Africa</span></h1>
                         <p class="hero-subtitle">
-                            Complete business solution with AI-powered features, M-Pesa integration, 
-                            and tools designed specifically for African businesses. From inventory and sales 
-                            to reporting and staff access, the platform handles it all.
+                            Join thousands of business owners using our AI-powered platform. Create your personal account 
+                            to get started, then set up your business profile once logged in. From inventory and sales 
+                            to reporting and team management, we handle it all.
                         </p>
                         <div class="hero-buttons">
-                            <a href="{{ url_for('register_company') }}" class="btn-hero-primary">
-                                <i class="fas fa-rocket"></i>
-                                Start Free Trial
+                            <a href="{{ url_for('register') }}" class="btn-hero-primary">
+                                <i class="fas fa-user-plus"></i>
+                                Create Your Account
                             </a>
                             <a href="#features" class="btn-hero-secondary">
                                 <i class="fas fa-play"></i>
@@ -1107,7 +1107,7 @@
                             <li><i class="fas fa-check"></i> Basic reporting</li>
                             <li><i class="fas fa-check"></i> Mobile app access</li>
                         </ul>
-                        <a href="{{ url_for('register_company') }}" class="btn-primary-modern w-100">Start Free</a>
+                        <a href="{{ url_for('register') }}" class="btn-primary-modern w-100">Create Account</a>
                     </div>
                 </div>
                 
@@ -1126,7 +1126,7 @@
                             <li><i class="fas fa-check"></i> M-Pesa integration</li>
                             <li><i class="fas fa-check"></i> HR & Payroll module</li>
                         </ul>
-                        <a href="{{ url_for('register_company') }}" class="btn-primary-modern w-100">Start Trial</a>
+                        <a href="{{ url_for('register') }}" class="btn-primary-modern w-100">Create Account</a>
                     </div>
                 </div>
                 
@@ -1161,9 +1161,9 @@
                 Have questions or need a demo? We're here to help.
             </p>
             <div data-aos="fade-up" data-aos-delay="200">
-                <a href="{{ url_for('register_company') }}" class="btn-hero-primary me-3">
-                    <i class="fas fa-rocket"></i>
-                    Start Your Free Trial
+                <a href="{{ url_for('register') }}" class="btn-hero-primary me-3">
+                    <i class="fas fa-user-plus"></i>
+                    Create Your Account
                 </a>
                 <a href="tel:+254701482108" class="btn-hero-secondary">
                     <i class="fas fa-phone"></i>
@@ -1343,7 +1343,7 @@
             const options = [
                 { text: 'Call Us', action: () => window.open('tel:+254701482108') },
                 { text: 'Email Us', action: () => window.open('mailto:rahasoft.app@gmail.com') },
-                { text: 'Start Trial', action: () => window.location.href = '{{ url_for("register_company") }}' },
+                { text: 'Start Trial', action: () => window.location.href = '{{ url_for("register") }}' },
                 { text: 'Login', action: () => window.location.href = '/login' }
             ];
             

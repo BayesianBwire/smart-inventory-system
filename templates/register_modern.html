@@ -604,7 +604,7 @@
                 <div class="register-form" data-aos="fade-left" data-aos-delay="400">
                     <div class="form-header">
                         <h2>Create Your Account</h2>
-                        <p>Join an existing company or register a new one</p>
+                        <p>Create your personal account to get started</p>
                     </div>
 
                     <!-- Flash Messages -->
@@ -639,6 +639,22 @@
                             {% endif %}
                         </div>
 
+                        <!-- Username Field -->
+                        <div class="form-floating position-relative">
+                            {{ form.username(class="form-control", placeholder="Choose a username") }}
+                            {{ form.username.label(class="form-label") }}
+                            <div class="input-icon">
+                                <i class="fas fa-at"></i>
+                            </div>
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.username.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
                         <!-- Email Field -->
                         <div class="form-floating position-relative">
                             {{ form.email(class="form-control", placeholder="Enter your email") }}
@@ -649,6 +665,22 @@
                             {% if form.email.errors %}
                                 <div class="text-danger small mt-1">
                                     {% for error in form.email.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Phone Number Field -->
+                        <div class="form-floating position-relative">
+                            {{ form.phone_number(class="form-control", placeholder="Enter your phone number") }}
+                            {{ form.phone_number.label(class="form-label") }}
+                            <div class="input-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            {% if form.phone_number.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.phone_number.errors %}
                                         <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
                                     {% endfor %}
                                 </div>
@@ -741,7 +773,7 @@
                     <!-- Footer -->
                     <div class="register-footer">
                         <p class="mb-2">Already have an account? <a href="{{ url_for('login_page') }}">Sign in here</a></p>
-                        <p class="mb-0 small">Need to register a company? <a href="{{ url_for('register_company') }}">Register Company</a></p>
+                        <p class="mb-0 small">Already have an account? <a href="{{ url_for('login_page') }}">Sign In</a></p>
                     </div>
                 </div>
             </div>

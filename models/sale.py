@@ -14,6 +14,7 @@ class Sale(db.Model):
     username = db.Column(db.String(100))  # Who sold
     customer_name = db.Column(db.String(100))  # NEW
     customer_phone = db.Column(db.String(20))  # NEW
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=True)  # Fixed relationship
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)  # Added for multi-tenant support
     
     # Relationships

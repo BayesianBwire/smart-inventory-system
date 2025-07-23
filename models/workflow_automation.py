@@ -41,7 +41,7 @@ class WorkflowTemplate(db.Model):
     __tablename__ = 'workflow_templates'
     
     id = Column(Integer, primary_key=True)
-    company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=False)
     
     # Template Details
     name = Column(String(200), nullable=False)
@@ -59,7 +59,7 @@ class WorkflowTemplate(db.Model):
     auto_start = Column(Boolean, default=False)
     
     # Metadata
-    created_by = Column(Integer, ForeignKey('user.id'))
+    created_by = Column(Integer, ForeignKey('users.id'))
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -84,7 +84,7 @@ class Workflow(db.Model):
     __tablename__ = 'workflows'
     
     id = Column(Integer, primary_key=True)
-    company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=False)
     template_id = Column(Integer, ForeignKey('workflow_templates.id'))
     
     # Workflow Identity
@@ -108,8 +108,8 @@ class Workflow(db.Model):
     settings = Column(JSON)  # Workflow-specific settings
     
     # Ownership
-    initiated_by = Column(Integer, ForeignKey('user.id'))
-    assigned_to = Column(Integer, ForeignKey('user.id'))
+    initiated_by = Column(Integer, ForeignKey('users.id'))
+    assigned_to = Column(Integer, ForeignKey('users.id'))
     
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -162,7 +162,7 @@ class WorkflowTask(db.Model):
     priority = Column(String(20), default='medium')  # low, medium, high, urgent
     
     # Assignment
-    assigned_to = Column(Integer, ForeignKey('user.id'))
+    assigned_to = Column(Integer, ForeignKey('users.id'))
     assigned_group = Column(String(100))  # Role or department
     
     # Timing
@@ -226,7 +226,7 @@ class WorkflowAction(db.Model):
     comments = Column(Text)
     
     # Action Metadata
-    performed_by = Column(Integer, ForeignKey('user.id'))
+    performed_by = Column(Integer, ForeignKey('users.id'))
     performed_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -254,7 +254,7 @@ class WorkflowLog(db.Model):
     event_data = Column(JSON)
     
     # Context
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     task_id = Column(Integer, ForeignKey('workflow_tasks.id'))
     
     # Timing
@@ -278,7 +278,7 @@ class ApprovalWorkflow(db.Model):
     __tablename__ = 'approval_workflows'
     
     id = Column(Integer, primary_key=True)
-    company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=False)
     
     # Approval Identity
     name = Column(String(200), nullable=False)
@@ -303,7 +303,7 @@ class ApprovalWorkflow(db.Model):
     escalation_timeout = Column(Integer, default=72)  # hours before escalation
     
     # Metadata
-    created_by = Column(Integer, ForeignKey('user.id'))
+    created_by = Column(Integer, ForeignKey('users.id'))
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -329,7 +329,7 @@ class ProcessAutomation(db.Model):
     __tablename__ = 'process_automations'
     
     id = Column(Integer, primary_key=True)
-    company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=False)
     
     # Automation Identity
     name = Column(String(200), nullable=False)
@@ -360,7 +360,7 @@ class ProcessAutomation(db.Model):
     error_handling = Column(JSON)  # Error handling rules
     
     # Metadata
-    created_by = Column(Integer, ForeignKey('user.id'))
+    created_by = Column(Integer, ForeignKey('users.id'))
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

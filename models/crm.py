@@ -632,9 +632,9 @@ class CRMNote(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=True)
     opportunity_id = db.Column(db.Integer, db.ForeignKey('opportunities.id'), nullable=True)
     
-    lead = db.relationship('Lead', backref='notes')
-    customer = db.relationship('Customer', backref='notes')
-    opportunity = db.relationship('Opportunity', backref='notes')
+    lead = db.relationship('Lead', backref='crm_notes')
+    customer = db.relationship('Customer', backref='crm_notes')
+    opportunity = db.relationship('Opportunity', backref='crm_notes')
     
     # Privacy and sharing
     is_private = db.Column(db.Boolean, default=False)

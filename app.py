@@ -108,8 +108,8 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "fallback-secret-key")
 database_url = os.getenv("SQLALCHEMY_DATABASE_URI")
-# Add SSL mode only for PostgreSQL
-if database_url and database_url.startswith('postgresql'):
+# Add SSL mode only for PostgreSQL with psycopg2 (not pg8000)
+if database_url and database_url.startswith('postgresql') and 'psycopg2' in database_url:
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url + "?sslmode=require"
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
@@ -361,9 +361,7 @@ def login_page():
             flash(f'Welcome back, {user.full_name}!', 'success')
             
             # Redirect based on user role
-            if user.role == 'founder':
-                return redirect(url_for('founder_dashboard'))
-            elif user.role == 'admin':
+            if user.role == 'admin':
                 return redirect(url_for('admin_dashboard'))
             else:
                 return redirect(url_for('dashboard'))
@@ -383,18 +381,10 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """User registration page for joining existing companies"""
+    """User registration page - user only, no company required"""
     form = RegisterForm()
     if form.validate_on_submit():
         try:
-            # Check if company exists by unique ID
-            company_id = form.company_id.data.upper()
-            company = Company.query.filter_by(unique_id=company_id).first()
-            
-            if not company:
-                flash('Invalid company ID. Please contact your company administrator.', 'error')
-                return render_template('register_modern.html', form=form)
-            
             # Check if username or email already exists
             existing_user = User.query.filter(
                 (User.username == form.username.data) | 
@@ -405,22 +395,22 @@ def register():
                 flash('Username or email already exists. Please choose a different one.', 'error')
                 return render_template('register_modern.html', form=form)
             
-            # Create new user
+            # Create new user (no company assigned yet)
             user = User(
                 username=form.username.data,
                 email=form.email.data,
                 full_name=form.full_name.data,
-                role='employee',  # Default role for regular registration
-                company_id=company.id,
-                email_confirmed=False  # Requires email verification
+                phone_number=form.phone_number.data,
+                role=form.role.data,
+                company_id=None,  # No company assigned initially
+                email_confirmed=True  # Auto-confirm for now
             )
             user.password = form.password.data
             
             db.session.add(user)
             db.session.commit()
             
-            # Send verification email (optional)
-            flash(f'Registration successful! Welcome to {company.name}. Please contact your administrator to activate your account.', 'success')
+            flash('Registration successful! Please login to continue.', 'success')
             return redirect(url_for('login_page'))
             
         except Exception as e:
@@ -433,6 +423,15 @@ def register():
 def register_company():
     """Company registration page"""
     form = CompanyForm()
+    
+    # Debug logging
+    if request.method == 'POST':
+        print(f"🔍 DEBUG: Form submitted")
+        print(f"🔍 DEBUG: Form data: {request.form}")
+        print(f"🔍 DEBUG: Form validates: {form.validate()}")
+        if form.errors:
+            print(f"🔍 DEBUG: Form errors: {form.errors}")
+    
     if form.validate_on_submit():
         try:
             # Create new company
@@ -454,31 +453,11 @@ def register_company():
             company.unique_id = Company.generate_unique_id()
             
             db.session.add(company)
-            db.session.flush()  # Get the company ID
-            
-            # Create founder user
-            founder = User(
-                username=form.founder_username.data,
-                email=form.founder_email.data,
-                full_name=form.founder_name.data,
-                role='founder',
-                company_id=company.id,
-                email_confirmed=True  # Founder is auto-verified
-            )
-            founder.password = form.founder_password.data
-            
-            db.session.add(founder)
             db.session.commit()
             
-            # Auto-login the founder
-            login_user(founder)
-            session['user_id'] = founder.id
-            session['username'] = founder.username
-            session['role'] = founder.role
-            session['company_id'] = founder.company_id
-            
-            flash(f'🎉 Welcome to RahaSoft ERP! Company "{company.name}" registered successfully! Company ID: {company.unique_id}', 'success')
-            return redirect(url_for('dashboard'))  # Go directly to dashboard
+            flash(f'🎉 Company "{company.name}" registered successfully! Company ID: {company.unique_id}', 'success')
+            flash(f'📧 Please check your email for further instructions on setting up user accounts.', 'info')
+            return redirect(url_for('welcome'))  # Redirect to welcome page
             
         except Exception as e:
             db.session.rollback()
@@ -490,28 +469,8 @@ def register_company():
 @login_required()
 def select_modules():
     """Module selection page for companies"""
-    if current_user.role != 'founder':
-        flash('Access denied. Only company founders can select modules.', 'error')
-        return redirect(url_for('dashboard'))
-    
+    # Allow any logged-in user to select modules
     return render_template('select_modules.html')
-
-@app.route('/founder_dashboard')
-@login_required(role='founder')
-def founder_dashboard():
-    """Founder dashboard with company overview"""
-    company = Company.query.get(current_user.company_id)
-    
-    # Get company statistics
-    total_users = User.query.filter_by(company_id=current_user.company_id).count()
-    total_products = Product.query.filter_by(company_id=current_user.company_id).count()
-    recent_sales = Sale.query.filter_by(company_id=current_user.company_id).order_by(Sale.date_created.desc()).limit(5).all()
-    
-    return render_template('founder_dashboard.html',
-                         company=company,
-                         total_users=total_users,
-                         total_products=total_products,
-                         recent_sales=recent_sales)
 
 @app.route('/dashboard')
 @login_required()
@@ -520,47 +479,133 @@ def dashboard():
     user_role = current_user.role
     company = Company.query.get(current_user.company_id) if current_user.company_id else None
     
+    # Check if user needs to create/join a company
+    show_company_modal = company is None
+    
     # Get basic statistics
     total_products = Product.query.filter_by(company_id=current_user.company_id).count() if current_user.company_id else 0
     recent_sales = Sale.query.filter_by(company_id=current_user.company_id).order_by(Sale.date_created.desc()).limit(5).all() if current_user.company_id else []
+    
+    # Import company form here to avoid circular imports
+    from forms.company_form import CompanyForm
+    company_form = CompanyForm()
     
     return render_template('dashboard.html',
                          user_role=user_role,
                          company=company,
                          total_products=total_products,
-                         recent_sales=recent_sales)
+                         recent_sales=recent_sales,
+                         show_company_modal=show_company_modal,
+                         company_form=company_form)
+
+@app.route('/create_company_from_dashboard', methods=['POST'])
+@login_required()
+def create_company_from_dashboard():
+    """Handle company creation from dashboard modal"""
+    from forms.company_form import CompanyForm
+    form = CompanyForm()
+    
+    if form.validate_on_submit():
+        try:
+            # Check if user already has a company
+            if current_user.company_id:
+                flash('You are already associated with a company.', 'warning')
+                return redirect(url_for('dashboard'))
+            
+            # Create new company
+            company = Company(
+                name=form.name.data,
+                email=form.email.data,
+                phone=form.phone.data,
+                address=form.address.data,
+                city=form.city.data,
+                state=form.state.data,
+                country=form.country.data,
+                postal_code=form.postal_code.data,
+                website=form.website.data,
+                description=form.description.data,
+                industry=form.industry.data
+            )
+            
+            # Generate unique company ID
+            company.unique_id = Company.generate_unique_id()
+            
+            db.session.add(company)
+            db.session.flush()  # Get company ID before commit
+            
+            # Associate user with the new company
+            current_user.company_id = company.id
+            
+            db.session.commit()
+            
+            flash(f'🎉 Company "{company.name}" created successfully! Company ID: {company.unique_id}', 'success')
+            return redirect(url_for('dashboard'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error creating company: {str(e)}', 'error')
+            return redirect(url_for('dashboard'))
+    else:
+        # If form has errors, flash them
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'{field}: {error}', 'error')
+        return redirect(url_for('dashboard'))
 
 @app.route('/admin_dashboard')
 @login_required(role='admin')
 def admin_dashboard():
     """Admin dashboard with comprehensive system statistics"""
-    # Get system-wide statistics
-    total_companies = Company.query.count()
-    total_users = User.query.count()
+    print("🔍 Admin dashboard accessed")
+    print(f"🔍 Database URI: {app.config.get('SQLALCHEMY_DATABASE_URI', 'Not found')[:50]}...")
     
-    # Get recent logins with error handling
     try:
-        recent_logins = LoginLog.query.order_by(LoginLog.timestamp.desc()).limit(10).all()
-    except Exception:
-        recent_logins = []
-    
-    # Get user role distribution
-    try:
-        from sqlalchemy import func
-        role_stats = db.session.query(User.role, func.count(User.id)).group_by(User.role).all()
-        role_counts = {role: count for role, count in role_stats}
-    except Exception:
-        role_counts = {}
-    
-    # Calculate active sessions (simplified estimation)
-    active_sessions = max(1, int(total_users * 0.3)) if total_users else 0
-    
-    return render_template('admin_dashboard.html',
-                         total_companies=total_companies,
-                         total_users=total_users,
-                         recent_logins=recent_logins,
-                         role_counts=role_counts,
-                         active_sessions=active_sessions)
+        # Get system-wide statistics
+        print("🔍 Getting company count...")
+        total_companies = Company.query.count()
+        print(f"🔍 Total companies: {total_companies}")
+        
+        print("🔍 Getting user count...")
+        total_users = User.query.count()
+        print(f"🔍 Total users: {total_users}")
+        
+        # Get recent logins with error handling
+        try:
+            print("🔍 Getting recent logins...")
+            recent_logins = LoginLog.query.order_by(LoginLog.timestamp.desc()).limit(10).all()
+            print(f"🔍 Recent logins count: {len(recent_logins)}")
+        except Exception as e:
+            print(f"🔍 Error getting recent logins: {e}")
+            recent_logins = []
+        
+        # Get user role distribution
+        try:
+            print("🔍 Getting role statistics...")
+            from sqlalchemy import func
+            role_stats = db.session.query(User.role, func.count(User.id)).group_by(User.role).all()
+            role_counts = {role: count for role, count in role_stats}
+            print(f"🔍 Role counts: {role_counts}")
+        except Exception as e:
+            print(f"🔍 Error getting role stats: {e}")
+            role_counts = {}
+        
+        # Calculate active sessions (simplified estimation)
+        active_sessions = max(1, int(total_users * 0.3)) if total_users else 0
+        print(f"🔍 Active sessions estimate: {active_sessions}")
+        
+        print("🔍 Rendering admin dashboard template...")
+        return render_template('admin_dashboard.html',
+                             total_companies=total_companies,
+                             total_users=total_users,
+                             recent_logins=recent_logins,
+                             role_counts=role_counts,
+                             active_sessions=active_sessions)
+    except Exception as e:
+        print(f"❌ Error in admin_dashboard: {e}")
+        print(f"❌ Error type: {type(e)}")
+        import traceback
+        print(f"❌ Traceback: {traceback.format_exc()}")
+        return f"Error in admin dashboard: {e}", 500
 
 @app.route('/terms')
 def terms():
@@ -697,12 +742,10 @@ def internal_error(error):
     return render_template('errors/500.html'), 500
 
 # -------------------- Register Enterprise Blueprints --------------------
-# Import and register blueprints after app configuration
+# Import and register additional blueprints after app configuration
 try:
-    from routes.security_routes import security_bp
     from routes.api_routes import api_bp
     
-    app.register_blueprint(security_bp)
     app.register_blueprint(api_bp)
     
     print("✅ Enterprise blueprints registered successfully")

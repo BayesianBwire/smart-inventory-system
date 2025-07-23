@@ -318,7 +318,7 @@ class Webhook(db.Model):
     __tablename__ = 'webhooks'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     
     # Webhook Details
     name = db.Column(db.String(100), nullable=False)
@@ -370,8 +370,8 @@ class DataImportJob(db.Model):
     __tablename__ = 'data_import_jobs'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # Job Details
     job_type = db.Column(db.String(50), nullable=False)  # products, customers, invoices, etc.
@@ -424,7 +424,7 @@ class IntegrationConfig(db.Model):
     __tablename__ = 'integration_configs'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     
     # Integration Details
     integration_type = db.Column(db.String(50), nullable=False)  # quickbooks, xero, shopify, etc.

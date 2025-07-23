@@ -6,6 +6,14 @@ from forms.support_ticket_form import SupportTicketForm
 
 support_bp = Blueprint("support_bp", __name__)
 
+@support_bp.route("/")
+@login_required
+def dashboard():
+    """Support dashboard with ticket overview"""
+    # Get recent tickets for the current company/user
+    tickets = SupportTicket.query.filter_by(submitted_by_id=current_user.id).order_by(SupportTicket.date_created.desc()).limit(10).all()
+    return render_template('support/dashboard.html', tickets=tickets)
+
 @support_bp.route("/support/create", methods=["GET", "POST"])
 @login_required
 def create_ticket():

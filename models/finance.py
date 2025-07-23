@@ -9,7 +9,7 @@ class ChartOfAccounts(db.Model):
     __tablename__ = 'chart_of_accounts'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     account_code = db.Column(db.String(20), nullable=False)
     account_name = db.Column(db.String(200), nullable=False)
     account_type = db.Column(db.String(50), nullable=False)  # asset, liability, equity, revenue, expense
@@ -61,10 +61,10 @@ class Invoice(db.Model):
     __tablename__ = 'invoices'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=True)
-    opportunity_id = db.Column(db.Integer, db.ForeignKey('opportunity.id'), nullable=True)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=True)
+    opportunity_id = db.Column(db.Integer, db.ForeignKey('opportunities.id'), nullable=True)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # Invoice Details
     invoice_number = db.Column(db.String(50), nullable=False, unique=True)
@@ -181,7 +181,7 @@ class InvoiceItem(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     invoice_id = db.Column(db.Integer, db.ForeignKey('invoices.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=True)
     
     # Item Details
     description = db.Column(db.String(500), nullable=False)
@@ -210,11 +210,11 @@ class Payment(db.Model):
     __tablename__ = 'payments'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     invoice_id = db.Column(db.Integer, db.ForeignKey('invoices.id'), nullable=True)
     expense_id = db.Column(db.Integer, db.ForeignKey('expenses.id'), nullable=True)
-    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=True)
-    recorded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=True)
+    recorded_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # Payment Details
     payment_number = db.Column(db.String(50), nullable=False, unique=True)
@@ -277,10 +277,10 @@ class Expense(db.Model):
     __tablename__ = 'expenses'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('expense_categories.id'), nullable=True)
-    recorded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    approved_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    recorded_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    approved_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     
     # Expense Details
     expense_number = db.Column(db.String(50), nullable=False, unique=True)
@@ -380,7 +380,7 @@ class ExpenseCategory(db.Model):
     __tablename__ = 'expense_categories'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     account_id = db.Column(db.Integer, db.ForeignKey('chart_of_accounts.id'), nullable=True)
@@ -404,9 +404,9 @@ class JournalEntry(db.Model):
     __tablename__ = 'journal_entries'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     account_id = db.Column(db.Integer, db.ForeignKey('chart_of_accounts.id'), nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # Entry Details
     entry_number = db.Column(db.String(50), nullable=False)
@@ -442,7 +442,7 @@ class BudgetPeriod(db.Model):
     __tablename__ = 'budget_periods'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     start_date = db.Column(db.Date, nullable=False)

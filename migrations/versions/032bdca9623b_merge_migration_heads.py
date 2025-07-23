@@ -1,4 +1,4 @@
-y"""Merge migration heads
+"""Merge migration heads
 
 Revision ID: 032bdca9623b
 Revises: 0bf4fef7d124, fabcb2dba27f

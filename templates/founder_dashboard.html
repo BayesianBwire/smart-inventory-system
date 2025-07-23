@@ -5,7 +5,12 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-12">
+        <d                                <a href="{{ url_for('pos') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-chart-line me-2"></i>Sales Analytics
+                                </a>
+                            </div>
+                            {% else %}
+                            <div class="text-center text-muted py-4">ss="col-12">
             <!-- Header Section -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
@@ -18,7 +23,7 @@
                     <button class="btn btn-outline-secondary" onclick="exportData()">
                         <i class="fas fa-download me-2"></i>Export Report
                     </button>
-                    <a href="{{ url_for('users') }}" class="btn btn-primary">
+                    <a href="{{ url_for('user_bp.list_users') }}" class="btn btn-primary">
                         <i class="fas fa-users me-2"></i>Manage Team
                     </a>
                 </div>
@@ -255,19 +260,19 @@
                         </div>
                         <div class="card-body">
                             <div class="d-grid gap-2">
-                                <a href="{{ url_for('users') }}" class="btn btn-primary">
+                                <a href="{{ url_for('user_bp.create_user') }}" class="btn btn-primary">
                                     <i class="fas fa-user-plus me-2"></i>Add Team Member
                                 </a>
-                                <a href="{{ url_for('inventory') }}" class="btn btn-outline-primary">
+                                <a href="{{ url_for('inventory.dashboard') }}" class="btn btn-outline-primary">
                                     <i class="fas fa-box me-2"></i>Manage Inventory
                                 </a>
                                 <a href="{{ url_for('pos') }}" class="btn btn-outline-success">
                                     <i class="fas fa-cash-register me-2"></i>Open POS
                                 </a>
-                                <a href="{{ url_for('payroll') }}" class="btn btn-outline-info">
+                                <a href="{{ url_for('payroll_bp.dashboard') }}" class="btn btn-outline-info">
                                     <i class="fas fa-money-bill me-2"></i>Process Payroll
                                 </a>
-                                <a href="{{ url_for('support') }}" class="btn btn-outline-warning">
+                                <a href="{{ url_for('support_bp.dashboard') }}" class="btn btn-outline-warning">
                                     <i class="fas fa-headset me-2"></i>Support Center
                                 </a>
                             </div>

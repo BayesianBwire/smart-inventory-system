@@ -18,8 +18,8 @@ class Dashboard(db.Model):
     name = Column(String(100), nullable=False)
     description = Column(Text)
     dashboard_type = Column(String(50), nullable=False)  # 'executive', 'operational', 'financial', 'sales', 'hr'
-    user_id = Column(Integer, ForeignKey('user.id'))
-    company_id = Column(Integer, ForeignKey('company.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    company_id = Column(Integer, ForeignKey('companies.id'))
     is_default = Column(Boolean, default=False)
     is_public = Column(Boolean, default=False)
     layout_config = Column(JSON)  # Widget positions and configurations
@@ -96,8 +96,8 @@ class Report(db.Model):
     template_path = Column(String(200))  # Custom template path
     is_scheduled = Column(Boolean, default=False)
     schedule_config = Column(JSON)  # Cron-like scheduling configuration
-    user_id = Column(Integer, ForeignKey('user.id'))
-    company_id = Column(Integer, ForeignKey('company.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    company_id = Column(Integer, ForeignKey('companies.id'))
     is_public = Column(Boolean, default=False)
     tags = Column(JSON)  # Report tags for organization
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -127,7 +127,7 @@ class ReportExecution(db.Model):
     
     id = Column(Integer, primary_key=True)
     report_id = Column(Integer, ForeignKey('reports.id'))
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     execution_time = Column(DateTime, default=datetime.utcnow)
     status = Column(String(20), default='pending')  # 'pending', 'running', 'completed', 'failed'
     parameters_used = Column(JSON)  # Parameters used for this execution
@@ -169,7 +169,7 @@ class KPIDefinition(db.Model):
     target_type = Column(String(20))  # 'higher_better', 'lower_better', 'target_range'
     unit = Column(String(20))  # 'currency', 'percentage', 'count', 'ratio'
     frequency = Column(String(20), default='daily')  # 'realtime', 'hourly', 'daily', 'weekly', 'monthly'
-    company_id = Column(Integer, ForeignKey('company.id'))
+    company_id = Column(Integer, ForeignKey('companies.id'))
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
@@ -230,8 +230,8 @@ class DataAlert(db.Model):
     recipients = Column(JSON)  # List of recipients
     is_active = Column(Boolean, default=True)
     check_frequency = Column(Integer, default=60)  # Check frequency in minutes
-    company_id = Column(Integer, ForeignKey('company.id'))
-    created_by = Column(Integer, ForeignKey('user.id'))
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    created_by = Column(Integer, ForeignKey('users.id'))
     created_at = Column(DateTime, default=datetime.utcnow)
     last_checked = Column(DateTime)
     last_triggered = Column(DateTime)
@@ -290,8 +290,8 @@ class DataExport(db.Model):
     sql_query = Column(Text)  # For custom exports
     format = Column(String(20), default='csv')  # 'csv', 'excel', 'json', 'sql'
     filters = Column(JSON)  # Export filters
-    user_id = Column(Integer, ForeignKey('user.id'))
-    company_id = Column(Integer, ForeignKey('company.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    company_id = Column(Integer, ForeignKey('companies.id'))
     requested_at = Column(DateTime, default=datetime.utcnow)
     started_at = Column(DateTime)
     completed_at = Column(DateTime)
@@ -319,7 +319,7 @@ class AnalyticsSession(db.Model):
     __tablename__ = 'analytics_sessions'
     
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     session_id = Column(String(100), nullable=False)
     start_time = Column(DateTime, default=datetime.utcnow)
     end_time = Column(DateTime)

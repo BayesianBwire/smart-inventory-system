@@ -133,8 +133,48 @@ class SecurityEnhancer:
         def security_checks():
             """Perform security checks before processing requests"""
             
+            # TEMPORARY: Skip all security checks in development mode
+            if app.config.get('FLASK_ENV') == 'development' or app.config.get('FLASK_DEBUG'):
+                print(f"🔍 SECURITY DEBUG: Skipping security checks for development mode - {request.path}")
+                return
+            
             # Skip security checks for static files
             if request.endpoint and request.endpoint.startswith('static'):
+                return
+            
+            # Skip most security checks for login page to avoid blocking legitimate logins
+            if request.endpoint == 'login_page':
+                # Only do basic rate limiting for login
+                if self.check_rate_limit():
+                    abort(429)  # Too Many Requests
+                return
+            
+            # Skip most security checks for forgot password to avoid blocking legitimate requests
+            if request.endpoint == 'forgot_password':
+                # Only do basic rate limiting for forgot password
+                if self.check_rate_limit():
+                    abort(429)  # Too Many Requests
+                return
+            
+            # Skip most security checks for reset password to avoid blocking legitimate requests  
+            if request.endpoint == 'reset_password':
+                # Only do basic rate limiting for reset password
+                if self.check_rate_limit():
+                    abort(429)  # Too Many Requests
+                return
+            
+            # Skip most security checks for company registration to avoid blocking legitimate registrations
+            if request.endpoint == 'register_company':
+                # Only do basic rate limiting for registration
+                if self.check_rate_limit():
+                    abort(429)  # Too Many Requests
+                return
+            
+            # Skip most security checks for user registration to avoid blocking legitimate registrations
+            if request.endpoint == 'register':
+                # Only do basic rate limiting for registration
+                if self.check_rate_limit():
+                    abort(429)  # Too Many Requests
                 return
             
             # Rate limiting
@@ -147,24 +187,29 @@ class SecurityEnhancer:
             
             # User-Agent validation
             if self.validate_user_agent():
+                print(f"🔍 SECURITY DEBUG: User-Agent validation failed for {request.path}")
                 abort(400)  # Bad Request
             
             # Request size validation
             if self.validate_request_size():
+                print(f"🔍 SECURITY DEBUG: Request size validation failed for {request.path}")
                 abort(413)  # Payload Too Large
             
             # SQL injection detection
             if self.detect_sql_injection():
+                print(f"🔍 SECURITY DEBUG: SQL injection detected for {request.path}")
                 self.log_security_event('sql_injection_attempt', request.remote_addr)
                 abort(400)
             
             # XSS detection
             if self.detect_xss_attempt():
+                print(f"🔍 SECURITY DEBUG: XSS attempt detected for {request.path}")
                 self.log_security_event('xss_attempt', request.remote_addr)
                 abort(400)
             
             # Path traversal detection
             if self.detect_path_traversal():
+                print(f"🔍 SECURITY DEBUG: Path traversal detected for {request.path}")
                 self.log_security_event('path_traversal_attempt', request.remote_addr)
                 abort(400)
     

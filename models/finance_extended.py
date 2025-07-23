@@ -53,7 +53,7 @@ class TaxRate(db.Model):
     __tablename__ = 'tax_rates'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     
     # Tax Details
     name = db.Column(db.String(100), nullable=False)  # VAT, GST, Sales Tax, etc.
@@ -105,8 +105,8 @@ class FinancialReport(db.Model):
     __tablename__ = 'financial_reports'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
-    generated_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
+    generated_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # Report Details
     report_name = db.Column(db.String(200), nullable=False)
@@ -139,8 +139,8 @@ class RecurringTransaction(db.Model):
     __tablename__ = 'recurring_transactions'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # Transaction Template
     name = db.Column(db.String(200), nullable=False)
@@ -223,7 +223,7 @@ class CashFlowCategory(db.Model):
     __tablename__ = 'cash_flow_categories'
     
     id = db.Column(db.Integer, primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
     
     # Category Details
     name = db.Column(db.String(100), nullable=False)

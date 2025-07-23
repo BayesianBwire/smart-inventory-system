@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, SelectField, PasswordField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms import StringField, SubmitField, TextAreaField, SelectField
+from wtforms.validators import DataRequired, Length, Email
 
 class CompanyForm(FlaskForm):
     # Company Information
@@ -32,15 +32,5 @@ class CompanyForm(FlaskForm):
         ('nonprofit', 'Non-Profit'),
         ('other', 'Other')
     ], validators=[DataRequired()])
-    
-    # Founder Information
-    founder_username = StringField('Founder Username', validators=[DataRequired(), Length(min=3, max=80)])
-    founder_email = StringField('Founder Email', validators=[DataRequired(), Email(), Length(max=120)])
-    founder_name = StringField('Founder Full Name', validators=[DataRequired(), Length(max=120)])
-    founder_password = PasswordField('Founder Password', validators=[DataRequired(), Length(min=6)])
-    confirm_password = PasswordField('Confirm Password', validators=[
-        DataRequired(), 
-        EqualTo('founder_password', message='Passwords must match')
-    ])
     
     submit = SubmitField('Register Company')

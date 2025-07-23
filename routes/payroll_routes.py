@@ -10,6 +10,21 @@ from utils.role_required import role_required  # ✅ Add this import
 
 payroll_bp = Blueprint("payroll_bp", __name__)
 
+@payroll_bp.route('/')
+@login_required
+def dashboard():
+    """Payroll dashboard with overview"""
+    # Get recent payrolls (no company filter since Payroll model doesn't have company_id)
+    payrolls = Payroll.query.order_by(Payroll.payment_date.desc()).limit(10).all()
+    return render_template('payroll/dashboard.html', payrolls=payrolls)
+
+@payroll_bp.route('/list')
+@login_required
+def view_payrolls():
+    """View all payrolls"""
+    payrolls = Payroll.query.order_by(Payroll.payment_date.desc()).all()
+    return render_template('payroll/list.html', payrolls=payrolls)
+
 @payroll_bp.route('/payroll/create', methods=['GET', 'POST'])
 @login_required
 @role_required('hr')  # ✅ Only HR role allowed

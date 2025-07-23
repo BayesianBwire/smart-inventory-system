@@ -1,488 +1,664 @@
 {% extends "base.html" %}
 {% block content %}
 
-<style>
-  section.module-section {
-    padding: 1.5rem 1rem;
-    border-radius: 0.3rem;
-    margin-bottom: 1.5rem;
-  }
-  .core-operations { background-color: #e9f5f5; }
-  .sales-marketing { background-color: #fff8e1; }
-  .finance-accounting { background-color: #e8f0fe; }
-  .human-resources { background-color: #fdecea; }
-  .projects-collaboration { background-color: #f3f0ff; }
-  .analytics-reports { background-color: #e6f4ea; }
-  .it-security { background-color: #fef6e4; }
-  .utilities { background-color: #f5f5f5; }
-  .dropdown-toggle {
-    cursor: pointer;
-    user-select: none;
-  }
-</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - RahaSoft ERP</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #1e40af;
+            --accent-color: #fbbf24;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-rahasoft: linear-gradient(135deg, #004d7a 0%, #008793 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
 
-<div class="container py-4">
-  <h3 class="mb-4 fw-bold" style="color: #36585C;">Welcome to RahaSoft Suite</h3>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <!-- Core Operations Section -->
-  <section class="core-operations module-section">
-    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('core-operations')">
-      🏢 Core Operations
-      <i class="fas fa-chevron-down ms-2" id="core-operations-icon"></i>
-    </h4>
-    <div id="core-operations-content" class="row">
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-boxes fa-2x mb-2" style="color: #36585C;"></i>
-              <h6 class="card-title">Inventory Management</h6>
-              <p class="card-text small">Track stock, manage suppliers, and optimize inventory levels</p>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin: 2rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-xl);
+            min-height: calc(100vh - 4rem);
+        }
+
+        /* Header Section */
+        .dashboard-header {
+            background: var(--gradient-rahasoft);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+        .dashboard-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Module Grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .module-category {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-category:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .module-category::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-rahasoft);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .module-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .core-operations .module-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .sales-marketing .module-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .finance-accounting .module-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .human-resources .module-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .analytics-reports .module-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .utilities .module-icon { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .module-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .module-item {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1rem 0.8rem;
+            text-align: center;
+            text-decoration: none;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .module-item:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            text-decoration: none;
+        }
+
+        .module-item i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            opacity: 0.8;
+        }
+
+        .module-item-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            
+            .dashboard-title {
+                font-size: 2rem;
+            }
+            
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Welcome Animation */
+        .welcome-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <div class="dashboard-header" data-aos="fade-down">
+            <div class="welcome-badge">
+                <i class="fas fa-user me-2"></i>Welcome back, {{ current_user.full_name }}!
             </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-warehouse fa-2x mb-2" style="color: #36585C;"></i>
-              <h6 class="card-title">Warehouse Management</h6>
-              <p class="card-text small">Organize storage, track locations, and manage logistics</p>
+            <h1 class="dashboard-title">RahaSoft Dashboard</h1>
+            <p class="dashboard-subtitle">Your complete business management platform</p>
+            
+            <div class="quick-stats">
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-number">24</div>
+                    <div class="stat-label">Active Modules</div>
+                </div>
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-number">₹2.5M</div>
+                    <div class="stat-label">Monthly Revenue</div>
+                </div>
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-label">System Uptime</div>
+                </div>
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-number">156</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
             </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-users fa-2x mb-2" style="color: #36585C;"></i>
-              <h6 class="card-title">Customer Management</h6>
-              <p class="card-text small">Maintain customer records, preferences, and history</p>
+        </div>
+
+        <!-- Modules Grid -->
+        <div class="modules-grid">
+            <!-- Core Operations -->
+            <div class="module-category core-operations" data-aos="fade-up" data-aos-delay="100">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3 class="module-title">Core Operations</h3>
+                </div>
+                <div class="module-items">
+                    <a href="/inventory" class="module-item">
+                        <i class="fas fa-boxes"></i>
+                        <div class="module-item-title">Inventory</div>
+                    </a>
+                    <a href="/warehouse" class="module-item">
+                        <i class="fas fa-warehouse"></i>
+                        <div class="module-item-title">Warehouse</div>
+                    </a>
+                    <a href="/suppliers" class="module-item">
+                        <i class="fas fa-truck"></i>
+                        <div class="module-item-title">Suppliers</div>
+                    </a>
+                    <a href="/procurement" class="module-item">
+                        <i class="fas fa-shopping-cart"></i>
+                        <div class="module-item-title">Procurement</div>
+                    </a>
+                </div>
             </div>
-          </div>
-        </a>
-      </div>
+
+            <!-- Sales & Marketing -->
+            <div class="module-category sales-marketing" data-aos="fade-up" data-aos-delay="200">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="module-title">Sales & Marketing</h3>
+                </div>
+                <div class="module-items">
+                    <a href="{{ url_for('crm.dashboard') }}" class="module-item">
+                        <i class="fas fa-users"></i>
+                        <div class="module-item-title">CRM</div>
+                    </a>
+                    <a href="/pos" class="module-item">
+                        <i class="fas fa-cash-register"></i>
+                        <div class="module-item-title">Point of Sale</div>
+                    </a>
+                    <a href="/leads" class="module-item">
+                        <i class="fas fa-user-plus"></i>
+                        <div class="module-item-title">Lead Management</div>
+                    </a>
+                    <a href="/campaigns" class="module-item">
+                        <i class="fas fa-bullhorn"></i>
+                        <div class="module-item-title">Campaigns</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Finance & Accounting -->
+            <div class="module-category finance-accounting" data-aos="fade-up" data-aos-delay="300">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3 class="module-title">Finance & Accounting</h3>
+                </div>
+                <div class="module-items">
+                    <a href="{{ url_for('finance.dashboard') }}" class="module-item">
+                        <i class="fas fa-chart-pie"></i>
+                        <div class="module-item-title">Finance Dashboard</div>
+                    </a>
+                    <a href="/invoicing" class="module-item">
+                        <i class="fas fa-file-invoice"></i>
+                        <div class="module-item-title">Invoicing</div>
+                    </a>
+                    <a href="/payments" class="module-item">
+                        <i class="fas fa-credit-card"></i>
+                        <div class="module-item-title">Payments</div>
+                    </a>
+                    <a href="/expenses" class="module-item">
+                        <i class="fas fa-receipt"></i>
+                        <div class="module-item-title">Expenses</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Human Resources -->
+            <div class="module-category human-resources" data-aos="fade-up" data-aos-delay="400">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <h3 class="module-title">Human Resources</h3>
+                </div>
+                <div class="module-items">
+                    <a href="/employees" class="module-item">
+                        <i class="fas fa-id-badge"></i>
+                        <div class="module-item-title">Employees</div>
+                    </a>
+                    <a href="/payroll" class="module-item">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <div class="module-item-title">Payroll</div>
+                    </a>
+                    <a href="/attendance" class="module-item">
+                        <i class="fas fa-clock"></i>
+                        <div class="module-item-title">Attendance</div>
+                    </a>
+                    <a href="/leave" class="module-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div class="module-item-title">Leave Management</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Analytics & Reports -->
+            <div class="module-category analytics-reports" data-aos="fade-up" data-aos-delay="500">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3 class="module-title">Analytics & Reports</h3>
+                </div>
+                <div class="module-items">
+                    <a href="{{ url_for('business_intelligence.dashboards') }}" class="module-item">
+                        <i class="fas fa-brain"></i>
+                        <div class="module-item-title">Business Intelligence</div>
+                    </a>
+                    <a href="/reports" class="module-item">
+                        <i class="fas fa-file-alt"></i>
+                        <div class="module-item-title">Reports</div>
+                    </a>
+                    <a href="/analytics" class="module-item">
+                        <i class="fas fa-chart-area"></i>
+                        <div class="module-item-title">Analytics</div>
+                    </a>
+                    <a href="/kpis" class="module-item">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <div class="module-item-title">KPIs</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Utilities & Tools -->
+            <div class="module-category utilities" data-aos="fade-up" data-aos-delay="600">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3 class="module-title">Utilities & Tools</h3>
+                </div>
+                <div class="module-items">
+                    <a href="{{ url_for('security.security_dashboard') }}" class="module-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <div class="module-item-title">Security</div>
+                    </a>
+                    <a href="/settings" class="module-item">
+                        <i class="fas fa-cog"></i>
+                        <div class="module-item-title">Settings</div>
+                    </a>
+                    <a href="/backups" class="module-item">
+                        <i class="fas fa-database"></i>
+                        <div class="module-item-title">Backups</div>
+                    </a>
+                    <a href="/support" class="module-item">
+                        <i class="fas fa-life-ring"></i>
+                        <div class="module-item-title">Support</div>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-  </section>
+    <!-- Enterprise Footer -->
+    <footer class="enterprise-footer" style="background: var(--gradient-rahasoft); color: white; padding: 2rem 0; margin-top: 2rem; border-radius: 0 0 20px 20px; box-shadow: var(--shadow-lg);">
+        <div class="container" style="max-width: 1200px; margin: auto;">
+            <div class="row" style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between;">
+                <div class="col" style="flex: 1 1 220px; min-width: 220px;">
+                    <h4 style="font-family: 'Playfair Display', serif;">Enterprise Modules</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><a href="/inventory" style="color: white;">Inventory</a></li>
+                        <li><a href="/warehouse" style="color: white;">Warehouse</a></li>
+                        <li><a href="/suppliers" style="color: white;">Suppliers</a></li>
+                        <li><a href="/procurement" style="color: white;">Procurement</a></li>
+                        <li><a href="{{ url_for('crm.dashboard') }}" style="color: white;">CRM</a></li>
+                        <li><a href="/pos" style="color: white;">Point of Sale</a></li>
+                        <li><a href="/leads" style="color: white;">Leads</a></li>
+                        <li><a href="/campaigns" style="color: white;">Campaigns</a></li>
+                        <li><a href="{{ url_for('finance.dashboard') }}" style="color: white;">Finance</a></li>
+                        <li><a href="/invoicing" style="color: white;">Invoicing</a></li>
+                        <li><a href="/payments" style="color: white;">Payments</a></li>
+                        <li><a href="/expenses" style="color: white;">Expenses</a></li>
+                        <li><a href="/employees" style="color: white;">Employees</a></li>
+                        <li><a href="/payroll" style="color: white;">Payroll</a></li>
+                        <li><a href="/attendance" style="color: white;">Attendance</a></li>
+                        <li><a href="/leave" style="color: white;">Leave</a></li>
+                        <li><a href="{{ url_for('business_intelligence.dashboards') }}" style="color: white;">Business Intelligence</a></li>
+                        <li><a href="/reports" style="color: white;">Reports</a></li>
+                        <li><a href="/analytics" style="color: white;">Analytics</a></li>
+                        <li><a href="/kpis" style="color: white;">KPIs</a></li>
+                        <li><a href="{{ url_for('security.security_dashboard') }}" style="color: white;">Security</a></li>
+                        <li><a href="/settings" style="color: white;">Settings</a></li>
+                        <li><a href="/backups" style="color: white;">Backups</a></li>
+                        <li><a href="/support" style="color: white;">Support</a></li>
+                    </ul>
+                </div>
+                <div class="col" style="flex: 1 1 220px; min-width: 220px;">
+                    <h4 style="font-family: 'Playfair Display', serif;">Support & Resources</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><a href="/support" style="color: white;">Help Center</a></li>
+                        <li><a href="mailto:support@rahasoft.com" style="color: white;">Email Support</a></li>
+                        <li><a href="/docs" style="color: white;">Documentation</a></li>
+                        <li><a href="/api/v1" style="color: white;">API Reference</a></li>
+                        <li><a href="/privacy" style="color: white;">Privacy Policy</a></li>
+                        <li><a href="/terms" style="color: white;">Terms of Service</a></li>
+                        <li><a href="/compliance" style="color: white;">Compliance & Security</a></li>
+                        <li><a href="/enterprise" style="color: white;">Enterprise Solutions</a></li>
+                    </ul>
+                </div>
+                <div class="col" style="flex: 1 1 220px; min-width: 220px;">
+                    <h4 style="font-family: 'Playfair Display', serif;">Company</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><a href="/about" style="color: white;">About RahaSoft</a></li>
+                        <li><a href="/careers" style="color: white;">Careers</a></li>
+                        <li><a href="/partners" style="color: white;">Partners</a></li>
+                        <li><a href="/blog" style="color: white;">Blog</a></li>
+                        <li><a href="/contact" style="color: white;">Contact Us</a></li>
+                        <li><a href="/press" style="color: white;">Press</a></li>
+                        <li><a href="/investors" style="color: white;">Investors</a></li>
+                    </ul>
+                </div>
+                <div class="col" style="flex: 1 1 220px; min-width: 220px;">
+                    <h4 style="font-family: 'Playfair Display', serif;">Compliance & Certifications</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>ISO 27001 Certified</li>
+                        <li>GDPR Compliant</li>
+                        <li>PCI DSS Secure</li>
+                        <li>HIPAA Ready</li>
+                        <li>99.99% Uptime SLA</li>
+                        <li>Data Encryption</li>
+                        <li>Audit Logging</li>
+                        <li>Enterprise Security</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2rem; font-size: 0.95rem; opacity: 0.85;">
+                &copy; {{ current_year or 2025 }} RahaSoft ERP. All rights reserved. | <a href="/enterprise" style="color: #fbbf24;">Enterprise Solutions</a>
+            </div>
+        </div>
+    </footer>
 
-  <!-- Sales & Marketing Section -->
-  <section class="sales-marketing module-section">
-    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('sales-marketing')">
-      📈 Sales & Marketing
-      <i class="fas fa-chevron-down ms-2" id="sales-marketing-icon"></i>
-    </h4>
-    <div id="sales-marketing-content" class="row">
-      <div class="col-md-4 mb-3">
-        <a href="{{ url_for('crm.dashboard') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-users fa-2x mb-2" style="color: #f39c12;"></i>
-              <h6 class="card-title">Customer Relationship Management</h6>
-              <p class="card-text small">Manage leads, customers, opportunities, and sales pipeline</p>
+    <!-- Company Creation Modal -->
+    {% if show_company_modal %}
+    <div class="modal fade" id="companyModal" tabindex="-1" aria-labelledby="companyModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: var(--gradient-rahasoft); color: white;">
+                    <h5 class="modal-title" id="companyModalLabel">
+                        <i class="fas fa-building me-2"></i>Create Your Company
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Welcome! To continue using RahaSoft, you need to create or join a company. Please fill in your company details below.
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('create_company_from_dashboard') }}">
+                        {{ company_form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ company_form.name.label(class="form-label fw-bold") }}
+                                {{ company_form.name(class="form-control") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ company_form.email.label(class="form-label fw-bold") }}
+                                {{ company_form.email(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ company_form.phone.label(class="form-label") }}
+                                {{ company_form.phone(class="form-control") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ company_form.industry.label(class="form-label fw-bold") }}
+                                {{ company_form.industry(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ company_form.address.label(class="form-label") }}
+                            {{ company_form.address(class="form-control", rows="3") }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                {{ company_form.city.label(class="form-label") }}
+                                {{ company_form.city(class="form-control") }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ company_form.state.label(class="form-label") }}
+                                {{ company_form.state(class="form-control") }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ company_form.country.label(class="form-label") }}
+                                {{ company_form.country(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ company_form.postal_code.label(class="form-label") }}
+                                {{ company_form.postal_code(class="form-control") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ company_form.website.label(class="form-label") }}
+                                {{ company_form.website(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ company_form.description.label(class="form-label") }}
+                            {{ company_form.description(class="form-control", rows="3") }}
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Company
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-cash-register fa-2x mb-2" style="color: #f39c12;"></i>
-              <h6 class="card-title">Point of Sale (POS)</h6>
-              <p class="card-text small">Process sales, manage transactions, and track daily revenue</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-chart-line fa-2x mb-2" style="color: #f39c12;"></i>
-              <h6 class="card-title">Sales Analytics</h6>
-              <p class="card-text small">Analyze sales trends, performance metrics, and forecasts</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-bullhorn fa-2x mb-2" style="color: #f39c12;"></i>
-              <h6 class="card-title">Marketing Campaigns</h6>
-              <p class="card-text small">Create and manage marketing campaigns and promotions</p>
-            </div>
-          </div>
-        </a>
-      </div>
+        </div>
     </div>
-  </section>
+    {% endif %}
 
-  <!-- Finance & Accounting Section -->
-  <section class="finance-accounting module-section">
-    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('finance-accounting')">
-      💰 Finance & Accounting
-      <i class="fas fa-chevron-down ms-2" id="finance-accounting-icon"></i>
-    </h4>
-    <div id="finance-accounting-content" class="row">
-      <div class="col-md-4 mb-3">
-        <a href="{{ url_for('finance.dashboard') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-tachometer-alt fa-2x mb-2" style="color: #27ae60;"></i>
-              <h6 class="card-title">Finance Dashboard</h6>
-              <p class="card-text small">Overview of financial metrics, revenue, expenses, and cash flow</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="{{ url_for('finance.invoices') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-file-invoice-dollar fa-2x mb-2" style="color: #27ae60;"></i>
-              <h6 class="card-title">Invoicing</h6>
-              <p class="card-text small">Create, send, and manage customer invoices and billing</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="{{ url_for('finance.expenses') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-receipt fa-2x mb-2" style="color: #27ae60;"></i>
-              <h6 class="card-title">Expense Management</h6>
-              <p class="card-text small">Track and manage business expenses and vendor payments</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="{{ url_for('finance.payments') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-credit-card fa-2x mb-2" style="color: #27ae60;"></i>
-              <h6 class="card-title">Payment Processing</h6>
-              <p class="card-text small">Record and track customer payments and transactions</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="{{ url_for('finance.accounts') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-chart-pie fa-2x mb-2" style="color: #27ae60;"></i>
-              <h6 class="card-title">Chart of Accounts</h6>
-              <p class="card-text small">Manage accounting structure and financial categories</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="{{ url_for('finance.reports') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-chart-bar fa-2x mb-2" style="color: #27ae60;"></i>
-              <h6 class="card-title">Financial Reports</h6>
-              <p class="card-text small">Generate P&L, balance sheet, and cash flow reports</p>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-file-invoice fa-2x mb-2" style="color: #3498db;"></i>
-              <h6 class="card-title">Invoicing & Billing</h6>
-              <p class="card-text small">Generate invoices, track payments, and manage billing</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-calculator fa-2x mb-2" style="color: #3498db;"></i>
-              <h6 class="card-title">Financial Reports</h6>
-              <p class="card-text small">Generate P&L, balance sheets, and financial statements</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-credit-card fa-2x mb-2" style="color: #3498db;"></i>
-              <h6 class="card-title">Payment Processing</h6>
-              <p class="card-text small">Handle various payment methods and transaction processing</p>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
+    <!-- AOS Animation JavaScript -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
 
-  <!-- Human Resources Section -->
-  <section class="human-resources module-section">
-    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('human-resources')">
-      👥 Human Resources
-      <i class="fas fa-chevron-down ms-2" id="human-resources-icon"></i>
-    </h4>
-    <div id="human-resources-content" class="row">
-      <div class="col-md-4 mb-3">
-        <a href="/employees/" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-user-tie fa-2x mb-2" style="color: #e74c3c;"></i>
-              <h6 class="card-title">Employee Management</h6>
-              <p class="card-text small">Manage employee records, contracts, and profiles</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="/payroll/" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-money-check-alt fa-2x mb-2" style="color: #e74c3c;"></i>
-              <h6 class="card-title">Payroll Management</h6>
-              <p class="card-text small">Process payroll, calculate salaries, and manage deductions</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-clock fa-2x mb-2" style="color: #e74c3c;"></i>
-              <h6 class="card-title">Time & Attendance</h6>
-              <p class="card-text small">Track working hours, attendance, and leave management</p>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Projects & Collaboration Section -->
-  <section class="projects-collaboration module-section">
-    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('projects-collaboration')">
-      🚀 Projects & Collaboration
-      <i class="fas fa-chevron-down ms-2" id="projects-collaboration-icon"></i>
-    </h4>
-    <div id="projects-collaboration-content" class="row">
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-tasks fa-2x mb-2" style="color: #9b59b6;"></i>
-              <h6 class="card-title">Project Management</h6>
-              <p class="card-text small">Plan, track, and manage projects and tasks</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-comments fa-2x mb-2" style="color: #9b59b6;"></i>
-              <h6 class="card-title">Team Communication</h6>
-              <p class="card-text small">Internal messaging, announcements, and collaboration tools</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-calendar-alt fa-2x mb-2" style="color: #9b59b6;"></i>
-              <h6 class="card-title">Schedule Management</h6>
-              <p class="card-text small">Manage appointments, meetings, and resource booking</p>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Analytics & Reports Section -->
-  <section class="analytics-reports module-section">
-    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('analytics-reports')">
-      📊 Analytics & Reports
-      <i class="fas fa-chevron-down ms-2" id="analytics-reports-icon"></i>
-    </h4>
-    <div id="analytics-reports-content" class="row">
-      <div class="col-md-4 mb-3">
-        <a href="{{ url_for('business_intelligence.analytics') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-chart-bar fa-2x mb-2" style="color: #27ae60;"></i>
-              <h6 class="card-title">Business Intelligence</h6>
-              <p class="card-text small">Advanced analytics and business intelligence dashboards</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="{{ url_for('workflow.workflow_dashboard') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-project-diagram fa-2x mb-2" style="color: #27ae60;"></i>
-              <h6 class="card-title">Workflow & Automation</h6>
-              <p class="card-text small">Process automation, workflows, and approval management</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-file-export fa-2x mb-2" style="color: #27ae60;"></i>
-              <h6 class="card-title">Custom Reports</h6>
-              <p class="card-text small">Create and generate custom reports and exports</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-tachometer-alt fa-2x mb-2" style="color: #27ae60;"></i>
-              <h6 class="card-title">Performance Metrics</h6>
-              <p class="card-text small">KPI tracking and performance measurement tools</p>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- IT & Security Section -->
-  <section class="it-security module-section">
-    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('it-security')">
-      🔒 IT & Security
-      <i class="fas fa-chevron-down ms-2" id="it-security-icon"></i>
-    </h4>
-    <div id="it-security-content" class="row">
-      <div class="col-md-4 mb-3">
-        <a href="/users/" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-user-shield fa-2x mb-2" style="color: #f39c12;"></i>
-              <h6 class="card-title">User Management</h6>
-              <p class="card-text small">Manage user accounts, roles, and permissions</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-database fa-2x mb-2" style="color: #f39c12;"></i>
-              <h6 class="card-title">Backup & Recovery</h6>
-              <p class="card-text small">Data backup, recovery, and system maintenance</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-cogs fa-2x mb-2" style="color: #f39c12;"></i>
-              <h6 class="card-title">System Settings</h6>
-              <p class="card-text small">Configure system preferences and administrative settings</p>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Utilities Section -->
-  <section class="utilities module-section">
-    <h4 class="dropdown-toggle fw-bold text-dark mb-3" onclick="toggleSection('utilities')">
-      🛠️ Utilities
-      <i class="fas fa-chevron-down ms-2" id="utilities-icon"></i>
-    </h4>
-    <div id="utilities-content" class="row">
-      <div class="col-md-4 mb-3">
-        <a href="/support/" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-life-ring fa-2x mb-2" style="color: #95a5a6;"></i>
-              <h6 class="card-title">Support & Help</h6>
-              <p class="card-text small">Get help, submit tickets, and access documentation</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-file-import fa-2x mb-2" style="color: #95a5a6;"></i>
-              <h6 class="card-title">Data Import/Export</h6>
-              <p class="card-text small">Import data from external sources and export reports</p>
-            </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="#" class="text-decoration-none">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-              <i class="fas fa-bell fa-2x mb-2" style="color: #95a5a6;"></i>
-              <h6 class="card-title">Notifications</h6>
-              <p class="card-text small">Manage alerts, reminders, and system notifications</p>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-</div>
-
-<script>
-function toggleSection(sectionId) {
-  const content = document.getElementById(sectionId + '-content');
-  const icon = document.getElementById(sectionId + '-icon');
-  
-  if (content.style.display === 'none') {
-    content.style.display = 'block';
-    icon.className = 'fas fa-chevron-down ms-2';
-  } else {
-    content.style.display = 'none';
-    icon.className = 'fas fa-chevron-right ms-2';
-  }
-}
-
-// Initialize all sections as expanded
-document.addEventListener('DOMContentLoaded', function() {
-  const sections = ['core-operations', 'sales-marketing', 'finance-accounting', 'human-resources', 
-                   'projects-collaboration', 'analytics-reports', 'it-security', 'utilities'];
-  
-  sections.forEach(function(sectionId) {
-    const content = document.getElementById(sectionId + '-content');
-    content.style.display = 'block';
-  });
-});
-</script>
+        // Show company modal if needed
+        {% if show_company_modal %}
+        document.addEventListener('DOMContentLoaded', function() {
+            var companyModal = new bootstrap.Modal(document.getElementById('companyModal'));
+            companyModal.show();
+        });
+        {% endif %}
+    </script>
+</body>
+</html>
 
 {% endblock %}

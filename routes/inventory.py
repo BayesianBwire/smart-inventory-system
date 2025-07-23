@@ -49,9 +49,9 @@ def dashboard():
         Product.id,
         Product.product_name,
         func.sum(Sale.quantity).label('total_sold')
-    ).join(Sale).filter(
+    ).join(Sale, Product.product_name == Sale.product_name).filter(
         Product.company_id == company_id,
-        Sale.sale_date >= thirty_days_ago
+        Sale.date_created >= thirty_days_ago
     ).group_by(Product.id, Product.product_name).order_by(
         desc(func.sum(Sale.quantity))
     ).limit(5).all()
@@ -215,7 +215,7 @@ def product_detail(product_id):
     recent_sales = Sale.query.filter_by(
         product_id=product_id,
         company_id=current_user.company_id
-    ).order_by(desc(Sale.sale_date)).limit(10).all()
+    ).order_by(desc(Sale.date_created)).limit(10).all()
     
     # Calculate analytics
     analytics = {
